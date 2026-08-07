@@ -65,6 +65,11 @@
   header h1 span{color:var(--gold);font-weight:900;}
   .header-sub{margin-top:.25rem;font-size:.72rem;color:#A0AEC0;font-weight:300;}
   .header-badge{background:rgba(201,150,58,.15);border:1px solid rgba(201,150,58,.4);color:var(--gold-l);font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;padding:.3rem .9rem;border-radius:4px;letter-spacing:.04em;}
+  .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;}
+  .header-links{display:flex;gap:.4rem;}
+  .hdr-link-btn{display:inline-flex;align-items:center;gap:.3rem;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#A0AEC0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:3px;padding:.25rem .6rem;text-decoration:none;transition:background .15s,color .15s,border-color .15s;}
+  .hdr-link-btn:hover{background:rgba(201,150,58,.15);border-color:rgba(201,150,58,.4);color:var(--gold-l);}
+  .hdr-link-btn svg{width:10px;height:10px;flex-shrink:0;}
 
   /* TABS */
   .tabs-bar{
@@ -298,8 +303,8 @@
 
   .portada-hero{
     background:linear-gradient(135deg,var(--navy) 0%,#112236 60%,#0D1B2A 100%);
-    padding:3rem 3rem 2.5rem;flex:1;
-    display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;
+    padding:1.5rem 2.5rem 1.2rem;flex:1;
+    display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;
     position:relative;overflow:hidden;
   }
   .portada-hero::before{
@@ -319,7 +324,7 @@
   .portada-eyebrow{
     font-size:.6rem;font-weight:700;letter-spacing:.22em;
     text-transform:uppercase;color:var(--gold);
-    margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem;
+    margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;
   }
   .portada-eyebrow::before{
     content:'';display:inline-block;
@@ -329,13 +334,13 @@
     font-family:'Inter',sans-serif;
     font-size:3.2rem;font-weight:900;
     color:#fff;line-height:.95;
-    margin-bottom:1.2rem;letter-spacing:-.03em;
+    margin-bottom:.6rem;letter-spacing:-.03em;
   }
   .portada-title span{color:var(--gold);}
   .portada-subtitle{
     font-size:.75rem;color:#7A95AF;
     font-weight:300;line-height:1.65;
-    margin-bottom:1.4rem;max-width:340px;
+    margin-bottom:.8rem;max-width:340px;
   }
   .portada-concepto{
     font-size:.65rem;color:#3A5A7A;font-style:italic;
@@ -345,15 +350,15 @@
 
   /* columna derecha — cards */
   .portada-hero-right{
-    display:grid;grid-template-columns:1fr 1fr;gap:.65rem;
+    display:grid;grid-template-columns:1fr 1fr;gap:.4rem;
     position:relative;z-index:1;
   }
   .portada-cards{display:contents;}
   .portada-card{
     background:rgba(255,255,255,.04);
     border:1px solid rgba(201,150,58,.12);
-    border-radius:8px;padding:1rem;cursor:pointer;
-    transition:all .22s;display:flex;flex-direction:column;gap:.35rem;
+    border-radius:7px;padding:.55rem .75rem;cursor:pointer;
+    transition:all .22s;display:flex;flex-direction:column;gap:.2rem;
     position:relative;overflow:hidden;
   }
   .portada-card::before{
@@ -382,8 +387,8 @@
 
   /* stats bar */
   .portada-stats{
-    background:#0A1628;border-top:1px solid rgba(201,150,58,.12);
-    display:flex;padding:.9rem 3rem;
+    background:#0A1628;border-top:1px solid rgba(201,150,58,.2);
+    display:flex;padding:1.2rem 2.5rem;
   }
   .ps-item{
     flex:1;text-align:center;
@@ -392,8 +397,8 @@
   .ps-item:last-child{border-right:none;}
   .ps-num{
     font-family:'Inter',sans-serif;
-    font-size:1.5rem;font-weight:900;color:#fff;
-    line-height:1;letter-spacing:-.02em;
+    font-size:2.4rem;font-weight:900;color:#fff;
+    line-height:1;letter-spacing:-.03em;
   }
   .ps-num.gold{color:var(--gold);}
   .ps-label{
@@ -1034,7 +1039,27 @@
       <h1>Portal <span>Plan Estratégico</span></h1>
       <div class="header-sub">Repositorio institucional interactivo · 2026–2030</div>
     </div>
-    <div class="header-badge">2026 – 2030</div>
+    <div class="header-right">
+      <div class="header-badge">2026 – 2030</div>
+      <div class="header-links">
+        <a class="hdr-link-btn"
+           href="https://www.econo.unlp.edu.ar/facultad/autoridades-3020"
+           target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+          </svg>
+          Autoridades
+        </a>
+        <a class="hdr-link-btn"
+           href="https://www.econo.unlp.edu.ar/facultad/la-facultad-presento-las-acciones-estrategicas-del-plan-estrategico-2026-2030-10362"
+           target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 3h12M2 7h9M2 11h7"/><circle cx="13" cy="12" r="2.5"/>
+          </svg>
+          Noticia PE
+        </a>
+      </div>
+    </div>
   </div>
   <nav class="tabs-bar">
     <button class="tab-btn active" id="tabInicio"    onclick="switchTab('inicio')"><span class="tab-icon">🏠</span> Inicio</button>
@@ -1314,21 +1339,19 @@
           <div class="pc-desc">Seguimiento trimestral e hitos 2026–2030</div>
           <div class="pc-meta"><span id="portadaPct">—</span> <span class="pc-arrow">→</span></div>
         </div>
-        <!-- espacio vacío para mantener la grilla 2 columnas -->
-        <div style="display:none;"></div>
-        <!-- 6. Tablero Institucional — ancho completo -->
+        <!-- 6. Seguimiento PE — mismo tamaño -->
+        <div class="portada-card" style="--card-color:#C9963A" onclick="switchTab('seguimiento')">
+          <div class="pc-icon">📈</div>
+          <div class="pc-title">Seguimiento PE</div>
+          <div class="pc-desc">Monitoreo de avance por secretaría y objetivo estratégico</div>
+          <div class="pc-meta">Disponible oct 2026 <span class="pc-arrow">→</span></div>
+        </div>
+        <!-- 7. Tablero Institucional — ancho completo -->
         <div class="portada-card wide" style="--card-color:#1A5276" onclick="switchTab('tablero')">
           <div class="pc-icon">📊</div>
           <div class="pc-title">Tablero Institucional</div>
           <div class="pc-desc">Indicadores clave de la FCE: aspirantes, egresados, retención y tendencias 2016–2024 por carrera. El tablero más importante para la gestión cotidiana.</div>
           <div class="pc-meta">Datos 2023–2024 · Filtro por carrera <span class="pc-arrow">→</span></div>
-        </div>
-        <!-- 7. Seguimiento PE — ancho completo -->
-        <div class="portada-card wide" style="--card-color:#C9963A" onclick="switchTab('seguimiento')">
-          <div class="pc-icon">📈</div>
-          <div class="pc-title">Seguimiento del Plan Estratégico</div>
-          <div class="pc-desc">Monitoreo de avance por secretaría y objetivo estratégico. Primera revisión: octubre 2026 — reuniones individuales con cada secretario.</div>
-          <div class="pc-meta">Disponible oct 2026 <span class="pc-arrow">→</span></div>
         </div>
       </div>
     </div><!-- portada-hero-right -->
@@ -1356,7 +1379,7 @@
             <th class="area-head" data-area="CD">CD</th>
             <th class="area-head" data-area="EXT">EXT</th>
             <th class="area-head" data-area="INV">INV</th>
-            <th class="area-head" data-area="PCG">PCG</th>
+            <th class="area-head" data-area="PCI">PCI</th>
             <th class="area-head" data-area="POS">POS</th>
             <th class="area-head" data-area="SAA">SAA</th>
             <th class="area-head" data-area="SAF">SAF</th>
@@ -1646,7 +1669,7 @@
     <div class="lt-res-card">
       <div class="lt-res-label">Próximo hito</div>
       <div class="lt-res-val">Oct 2026</div>
-      <div class="lt-res-sub">Reuniones individuales · avances a Sep 2026</div>
+      <div class="lt-res-sub">Reuniones individuales · corte 30/09/2026</div>
     </div>
     <div class="lt-res-card">
       <div class="lt-res-label">Hitos realizados</div>
@@ -1872,20 +1895,20 @@
 </div><!-- page-wrap -->
 
 <script>
-const AREAS = ['BIE','CD','EXT','INV','PCG','POS','SAA','SAF','UCI'];
-const AREA_COLORS = {BIE:'#1A5276',CD:'#7B241C',EXT:'#145A32',INV:'#4A235A',PCG:'#784212',POS:'#1F618D',SAA:'#0B6E4F',SAF:'#1A5276',UCI:'#922B21'};
+const AREAS = ['BIE','CD','EXT','INV','PCI','POS','SAA','SAF','UCI'];
+const AREA_COLORS = {BIE:'#1A5276',CD:'#7B241C',EXT:'#145A32',INV:'#4A235A',PCI:'#784212',POS:'#1F618D',SAA:'#0B6E4F',SAF:'#1A5276',UCI:'#922B21'};
 const AREA_NAMES = {
   BIE:'Secretaría de Bienestar Universitario y PIL',
   CD:'Secretaría de Consejo Directivo',
   EXT:'Secretaría de Extensión Universitaria',
   INV:'Secretaría de Investigación y Vinculación Tecnológica',
-  PCG:'Secretaría de Planificación y Control de Gestión',
+  PCI:'Secretaría de Planificación y Control Institucional',
   POS:'Secretaría de Posgrado',
   SAA:'Secretaría de Asuntos Académicos',
   SAF:'Secretaría de Administración y Finanzas',
   UCI:'Comunicación Institucional'
 };
-const AREA_TOTALS = {BIE:19,CD:3,EXT:11,INV:15,PCG:6,POS:13,SAA:26,SAF:17,UCI:11};
+const AREA_TOTALS = {BIE:19,CD:3,EXT:11,INV:15,PCI:6,POS:13,SAA:26,SAF:17,UCI:11};
 
 const EES = [
   {id:'ee1',label:'EE 1',cls:'ee1-row',stripe:'ee1-stripe',name:'Vinculación institucional, compromiso social y desarrollo territorial'},
@@ -1903,7 +1926,7 @@ const OES = [
   {code:'OE 2.4',ee:'ee2',desc:'Gestionar, actualizar y ampliar la oferta académica de posgrados',areas:{INV:1,POS:3},total:4},
   {code:'OE 2.5',ee:'ee2',desc:'Consolidar la producción científica y la investigación',areas:{INV:2,POS:1,UCI:1,SAA:2},total:6},
   {code:'OE 3.1',ee:'ee3',desc:'Optimizar la eficiencia y calidad de los procesos administrativos',areas:{BIE:1,CD:1,INV:1,POS:2,SAF:6,UCI:1,SAA:3},total:15},
-  {code:'OE 3.2',ee:'ee3',desc:'Desarrollar y consolidar los sistemas de información institucional',areas:{INV:1,PCG:6,POS:2,SAF:7,SAA:2},total:18},
+  {code:'OE 3.2',ee:'ee3',desc:'Desarrollar y consolidar los sistemas de información institucional',areas:{INV:1,PCI:6,POS:2,SAF:7,SAA:2},total:18},
   {code:'OE 3.3',ee:'ee3',desc:'Robustecer los canales de atención a la comunidad universitaria',areas:{BIE:10,CD:1,POS:1,UCI:1,SAA:1},total:14},
   {code:'OE 3.4',ee:'ee3',desc:'Mejorar la comunicación y articulación entre las distintas Áreas',areas:{CD:1,INV:2,POS:1,SAF:2,UCI:2},total:8},
   {code:'OE 3.5',ee:'ee3',desc:'Programa de Gestión Sustentable del Edificio de la FCE',areas:{SAF:2},total:2}
@@ -2246,39 +2269,39 @@ const ACCIONES = {
      plazo:'Segundo Semestre 2026: Exposiciónd e datos 1 centros de investigación. Año 2027: Desarrollo informático de las plantillas base de visualización y lanzamiento de las primeras asistencias técnicas. Año 2028 en adelante: Operatividad plena del flujo continuo de carga y actualización sistemática (evaluable cuatrimestralmente).'}
   ],
 
-  // ── PCG ──────────────────────────────────────────────────────────────────
-  'PCG|OE 3.2': [
-    {cod:'PCG-3.2.1',
+  // ── PCI ──────────────────────────────────────────────────────────────────
+  'PCI|OE 3.2': [
+    {cod:'PCI-3.2.1',
      diag:'Interesa conocer el grado de satisfacción de los alumnos con distintos aspectos del proceso enseñanza - aprendizaje y  las condiciones laborales en las cuales han llevado adelante las mismas. Desde el año 2023 que la generación de encuestas a los alumnos no puede realizarse por un cambio de sistema informático impulsado desde el CESPI. Este año se reestableció el sistema con algunas dificultades y se está realizando la prueba piloto. Se aprovechó la oportunidad para modificar el cuestionario.',
      accion:'Encuestar a los alumnos al terminar la cursada respectiva.',
      resultado:'Reportes de satisfacción por materia y comisión luego de 3 meses de terminada la cursada (se da tiempo suficiente para que contesten los estudiantes hasta llegar a un tamaño de muestra representativo. Se espera que los reportes sean utilizados como feedback por parte del cuerpo docente para implementar mejoras así com captar situaciones irregulares.',
      indicador:'Cantidad de respuestas por encuesta materia en el semestre respectivo. Cantidad de reportes generados.',
      plazo:'1 para la primera salida de reportes completa (todas las materias)'},
-    {cod:'PCG-3.2.2',
+    {cod:'PCI-3.2.2',
      diag:'Desde 2024 no se tiene acceso al reporte de caracterización de los ingresantes. Por lo tanto se propone hacer el relevamiento desde la FCE para conocer las características socio demograficas de los ingresantes',
      accion:'Realizar una encuesta a ingresantes',
      resultado:'Informe publicado',
      indicador:'Base de datos e Informe con periodicidad anual',
      plazo:'1 año'},
-    {cod:'PCG-3.2.3',
+    {cod:'PCI-3.2.3',
      diag:'Actualmente se tiene acceso al sistema PIASA que posee indicadores oficiales con 1 año de rezago. Este sistema provee algunos indicadores que pueden formar parte de la comunicaciones oficiales. También se está gestionando el acceso al sistema de Reportes Cespi que provee información fundamentalmente sobre el avance de la carrera, promedios y graduados. Desde 2024 no se cuenta con el reporte de caracterización de ingresantes. Se propone sintetizar en 8 indicadores básicos de las carreras de grado, utlimo dato disponible, variaciones porcentuales respecto al año anterior . El tablero estará en formato POWER BI o Excel (se están estudiando cuestiones de seguridad) y se proveerá un link  de acceso a las autoridades de la FCE para su consulta  permanente.',
      accion:'Generar un tablero de indicadores con datos oficiales',
      resultado:'Tablero de indicadores',
      indicador:'Se prepara la estructura del tablero y se alimenta con los indicadores seleccionados.',
      plazo:'0,5 año'},
-    {cod:'PCG-3.2.4',
+    {cod:'PCI-3.2.4',
      diag:'Mediante la bajada de actas y analíticos del sistema SIU Gerencial 3 , se propone armar un sistema de información que permita tener indicadores de desempeño por matrícula, por alumno, por carrera y plan. Esto permitiría contar con información más oportuna durante el año académico actual.  En una segunda etapa de desarrollo se podria estimar la cantidad de alumnos que está en condiciones de cursar una determinada materia o de comenzar a cursar las materias de un determinado año.',
      accion:'Generar un tablero de indicadores detallados con información interna de la FCE',
      resultado:'Tablero de indicadores (de ingreso, trayectoria y egreso) detallado con la posibilidad de hacer consultas por carrera, matricula o estudiantes.',
      indicador:'Primero se arma la estructura del tablero y luego se va cargando con los distintos indicadores. Se mide con el porcentaje de indicadores cargados / visibles en el tablero en relación a los proyectados',
      plazo:'2 años'},
-    {cod:'PCG-3.2.5',
+    {cod:'PCI-3.2.5',
      diag:'Actualmente se tieme acceso a las actas y a los analíticos en forma individual. El algoritmo de bajada de actas requiere ser perfeccionado para evitar omisiones y se necesita un código que permita bajar los analiticos que constituyen la información verificada insitucionalmente por el sistema SIU.',
      accion:'Implementar un sistema de información propio basado en las actas y en los analiticos',
      resultado:'Un código para bajar la información, Base de datos con las actas. Base de datos con los analíticos, Un proceso de trabajo documentado sobre cómo llevar a cabo el proceso de actualización.',
      indicador:'Cantidad de actas en las bases. Cantidad de analiticos en la base. Archivo con el código.',
      plazo:'1 año'},
-    {cod:'PCG-3.2.6',
+    {cod:'PCI-3.2.6',
      diag:'Actualmente la publicación se encuesntra suspendida por diversos motivos. Se proponer retomar su publicación anual con los indicadores básicos de ingreso,  trayectoria y egreso a partir de 2027.',
      accion:'Publicar Facultad en Cifras',
      resultado:'Informe publicado',
@@ -2695,7 +2718,7 @@ const ACCIONES = {
   ],
   'UCI|OE 1.2': [
     {cod:'UCI-1.2.1',
-     diag:'La disponibilidad y difusión accesible de información estadística institucional constituye una herramienta clave para fortalecer la transparencia, la planificación y la vinculación con la comunidad universitaria y la sociedad. Si bien la Facultad produce a través de la Secretaría de Planificación y Control información relevante vinculada a estudiantes, graduados, investigación, extensión, internacionalización y gestión, gran parte de estos datos quedan para uso interno.',
+     diag:'La disponibilidad y difusión accesible de información estadística institucional constituye una herramienta clave para fortalecer la transparencia, la planificación y la vinculación con la comunidad universitaria y la sociedad. Si bien la Facultad produce a través de la Secretaría de Planificación y Control Institucional información relevante vinculada a estudiantes, graduados, investigación, extensión, internacionalización y gestión, gran parte de estos datos quedan para uso interno.',
      accion:'Publicación en una sección de la web institucional (www.unlp.edu.ar) de los datos relevantes de la FCE de manera sistemática y accesible, contribuyendo con la política de transparencia institucional.',
      resultado:'Puesta en línea de la sección de la web institucional (www.unlp.edu.ar) con los datos relevantes de la FCE .',
      indicador:'Actualizacion semestral/anual de la informacion cuantitativa en la pagina web.',
@@ -3145,7 +3168,7 @@ var GESTION_MESES  = 48;
 const AVANCES = {
   // Ejemplos comentados — descomentar y editar al recibir reportes:
   // 'BIE-1.1.1': {estado:'en-progreso', pct:40, fecha:'07/2026', nota:'Primer kit entregado en colación de junio'},
-  // 'PCG-3.2.1': {estado:'en-progreso', pct:25, fecha:'07/2026', nota:'Encuesta diseñada, pendiente de lanzamiento'},
+  // 'PCI-3.2.1': {estado:'en-progreso', pct:25, fecha:'07/2026', nota:'Encuesta diseñada, pendiente de lanzamiento'},
   // 'UCI-1.1.3': {estado:'completado',  pct:100, fecha:'07/2026', nota:'Web migrada a WordPress. Online desde jun 2026.'},
 };
 
@@ -3620,16 +3643,19 @@ var YEAR_CONFIG = {
 var HITOS = {
   '2026-T2': { tipo:'ocurrido',   label:'Planificacion', tag:'Abr-Jun 2026' },
   '2026-T3': { tipo:'ocurrido',   label:'Presentacion PE', tag:'Jul 2026 · 121 acciones' },
-  '2026-T4': { tipo:'confirmado', label:'Reun. indiv. Oct + Grupal Dic', tag:'ambas confirmadas' },
-  '2027-T2': { tipo:'confirmado', label:'Reuniones indiv.', tag:'Abr 2027 · avances a mar' },
-  '2027-T3': { tipo:'confirmado', label:'Reunion grupal', tag:'Jul 2027' },
-  '2027-T4': { tipo:'confirmado', label:'Reun. indiv. Oct + Grupal Dic', tag:'confirmadas' },
-  '2028-T2': { tipo:'tentativo',  label:'Reun. indiv.', tag:'Abr 2028' },
-  '2028-T3': { tipo:'tentativo',  label:'Reun. grupal', tag:'Jul 2028' },
-  '2028-T4': { tipo:'tentativo',  label:'Oct + Dic 2028', tag:'' },
-  '2029-T2': { tipo:'tentativo',  label:'Reun. indiv.', tag:'Abr 2029' },
-  '2029-T3': { tipo:'tentativo',  label:'Reun. grupal', tag:'Jul 2029' },
-  '2029-T4': { tipo:'tentativo',  label:'Oct + Dic 2029', tag:'' },
+  '2026-T4': { tipo:'confirmado', label:'Reun. indiv. · Q1 oct', tag:'Corte 30/09/2026' },
+  '2027-T1': { tipo:'confirmado', label:'Reunion grupal · 20 feb', tag:'Corte 31/12/2026' },
+  '2027-T2': { tipo:'confirmado', label:'Reun. indiv. · Q1 abr', tag:'Corte 31/03/2027' },
+  '2027-T3': { tipo:'confirmado', label:'Reunion grupal · 12 jul', tag:'Corte 30/06/2027 · anual' },
+  '2027-T4': { tipo:'tentativo',  label:'Reun. indiv. · Q1 oct', tag:'Corte 30/09/2027' },
+  '2028-T1': { tipo:'tentativo',  label:'Reunion grupal · Q1 feb', tag:'Corte 31/12/2027' },
+  '2028-T2': { tipo:'tentativo',  label:'Reun. indiv. · Q1 abr', tag:'Corte 31/03/2028' },
+  '2028-T3': { tipo:'tentativo',  label:'Reunion grupal · Q1 jul', tag:'Corte 30/06/2028 · anual' },
+  '2028-T4': { tipo:'tentativo',  label:'Reun. indiv. · Q1 oct', tag:'Corte 30/09/2028' },
+  '2029-T1': { tipo:'tentativo',  label:'Reunion grupal · Q1 feb', tag:'Corte 31/12/2028' },
+  '2029-T2': { tipo:'tentativo',  label:'Reun. indiv. · Q1 abr', tag:'Corte 31/03/2029' },
+  '2029-T3': { tipo:'tentativo',  label:'Reunion grupal · Q1 jul', tag:'Corte 30/06/2029 · anual' },
+  '2029-T4': { tipo:'tentativo',  label:'Reun. indiv. · Q1 oct', tag:'Corte 30/09/2029' },
   '2030-T1': { tipo:'tentativo',  label:'Cierre de gestion', tag:'Abr 2030' }
 };
 
