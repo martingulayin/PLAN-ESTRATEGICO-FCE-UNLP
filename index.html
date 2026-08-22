@@ -3276,15 +3276,20 @@ var PA_NAMES = {
   UCI:'Comunicación Institucional'
 };
 var PA_AREAS = [
-  {cod:'INV',nota:'Convocatoria UNLP 2025 en evaluación. 3 proyectos pendientes de acreditación.',
-   kpisMini:[{val:'87',label:'Investigadores'},{val:'12',label:'Proyectos activos'}],
+  {cod:'INV',nota:'Desarrollo propio HERA registrado ante DNDA. Investigadores cat. I-II crecieron 220% desde 2018 (de 25 a 55). Los 4 institutos acreditados por UNLP.',
+   kpisMini:[{val:'243',label:'Investigadores categorizados'},{val:'24',label:'Proyectos vigentes'}],
    kpis:[
-    {label:'Investigadores activos',val:'87',unit:'',sub:'+5 vs. 2023',tag:'up'},
-    {label:'Proyectos acreditados vigentes',val:'12',unit:'',sub:'UNLP + CONICET',tag:'neu'},
-    {label:'Becarios activos',val:'34',unit:'',sub:'18 UNLP · 16 CONICET',tag:'neu'},
-    {label:'Publicaciones 2024',val:'58',unit:'',sub:'+12 vs. 2023',tag:'up'},
-    {label:'Unidades de investigación',val:'4',unit:'',sub:'IIE · IIA · IIT · IIEC',tag:'neu'},
-   ],fecha:'Junio 2025'},
+    {label:'Investigadores categorizados (SICADI)',val:'243',unit:'',sub:'+62 nuevos desde 2018 (+34%)',tag:'up'},
+    {label:'Proyectos vigentes acreditados UNLP',val:'24',unit:'',sub:'A diciembre 2025',tag:'neu'},
+    {label:'Unidades de investigación acreditadas',val:'4',unit:'',sub:'IIA · IIE · IIEC · IIT',tag:'neu'},
+    {label:'Revistas científicas editadas',val:'5',unit:'',sub:'91 indexaciones/repositorios (+300% desde 2018)',tag:'up'},
+    {label:'Becas de investigación para alumnos 2022–2025',val:'35',unit:'',sub:'Con y sin estipendio',tag:'neu'},
+    {label:'Pasantías de investigación 2022–2025',val:'42',unit:'',sub:'Adm. · Economía · Turismo',tag:'neu'},
+    {label:'Subsidios para presentación en congresos',val:'45',unit:'',sub:'PFDI 2022–2025',tag:'neu'},
+    {label:'Posters científicos acumulados en Jornadas',val:'512',unit:'',sub:'10 ediciones 2017–2025 · ISSN 2545-806X',tag:'up'},
+    {label:'Perfiles activos en Google Scholar',val:'230',unit:'',sub:'Con filiación FCE-UNLP',tag:'neu'},
+    {label:'Suscriptores al boletín mensual',val:'2.400',unit:'',sub:'Desde 2018 · frecuencia mensual',tag:'neu'},
+   ],fecha:'Diciembre 2025'},
   {cod:'SAA',nota:'34 cargos vacantes sin concurso programado. Requiere coordinación con CD.',
    kpisMini:[{val:'1.284',label:'Docentes activos'},{val:'34',label:'Cargos vacantes'}],
    kpis:[
@@ -3304,23 +3309,23 @@ var PA_AREAS = [
     {label:'Patrimonio inventariado',val:'4.820',unit:'bienes',sub:'Actualizado 2024',tag:'neu'},
    ],fecha:'Junio 2025'},
   {cod:'EXT',nota:null,
-   kpisMini:[{val:'24',label:'Convenios vigentes'},{val:'312',label:'Alumnos en práctica'}],
+   kpisMini:[{val:'17',label:'Proyectos activos'},{val:'3',label:'Ejes estratégicos'}],
    kpis:[
-    {label:'Convenios vigentes',val:'24',unit:'',sub:'+3 firmados en 2025',tag:'up'},
-    {label:'Alumnos en prácticas',val:'312',unit:'',sub:'Empresas e instituciones',tag:'neu'},
-    {label:'Proyectos de extensión activos',val:'8',unit:'',sub:'Acreditados UNLP',tag:'neu'},
-    {label:'Actividades de capacitación',val:'14',unit:'',sub:'Cursos y talleres 2025',tag:'up'},
-    {label:'Participantes externos 2024',val:'1.140',unit:'',sub:'+220 vs. 2023',tag:'up'},
-   ],fecha:'Mayo 2025'},
-  {cod:'POS',nota:'Dos carreras con inscripción por debajo del umbral mínimo de sustentabilidad.',
-   kpisMini:[{val:'7',label:'Carreras activas'},{val:'890',label:'Inscriptos'}],
+    {label:'Proyectos de extensión activos',val:'17',unit:'',sub:'Barrios Emprendedores · Coequipo · Construyendo Redes · De los Muros a la Acción · DINA · Fortaleciendo el Paseo · Obs. Clubes · GENER(ANDO) · Huellas Patrimoniales · Igualación · Igualando Futuro · ODS en Movimiento · Oportunidades · PULSO · Senderos Turísticos · Sustentabilidad · Tramas comunitarias',tag:'neu'},
+    {label:'Ejes estratégicos',val:'3',unit:'',sub:'Desarrollo local · Inclusión social · Género',tag:'neu'},
+    {label:'Convocatorias abiertas UNLP',val:'2',unit:'',sub:'Específica 2026 · Programas y Proyectos 2027',tag:'up'},
+    {label:'Recursos digitales propios',val:'4',unit:'',sub:'Mapa turístico · Ferias PowerBI · Biblioteca digital · Relevamiento OSC',tag:'neu'},
+   ],fecha:'Agosto 2026'},
+  {cod:'POS',nota:'Oferta de posgrado amplia y diversificada con 2 Doctorados, 7 Maestrías y 7 Especializaciones, más 7 Diplomaturas, 18 Programas y 2 Escuelas propias (EDN y EGS).',
+   kpisMini:[{val:'16',label:'Carreras (Doc+Mag+Esp)'},{val:'25',label:'Prog. y diplomaturas'}],
    kpis:[
-    {label:'Carreras de posgrado activas',val:'7',unit:'',sub:'3 Esp · 3 Mag · 1 Doc',tag:'neu'},
-    {label:'Alumnos inscriptos',val:'890',unit:'',sub:'-45 vs. 2023',tag:'down'},
-    {label:'Tesis en curso',val:'128',unit:'',sub:'Maestría y Doctorado',tag:'neu'},
-    {label:'Tesis defendidas 2024',val:'31',unit:'',sub:'+6 vs. 2023',tag:'up'},
-    {label:'Docentes externos convocados',val:'47',unit:'',sub:'Nacionales e internacionales',tag:'neu'},
-   ],fecha:'Mayo 2025'},
+    {label:'Doctorados',val:'2',unit:'',sub:'Administración · Economía',tag:'neu'},
+    {label:'Maestrías',val:'7',unit:'',sub:'MAP · ME · MBA · MC · MMI · MDM · MFP',tag:'neu'},
+    {label:'Especializaciones',val:'7',unit:'',sub:'EAF · ECOS · ELIC · ND · ESAL · ETRI · ESIN',tag:'neu'},
+    {label:'Diplomaturas de posgrado',val:'7',unit:'',sub:'DLA · OSC · RRHH · FA · DGP · IA · TA',tag:'neu'},
+    {label:'Programas',val:'18',unit:'',sub:'Formación profesional continua',tag:'neu'},
+    {label:'Escuelas propias',val:'2',unit:'',sub:'Escuela de Negocios (EDN) · Escuela de Gestión en Salud (EGS)',tag:'neu'},
+   ],fecha:'Agosto 2025'},
   {cod:'BIE',nota:null,
    kpisMini:[{val:'542',label:'Becas otorgadas'},{val:'1.180',label:'Consultas atendidas'}],
    kpis:[
@@ -4447,7 +4452,7 @@ function tbF(k,btn){
       <button onclick="cerrarBuscador()" style="background:none;border:none;color:#4A6A8A;font-size:1.2rem;cursor:pointer;line-height:1;">✕</button>
     </div>
     <div id="buscadorResultados" style="overflow-y:auto;padding:.5rem 0;"></div>
-    <div id="buscadorPie" style="padding:.7rem 1.4rem;border-top:1px solid rgba(255,255,255,.05);font-size:.72rem;color:#3A5A7A;font-family:'Inter',sans-serif;">Escribí para buscar entre las 121 acciones del plan</div>
+    <div id="buscadorPie" style="padding:.7rem 1.4rem;border-top:1px solid rgba(255,255,255,.05);font-size:.72rem;color:#3A5A7A;font-family:'Inter',sans-serif;">Escribí para buscar en todo el portal</div>
   </div>
 </div>
 
@@ -4516,49 +4521,127 @@ function cerrarBuscador() {
   document.getElementById('buscadorOverlay').style.display = 'none';
   document.getElementById('buscadorInput').value = '';
   document.getElementById('buscadorResultados').innerHTML = '';
-  document.getElementById('buscadorPie').textContent = 'Escribí para buscar entre las 121 acciones del plan';
+  document.getElementById('buscadorPie').textContent = 'Escribí para buscar en todo el portal';
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape'){ cerrarBuscador(); cerrarCronogramaPanel(); } });
+
+// Mapa de secciones para el buscador integral
+const BUSCAR_SECCIONES = [
+  { id:'portadaView',       tab:'inicio',       label:'Inicio' },
+  { id:'decanoView',        tab:'decano',        label:'Mensaje del Decano' },
+  { id:'lineamientosView',  tab:'lineamientos',  label:'Lineamientos estratégicos' },
+  { id:'mapaSection',       tab:'mapa',          label:'Mapa estratégico' },
+  { id:'areaView',          tab:'area',          label:'Por secretaría' },
+  { id:'procesoView',       tab:'proceso',       label:'Proceso metodológico' },
+  { id:'timelineView',      tab:'timeline',      label:'Cronograma PE 2026–2030' },
+  { id:'tableroView',       tab:'tablero',       label:'Tablero institucional' },
+  { id:'panelAreaView',     tab:'panelarea',     label:'Panel por Área' },
+  { id:'seguimientoView',   tab:'seguimiento',   label:'Seguimiento PE' },
+];
 
 function buscarEnPortal(q) {
   const resultados = document.getElementById('buscadorResultados');
   const pie = document.getElementById('buscadorPie');
   q = q.trim();
-  if (q.length < 2) { resultados.innerHTML=''; pie.textContent='Escribí para buscar entre las 121 acciones del plan'; return; }
+  if (q.length < 2) { resultados.innerHTML=''; pie.textContent='Escribí para buscar en todo el portal'; return; }
   const terminos = normalizar(q).split(/\s+/);
-  const matches = [];
-  Object.entries(ACCIONES).forEach(([key, lista]) => {
-    const [area, oe] = key.split('|');
-    lista.forEach((ac, idx) => {
-      const textoNorm = normalizar([ac.accion, ac.diag, ac.resultado, ac.indicador].join(' '));
-      if (terminos.every(t => textoNorm.includes(t))) matches.push({ area, oe, ac, idx });
-    });
-  });
-  if (matches.length === 0) {
-    resultados.innerHTML = '<div class="buscador-vacio">Sin resultados para "<strong style="color:#fff">' + q + '</strong>"</div>';
-    pie.textContent = '0 resultados'; return;
-  }
+
   function highlight(text, terms) {
     let out = text;
     terms.forEach(t => { try { out = out.replace(new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'), m=>'<mark>'+m+'</mark>'); } catch(e){} });
     return out;
   }
-  function snippet(text, terms, len=150) {
+  function snippet(text, terms, len=160) {
     const normText = normalizar(text);
     let pos = terms.map(t => normText.indexOf(t)).filter(p => p>=0);
-    let start = pos.length ? Math.max(0, Math.min(...pos)-40) : 0;
+    let start = pos.length ? Math.max(0, Math.min(...pos)-50) : 0;
     let frag = text.slice(start, start+len);
     if(start>0) frag='…'+frag;
     if(start+len<text.length) frag+='…';
-    return highlight(frag, terminos);
+    return highlight(frag, terms);
   }
-  resultados.innerHTML = matches.slice(0,15).map(({area,oe,ac,idx}) => `
-    <div class="buscador-item" onclick="irAAccion('${area}','${oe}','${ac.cod}',${idx})">
-      <div class="buscador-cod">${ac.cod}</div>
-      <div class="buscador-sec">${NOMBRE_AREA[area]||area} &nbsp;·&nbsp; ${oe}</div>
-      <div class="buscador-texto">${snippet(ac.accion,terminos)}</div>
-    </div>`).join('');
-  pie.textContent = matches.length + ' resultado' + (matches.length!==1?'s':'') + (matches.length>15?' (mostrando los primeros 15)':'');
+
+  // 1) Buscar en las 121 acciones (con navegación directa)
+  const matches = [];
+  Object.entries(ACCIONES).forEach(([key, lista]) => {
+    const [area, oe] = key.split('|');
+    lista.forEach((ac, idx) => {
+      const texto = [ac.accion, ac.diag||'', ac.resultado||'', ac.indicador||''].join(' ');
+      const textoNorm = normalizar(texto);
+      if (terminos.every(t => textoNorm.includes(t))) {
+        matches.push({
+          tipo: 'accion',
+          secLabel: (NOMBRE_AREA[area]||area) + ' · ' + oe,
+          titulo: ac.cod,
+          texto: ac.accion,
+          onclick: `irAAccion('${area}','${oe}','${ac.cod}',${idx})`
+        });
+      }
+    });
+  });
+
+  // 2) Buscar en el resto del DOM (secciones visibles y ocultas)
+  // Primero activar todas las secciones para que tengan contenido renderizado
+  const excluir = ['buscadorOverlay','buscadorResultados'];
+  BUSCAR_SECCIONES.forEach(sec => {
+    const el = document.getElementById(sec.id);
+    if (!el) return;
+    // Recopilar todos los nodos de texto con contenido suficiente
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const p = node.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        // Excluir scripts, estilos, y el propio overlay del buscador
+        if (['SCRIPT','STYLE','NOSCRIPT'].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
+        if (excluir.some(id => p.closest('#'+id))) return NodeFilter.FILTER_REJECT;
+        const txt = node.textContent.trim();
+        if (txt.length < 10) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const vistos = new Set();
+    let node;
+    while ((node = walker.nextNode())) {
+      const txt = node.textContent.trim();
+      const txtNorm = normalizar(txt);
+      if (!terminos.every(t => txtNorm.includes(t))) continue;
+      // Obtener bloque de contexto (elemento padre con algo de texto)
+      let ctx = node.parentElement;
+      while (ctx && ctx.textContent.trim().length < 20 && ctx.parentElement) ctx = ctx.parentElement;
+      const ctxText = (ctx ? ctx.textContent : txt).replace(/\s+/g,' ').trim();
+      const key = sec.id + '|' + ctxText.slice(0,80);
+      if (vistos.has(key)) continue;
+      vistos.add(key);
+      // Evitar duplicados con acciones ya encontradas
+      const yaEnAcciones = matches.some(m => m.tipo==='accion' && normalizar(m.texto).includes(txtNorm.slice(0,30)));
+      if (yaEnAcciones) continue;
+      matches.push({
+        tipo: 'seccion',
+        secLabel: sec.label,
+        titulo: sec.label,
+        texto: ctxText,
+        tab: sec.tab
+      });
+    }
+  });
+
+  if (matches.length === 0) {
+    resultados.innerHTML = '<div class="buscador-vacio">Sin resultados para "<strong style="color:#fff">' + q + '</strong>"</div>';
+    pie.textContent = '0 resultados'; return;
+  }
+
+  resultados.innerHTML = matches.slice(0,20).map((m,i) => {
+    const snip = snippet(m.texto, terminos);
+    const onClick = m.tipo==='accion'
+      ? m.onclick
+      : `cerrarBuscador();switchTab('${m.tab}');`;
+    return `<div class="buscador-item" onclick="${onClick}">
+      <div class="buscador-cod" style="background:${m.tipo==='accion'?'#4A235A':'#1A5276'}">${m.tipo==='accion'?m.titulo:'📌 '+m.secLabel}</div>
+      <div class="buscador-sec">${m.secLabel}</div>
+      <div class="buscador-texto">${snip}</div>
+    </div>`;
+  }).join('');
+  pie.textContent = matches.length + ' resultado' + (matches.length!==1?'s':'') + (matches.length>20?' (mostrando los primeros 20)':'');
 }
 
 function irAAccion(area, oe, cod, idx) {
@@ -4657,5 +4740,69 @@ function cerrarCronogramaPanel() {
   setTimeout(()=>{document.getElementById('cronogramaPanelOverlay').style.display='none';},300);
 }
 </script>
+
+<!-- Asistente Virtual FCE - Botón flotante -->
+<style>
+  #fab-asistente {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9999;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    overflow: hidden;
+  }
+  #fab-asistente:hover {
+    transform: scale(1.08);
+    box-shadow: 0 5px 18px rgba(0,0,0,0.45);
+  }
+  #fab-asistente img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: block;
+  }
+  #fab-asistente span { display: none; }
+  #fab-tooltip {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 5.5rem;
+    background: #0D1B2A;
+    color: #F5F2EC;
+    font-family: 'Inter', sans-serif;
+    font-size: .75rem;
+    font-weight: 600;
+    padding: .35rem .8rem;
+    border-radius: 20px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 9998;
+    border: 1px solid rgba(201,150,58,.4);
+  }
+  #fab-asistente:hover ~ #fab-tooltip {
+    opacity: 1;
+  }
+  @media (max-width: 600px) {
+    #fab-asistente { width: 44px; height: 44px; bottom: 1rem; right: 1rem; }
+    #fab-asistente img { width: 44px; height: 44px; }
+    #fab-tooltip { display: none; }
+  }
+</style>
+<a id="fab-asistente" href="https://notebook.google.com/notebook/09d32c4a-72e6-48df-b915-8414d8746f7b" target="_blank" rel="noopener" aria-label="Asistente Virtual FCE">
+  <img src="data:image/png;base64,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" alt="Asistente Virtual FCE">
+</a>
+<div id="fab-tooltip">Asistente Virtual FCE</div>
 </body>
 </html>
