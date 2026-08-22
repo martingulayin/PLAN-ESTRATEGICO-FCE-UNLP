@@ -1030,6 +1030,122 @@
 </style>
 </head>
 <body>
+
+<!-- ══════════════════════════════════════════════════════
+     MODAL DE BIENVENIDA
+     ══════════════════════════════════════════════════════ -->
+<div id="welcomeOverlay" style="
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(13,27,42,0.92);
+  display:flex; align-items:center; justify-content:center;
+  padding:1.5rem;
+  backdrop-filter:blur(4px);
+  animation:fadeInOverlay .4s ease;
+">
+<style>
+@keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
+@keyframes slideUpModal  { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+#welcomeBox {
+  background: #0D1B2A;
+  border: 1px solid rgba(201,150,58,.35);
+  border-radius: 1.1rem;
+  max-width: 700px;
+  width: 100%;
+  padding: 2.8rem 3rem 2.4rem;
+  text-align: center;
+  position: relative;
+  animation: slideUpModal .45s ease;
+  box-shadow: 0 24px 80px rgba(0,0,0,.55);
+}
+#welcomeBox .wb-eyebrow {
+  font-size:.72rem; font-weight:700; letter-spacing:.18em;
+  text-transform:uppercase; color:#C9963A; margin-bottom:1rem;
+}
+#welcomeBox h2 {
+  font-family:'Inter',sans-serif; font-weight:900;
+  font-size:clamp(1.5rem,4vw,2.2rem);
+  color:#fff; margin:0 0 .5rem;
+  line-height:1.2;
+}
+#welcomeBox h2 span { color:#C9963A; }
+#welcomeBox .wb-sub {
+  font-size:.95rem; color:rgba(160,180,200,.75);
+  margin-bottom:1.8rem; line-height:1.6;
+}
+#welcomeBox .wb-divider {
+  width:48px; height:2px; background:#C9963A;
+  margin:0 auto 1.8rem; opacity:.6; border-radius:2px;
+}
+#welcomeBox .wb-desc {
+  font-size:.92rem; color:rgba(200,215,230,.8);
+  line-height:1.75; margin-bottom:2.2rem;
+  max-width:520px; margin-left:auto; margin-right:auto;
+}
+#welcomeBox .wb-desc strong { color:#C9963A; font-weight:600; }
+#welcomeBtn {
+  display:inline-flex; align-items:center; gap:.55rem;
+  background:#C9963A; color:#0D1B2A;
+  border:none; border-radius:.5rem;
+  font-family:'Inter',sans-serif; font-weight:800;
+  font-size:1rem; padding:.85rem 2.4rem;
+  cursor:pointer; letter-spacing:.03em;
+  transition:background .2s, transform .15s, box-shadow .2s;
+  box-shadow:0 4px 20px rgba(201,150,58,.35);
+}
+#welcomeBtn:hover {
+  background:#e0ab46; transform:translateY(-2px);
+  box-shadow:0 8px 28px rgba(201,150,58,.5);
+}
+#welcomeBtn:active { transform:translateY(0); }
+#welcomeBtn svg { width:18px; height:18px; flex-shrink:0; }
+#welcomeClose {
+  position:absolute; top:1rem; right:1.1rem;
+  background:none; border:none; cursor:pointer;
+  color:rgba(160,180,200,.5); font-size:1.4rem; line-height:1;
+  padding:.3rem .4rem; border-radius:.4rem;
+  transition:color .2s, background .2s;
+}
+#welcomeClose:hover { color:#fff; background:rgba(255,255,255,.08); }
+</style>
+
+<div id="welcomeBox">
+  <button id="welcomeClose" onclick="cerrarBienvenida()" title="Cerrar">×</button>
+  <div class="wb-eyebrow">Facultad de Ciencias Económicas · UNLP</div>
+  <h2>Bienvenido al <span>Portal del Plan Estratégico</span></h2>
+  <div class="wb-sub">Repositorio institucional interactivo · 2026–2030</div>
+  <div class="wb-divider"></div>
+  <p class="wb-desc">
+    La información es el punto de partida de toda buena decisión.<br><br>
+    Este portal fue concebido como una <strong>herramienta de gestión institucional</strong>:
+    un espacio donde el plan cobra vida, donde cada acción tiene nombre,
+    responsable y horizonte, y donde el avance de la Facultad puede
+    seguirse de forma transparente y sistemática.
+  </p>
+  <button id="welcomeBtn" onclick="cerrarBienvenida()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+    Ingresar al portal
+  </button>
+</div>
+</div>
+
+<script>
+function cerrarBienvenida() {
+  var overlay = document.getElementById('welcomeOverlay');
+  overlay.style.transition = 'opacity .3s ease';
+  overlay.style.opacity = '0';
+  setTimeout(function(){ overlay.style.display = 'none'; }, 300);
+}
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') cerrarBienvenida();
+});
+document.getElementById('welcomeOverlay').addEventListener('click', function(e){
+  if(e.target === this) cerrarBienvenida();
+});
+</script>
+<!-- ══ FIN MODAL DE BIENVENIDA ══ -->
+
 <div class="page-wrap">
 
 <header>
@@ -1080,6 +1196,7 @@
     <button class="tab-btn" id="tabProceso" onclick="switchTab('proceso')"><span class="tab-icon">◎</span> Proceso metodológico</button>
     <button class="tab-btn" id="tabTimeline" onclick="switchTab('timeline')"><span class="tab-icon">📅</span> Cronograma PE 2026–2030</button>
     <button class="tab-btn" id="tabTablero" onclick="switchTab('tablero')"><span class="tab-icon">📊</span> Tablero institucional</button>
+    <button class="tab-btn" id="tabPanelArea" onclick="switchTab('panelarea')"><span class="tab-icon">📋</span> Panel por Área</button>
     <button class="tab-btn" id="tabSeguimiento" onclick="switchTab('seguimiento')"><span class="tab-icon">✅</span> Seguimiento</button>
   </nav>
 </header>
@@ -1409,12 +1526,19 @@
           <div class="pc-desc">Monitoreo de avance por secretaría y objetivo estratégico</div>
           <div class="pc-meta">Disponible oct 2026 <span class="pc-arrow">→</span></div>
         </div>
-        <!-- 7. Tablero Institucional — ancho completo -->
-        <div class="portada-card wide" style="--card-color:#1A5276" onclick="switchTab('tablero')">
+        <!-- 7. Tablero Institucional -->
+        <div class="portada-card" style="--card-color:#1A5276" onclick="switchTab('tablero')">
           <div class="pc-icon">📊</div>
           <div class="pc-title">Tablero Institucional</div>
           <div class="pc-desc">Indicadores clave de la FCE: aspirantes, egresados, retención y tendencias 2016–2024 por carrera. El tablero más importante para la gestión cotidiana.</div>
           <div class="pc-meta">Datos 2023–2024 · Filtro por carrera <span class="pc-arrow">→</span></div>
+        </div>
+        <!-- 8. Panel por Área -->
+        <div class="portada-card" style="--card-color:#2E4057" onclick="switchTab('panelarea')">
+          <div class="pc-icon">📋</div>
+          <div class="pc-title">Panel por Área</div>
+          <div class="pc-desc">Indicadores cuantitativos de gestión por secretaría: docentes, investigadores, presupuesto, becas y más. Vista integrada de toda la institución.</div>
+          <div class="pc-meta">9 secretarías · Indicadores de gestión <span class="pc-arrow">→</span></div>
         </div>
       </div>
     </div><!-- portada-hero-right -->
@@ -1957,6 +2081,11 @@
     </div>
   </div>
 </div><!-- tableroView -->
+
+<!-- ===== PANEL POR ÁREA ===== -->
+<div id="panelAreaView" style="display:none; background:#F5F2EC; min-height:100vh;">
+  <div id="panelarea-root"></div>
+</div><!-- panelAreaView -->
 
 <!-- ===== NOTICIAS PE ===== -->
 <div id="noticiasView" style="display:none; background:#f5f2ec; min-height:100vh; padding:2.5rem 2rem;">
@@ -3037,7 +3166,7 @@ function buildNoticias() {
 
 function switchTab(tab) {
   // Ocultar todas las secciones
-  const secciones = ['portadaView','decanoView','lineamientosView','mapaSection','areaView','procesoView','timelineView','seguimientoView','tableroView','noticiasView'];
+  const secciones = ['portadaView','decanoView','lineamientosView','mapaSection','areaView','procesoView','timelineView','seguimientoView','tableroView','panelAreaView','noticiasView'];
   secciones.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -3054,7 +3183,7 @@ function switchTab(tab) {
   if (notes) notes.style.display = 'none';
 
   // Desactivar todos los tabs
-  ['tabInicio','tabDecano','tabLineamientos','tabMapa','tabArea','tabProceso','tabTimeline','tabSeguimiento','tabTablero'].forEach(id => {
+  ['tabInicio','tabDecano','tabLineamientos','tabMapa','tabArea','tabProceso','tabTimeline','tabSeguimiento','tabTablero','tabPanelArea'].forEach(id => {
     const b = document.getElementById(id);
     if (b) b.classList.remove('active');
   });
@@ -3115,12 +3244,379 @@ function switchTab(tab) {
     if (btn) btn.classList.add('active');
     if (!window._tbBuilt) { buildTablero(); window._tbBuilt = true; }
 
+  } else if (tab === 'panelarea') {
+    const v = document.getElementById('panelAreaView');
+    if (v) { v.style.display = 'block'; v.classList.add('visible'); }
+    const btn = document.getElementById('tabPanelArea');
+    if (btn) btn.classList.add('active');
+    if (!window._paBuilt) { buildPanelArea(); window._paBuilt = true; }
+
   } else if (tab === 'noticias') {
     const v = document.getElementById('noticiasView');
     if (v) { v.style.display = 'block'; v.classList.add('visible'); }
     buildNoticias();
   }
 }
+
+// ── PANEL POR ÁREA ────────────────────────────────────────────────────────
+var PA_COLORS = {
+  BIE:'#1A5276',CD:'#7B241C',EXT:'#145A32',
+  INV:'#4A235A',PCI:'#784212',POS:'#1F618D',
+  SAA:'#0B6E4F',SAF:'#1A5276',UCI:'#922B21'
+};
+var PA_NAMES = {
+  BIE:'Secretaría de Bienestar Universitario y PIL',
+  CD: 'Secretaría de Consejo Directivo',
+  EXT:'Secretaría de Extensión Universitaria',
+  INV:'Secretaría de Investigación y Vinculación Tecnológica',
+  PCI:'Secretaría de Planificación y Control Institucional',
+  POS:'Secretaría de Posgrado',
+  SAA:'Secretaría de Asuntos Académicos',
+  SAF:'Secretaría de Administración y Finanzas',
+  UCI:'Comunicación Institucional'
+};
+var PA_AREAS = [
+  {cod:'INV',nota:'Convocatoria UNLP 2025 en evaluación. 3 proyectos pendientes de acreditación.',
+   kpisMini:[{val:'87',label:'Investigadores'},{val:'12',label:'Proyectos activos'}],
+   kpis:[
+    {label:'Investigadores activos',val:'87',unit:'',sub:'+5 vs. 2023',tag:'up'},
+    {label:'Proyectos acreditados vigentes',val:'12',unit:'',sub:'UNLP + CONICET',tag:'neu'},
+    {label:'Becarios activos',val:'34',unit:'',sub:'18 UNLP · 16 CONICET',tag:'neu'},
+    {label:'Publicaciones 2024',val:'58',unit:'',sub:'+12 vs. 2023',tag:'up'},
+    {label:'Unidades de investigación',val:'4',unit:'',sub:'IIE · IIA · IIT · IIEC',tag:'neu'},
+   ],fecha:'Junio 2025'},
+  {cod:'SAA',nota:'34 cargos vacantes sin concurso programado. Requiere coordinación con CD.',
+   kpisMini:[{val:'1.284',label:'Docentes activos'},{val:'34',label:'Cargos vacantes'}],
+   kpis:[
+    {label:'Docentes activos',val:'1.284',unit:'',sub:'+18 vs. 2023',tag:'up'},
+    {label:'Cargos vacantes (sin interino)',val:'34',unit:'',sub:'Sin concurso previsto',tag:'warn'},
+    {label:'Materias por carrera (prom.)',val:'42',unit:'',sub:'Planes 2004 y 2023',tag:'neu'},
+    {label:'Alumnos por comisión (prom.)',val:'78',unit:'',sub:'Máx. recomendado: 80',tag:'warn'},
+    {label:'Tasa de aprobación 2024',val:'61',unit:'%',sub:'-3pp vs. 2023',tag:'down'},
+   ],fecha:'Mayo 2025'},
+  {cod:'SAF',nota:null,
+   kpisMini:[{val:'72%',label:'Ejec. presupuestaria'},{val:'186',label:'Nodocentes'}],
+   kpis:[
+    {label:'Ejecución presupuestaria',val:'72',unit:'%',sub:'A junio 2025',tag:'neu'},
+    {label:'Personal nodocente activo',val:'186',unit:'',sub:'142 planta · 44 contrato',tag:'neu'},
+    {label:'Proveedores activos',val:'93',unit:'',sub:'Registrados COMPR.AR',tag:'neu'},
+    {label:'Expedientes en trámite',val:'47',unit:'',sub:'-8 vs. mes anterior',tag:'up'},
+    {label:'Patrimonio inventariado',val:'4.820',unit:'bienes',sub:'Actualizado 2024',tag:'neu'},
+   ],fecha:'Junio 2025'},
+  {cod:'EXT',nota:null,
+   kpisMini:[{val:'24',label:'Convenios vigentes'},{val:'312',label:'Alumnos en práctica'}],
+   kpis:[
+    {label:'Convenios vigentes',val:'24',unit:'',sub:'+3 firmados en 2025',tag:'up'},
+    {label:'Alumnos en prácticas',val:'312',unit:'',sub:'Empresas e instituciones',tag:'neu'},
+    {label:'Proyectos de extensión activos',val:'8',unit:'',sub:'Acreditados UNLP',tag:'neu'},
+    {label:'Actividades de capacitación',val:'14',unit:'',sub:'Cursos y talleres 2025',tag:'up'},
+    {label:'Participantes externos 2024',val:'1.140',unit:'',sub:'+220 vs. 2023',tag:'up'},
+   ],fecha:'Mayo 2025'},
+  {cod:'POS',nota:'Dos carreras con inscripción por debajo del umbral mínimo de sustentabilidad.',
+   kpisMini:[{val:'7',label:'Carreras activas'},{val:'890',label:'Inscriptos'}],
+   kpis:[
+    {label:'Carreras de posgrado activas',val:'7',unit:'',sub:'3 Esp · 3 Mag · 1 Doc',tag:'neu'},
+    {label:'Alumnos inscriptos',val:'890',unit:'',sub:'-45 vs. 2023',tag:'down'},
+    {label:'Tesis en curso',val:'128',unit:'',sub:'Maestría y Doctorado',tag:'neu'},
+    {label:'Tesis defendidas 2024',val:'31',unit:'',sub:'+6 vs. 2023',tag:'up'},
+    {label:'Docentes externos convocados',val:'47',unit:'',sub:'Nacionales e internacionales',tag:'neu'},
+   ],fecha:'Mayo 2025'},
+  {cod:'BIE',nota:null,
+   kpisMini:[{val:'542',label:'Becas otorgadas'},{val:'1.180',label:'Consultas atendidas'}],
+   kpis:[
+    {label:'Becas otorgadas (vigentes)',val:'542',unit:'',sub:'UNLP + propias FCE',tag:'up'},
+    {label:'Beneficiarios de comedor',val:'1.820',unit:'rac/sem',sub:'Promedio semanal',tag:'neu'},
+    {label:'Consultas psicopedagógicas 2024',val:'1.180',unit:'',sub:'+230 vs. 2023',tag:'up'},
+    {label:'Alumnos en seguimiento activo',val:'89',unit:'',sub:'Situación de riesgo',tag:'warn'},
+    {label:'Actividades deportivas y culturales',val:'22',unit:'',sub:'Grupos activos 2025',tag:'neu'},
+   ],fecha:'Junio 2025'},
+  {cod:'CD',nota:'156 cargos aguardan sustanciación de concurso. Proceso de regularización en curso.',
+   kpisMini:[{val:'8',label:'Concursos abiertos'},{val:'156',label:'Cargos pendientes'}],
+   kpis:[
+    {label:'Concursos abiertos (en trámite)',val:'8',unit:'',sub:'Convocatoria 2025',tag:'neu'},
+    {label:'Cargos pendientes de concurso',val:'156',unit:'',sub:'Regularización en curso',tag:'warn'},
+    {label:'Concursos sustanciados 2024',val:'23',unit:'',sub:'-4 vs. 2023',tag:'down'},
+    {label:'Cargos regularizados 2022–2025',val:'84',unit:'',sub:'Acumulado de gestión',tag:'up'},
+    {label:'Jurados convocados 2025',val:'31',unit:'',sub:'Internos y externos',tag:'neu'},
+   ],fecha:'Junio 2025'},
+  {cod:'PCI',nota:null,
+   kpisMini:[{val:'121',label:'Acciones PE'},{val:'8',label:'Indicadores tablero'}],
+   kpis:[
+    {label:'Acciones PE 2026–2030 cargadas',val:'121',unit:'',sub:'9 áreas · 3 ejes',tag:'up'},
+    {label:'Indicadores tablero institucional',val:'8',unit:'',sub:'Grado · Fuente CESPI',tag:'neu'},
+    {label:'Encuestas docentes 2024',val:'2.840',unit:'',sub:'Sem. 1 y 2 · 2024',tag:'up'},
+    {label:'Informes de gestión emitidos',val:'4',unit:'',sub:'Acumulado 2024–2025',tag:'neu'},
+    {label:'Reportes automatizados activos',val:'3',unit:'',sub:'SIU-Guaraní · PIASAA',tag:'neu'},
+   ],fecha:'Junio 2025'},
+  {cod:'UCI',nota:'43 incidencias sin resolución hace más de 15 días.',
+   kpisMini:[{val:'18',label:'Sistemas activos'},{val:'43',label:'Incidencias abiertas'}],
+   kpis:[
+    {label:'Sistemas institucionales activos',val:'18',unit:'',sub:'SIU · Internos · Externos',tag:'neu'},
+    {label:'Usuarios conectados (prom. diario)',val:'2.340',unit:'',sub:'Aulas + admin + docentes',tag:'neu'},
+    {label:'Incidencias abiertas',val:'43',unit:'',sub:'+11 vs. mes anterior',tag:'warn'},
+    {label:'Equipos renovados 2024',val:'62',unit:'',sub:'Aulas y oficinas',tag:'up'},
+    {label:'Disponibilidad de red 2025',val:'99.1',unit:'%',sub:'Uptime acumulado',tag:'neu'},
+   ],fecha:'Mayo 2025'},
+];
+var PA_TAGS = {up:{cls:'pa-tag-up',icon:'↑'},down:{cls:'pa-tag-down',icon:'↓'},neu:{cls:'pa-tag-neu',icon:'—'},warn:{cls:'pa-tag-warn',icon:'⚠'}};
+
+function buildPanelArea() {
+  var root = document.getElementById('panelarea-root');
+  if (!root) return;
+
+  // Inyectar CSS del panel
+  if (!document.getElementById('pa-style')) {
+    var s = document.createElement('style');
+    s.id = 'pa-style';
+    s.textContent = `
+      #panelarea-root { font-family:'Inter',sans-serif; }
+      .pa-hd { background:#0D1B2A; color:#fff; padding:1.4rem 2rem 1.2rem; display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+      .pa-hd-ey { font-family:'Cormorant Garamond',serif; font-size:.95rem; color:#E8B455; letter-spacing:.08em; text-transform:uppercase; }
+      .pa-hd-title { font-size:1.65rem; font-weight:900; line-height:1.15; }
+      .pa-hd-title span { color:#C9963A; }
+      .pa-hd-sub { font-size:.85rem; color:rgba(255,255,255,.5); margin-top:.1rem; }
+      .pa-hd-badge { background:rgba(201,150,58,.18); border:1px solid rgba(201,150,58,.4); color:#E8B455; font-size:.78rem; font-weight:600; padding:.38rem .85rem; border-radius:20px; white-space:nowrap; align-self:flex-start; }
+      .pa-strip { background:#1A2E42; display:flex; overflow-x:auto; border-bottom:2px solid #C9963A; }
+      .pa-gs { flex:1; min-width:110px; padding:.9rem 1rem; text-align:center; border-right:1px solid rgba(255,255,255,.08); }
+      .pa-gs:last-child { border-right:none; }
+      .pa-gs-num { font-size:1.5rem; font-weight:900; color:#C9963A; line-height:1; }
+      .pa-gs-label { font-size:.72rem; color:rgba(255,255,255,.6); margin-top:.2rem; text-transform:uppercase; letter-spacing:.04em; line-height:1.3; }
+      .pa-action { background:#fff; border-bottom:1px solid #EDE9E1; padding:.7rem 2rem; display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+      .pa-action-label { font-size:.75rem; font-weight:600; color:#6B7A8D; text-transform:uppercase; letter-spacing:.05em; }
+      .pa-select { font-family:'Inter',sans-serif; font-size:.82rem; color:#1C2B3A; background:#F5F2EC; border:1px solid #EDE9E1; border-radius:6px; padding:.38rem .7rem; cursor:pointer; flex:1; max-width:320px; min-width:160px; }
+      .pa-btn { display:inline-flex; align-items:center; gap:.35rem; background:#C9963A; color:#0D1B2A; font-family:'Inter',sans-serif; font-size:.78rem; font-weight:700; padding:.42rem 1rem; border-radius:6px; border:none; cursor:pointer; white-space:nowrap; }
+      .pa-btn:hover { background:#E8B455; }
+      .pa-body { max-width:1100px; margin:0 auto; padding:1.5rem 1.5rem 3rem; }
+      .pa-sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; margin-top:1.4rem; }
+      .pa-sec-title { font-family:'Cormorant Garamond',serif; font-size:1.15rem; font-weight:700; color:#0D1B2A; border-left:3px solid #C9963A; padding-left:.65rem; }
+      .pa-toggle { display:inline-flex; align-items:center; gap:.3rem; background:transparent; border:1px solid #EDE9E1; color:#6B7A8D; font-family:'Inter',sans-serif; font-size:.75rem; font-weight:600; padding:.35rem .8rem; border-radius:6px; cursor:pointer; }
+      .pa-toggle:hover { border-color:#0D1B2A; color:#0D1B2A; background:#fff; }
+      .pa-card { background:#fff; border-radius:10px; margin-bottom:.8rem; border:1px solid #EDE9E1; overflow:hidden; box-shadow:0 1px 4px rgba(13,27,42,.06); }
+      .pa-row { display:flex; align-items:center; gap:1.1rem; padding:.95rem 1.2rem; cursor:pointer; border-left:5px solid transparent; transition:background .15s; }
+      .pa-row:hover { background:#fafaf8; }
+      .pa-code { font-size:.78rem; font-weight:700; letter-spacing:.06em; padding:.35rem .6rem; border-radius:6px; min-width:48px; text-align:center; flex-shrink:0; color:#fff; }
+      .pa-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+      .pa-name { font-weight:700; font-size:.95rem; color:#0D1B2A; min-width:230px; flex-shrink:0; line-height:1.3; }
+      .pa-minis { display:flex; gap:1.8rem; flex:1; flex-wrap:wrap; }
+      .pa-mini { display:flex; flex-direction:column; gap:.05rem; }
+      .pa-mini-val { font-size:1.15rem; font-weight:800; color:#0D1B2A; line-height:1; }
+      .pa-mini-label { font-size:.7rem; color:#6B7A8D; text-transform:uppercase; letter-spacing:.04em; }
+      .pa-chev { font-size:.85rem; color:#6B7A8D; flex-shrink:0; margin-left:auto; transition:transform .25s; }
+      .pa-card.open .pa-chev { transform:rotate(180deg); }
+      .pa-detail { display:none; padding:0 1.2rem 1.2rem 1.7rem; border-top:1px solid #EDE9E1; }
+      .pa-card.open .pa-detail { display:block; }
+      .pa-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:.8rem; margin-top:.9rem; }
+      .pa-kpi { background:#F5F2EC; border-radius:8px; padding:.9rem 1rem; border:1px solid #EDE9E1; border-top:3px solid transparent; display:flex; flex-direction:column; gap:.3rem; }
+      .pa-kpi-label { font-size:.72rem; color:#6B7A8D; text-transform:uppercase; letter-spacing:.05em; line-height:1.3; }
+      .pa-kpi-val { font-size:1.75rem; font-weight:900; color:#0D1B2A; line-height:1; }
+      .pa-kpi-unit { font-size:.82rem; font-weight:500; color:#6B7A8D; margin-left:.15rem; }
+      .pa-kpi-sub { font-size:.72rem; color:#6B7A8D; }
+      .pa-tag { display:inline-flex; align-items:center; gap:.15rem; font-size:.68rem; font-weight:600; padding:.15rem .4rem; border-radius:3px; }
+      .pa-tag-up   { background:#E8F5E9; color:#2E7D32; }
+      .pa-tag-down { background:#FFEBEE; color:#C62828; }
+      .pa-tag-neu  { background:#EEE; color:#555; }
+      .pa-tag-warn { background:#FFF3E0; color:#E65100; }
+      .pa-nota { margin-top:.8rem; background:#FFF8E7; border-left:3px solid #C9963A; padding:.6rem .85rem; font-size:.8rem; color:#5C4A1E; border-radius:0 6px 6px 0; line-height:1.5; }
+      .pa-nota strong { color:#9A6E1A; }
+      .pa-fecha { font-size:.72rem; color:#6B7A8D; margin-top:.8rem; text-align:right; }
+      /* print frame */
+      .pa-pf { font-family:'Inter',sans-serif; font-size:9pt; color:#1A1A2E; padding:1.4cm 1.6cm; }
+      .pa-pf-hd { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #C9963A; padding-bottom:.5rem; margin-bottom:.8rem; }
+      .pa-pf-inst { font-size:7pt; font-weight:700; color:#0D1B2A; letter-spacing:.12em; text-transform:uppercase; }
+      .pa-pf-title { font-size:13pt; font-weight:700; color:#0D1B2A; margin:.15rem 0 .08rem; }
+      .pa-pf-sub { font-size:8pt; color:#6B7280; }
+      .pa-pf-fecha { font-size:7.5pt; color:#6B7280; text-align:right; }
+      .pa-pf-strip { display:flex; gap:.4rem; margin-bottom:.8rem; flex-wrap:wrap; }
+      .pa-pf-gs { flex:1; min-width:75px; border:1px solid #DDD9D0; border-radius:4px; padding:.3rem .45rem; text-align:center; }
+      .pa-pf-gs-num { font-size:13pt; font-weight:700; color:#0D1B2A; line-height:1; }
+      .pa-pf-gs-label { font-size:6pt; color:#6B7280; margin-top:.08rem; }
+      .pa-pf-area-hd { display:flex; align-items:center; gap:.45rem; padding:.32rem .55rem; margin-top:.6rem; margin-bottom:.3rem; border-radius:4px; color:#fff; }
+      .pa-pf-area-code { font-size:7pt; font-weight:700; background:rgba(255,255,255,.2); padding:.12rem .35rem; border-radius:3px; }
+      .pa-pf-area-name { font-size:9pt; font-weight:700; }
+      .pa-pf-area-fecha { font-size:6pt; opacity:.7; margin-left:auto; }
+      .pa-pf-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.35rem; margin-bottom:.4rem; }
+      .pa-pf-kpi { border:1px solid #DDD9D0; border-radius:4px; padding:.38rem .5rem; border-top:3px solid transparent; }
+      .pa-pf-kpi-label { font-size:6.5pt; color:#6B7280; text-transform:uppercase; letter-spacing:.04em; margin-bottom:.12rem; }
+      .pa-pf-kpi-val { font-size:13pt; font-weight:700; color:#0D1B2A; line-height:1; }
+      .pa-pf-kpi-unit { font-size:7pt; color:#6B7280; }
+      .pa-pf-kpi-sub { font-size:6pt; color:#6B7280; margin-top:.08rem; }
+      .pa-pf-nota { background:#FFF8E7; border-left:3pt solid #C9963A; padding:.28rem .45rem; font-size:7pt; color:#5C4A1E; margin-top:.3rem; border-radius:0 3px 3px 0; }
+      .pa-pf-footer { margin-top:1rem; border-top:1px solid #DDD9D0; padding-top:.35rem; display:flex; justify-content:space-between; font-size:6.5pt; color:#9CA3AF; }
+      .pa-pf-ficha-hd { color:#fff; padding:.55rem .9rem; display:flex; align-items:center; justify-content:space-between; margin-bottom:.6rem; border-radius:4px; }
+      .pa-pf-ficha-name { font-size:12pt; font-weight:700; }
+      .pa-pf-badge { background:#C9963A; color:#0D1B2A; font-size:8pt; font-weight:700; padding:.18rem .55rem; border-radius:3px; }
+      .pa-pf-meta { display:flex; gap:1.5rem; margin-bottom:.65rem; font-size:7.5pt; color:#6B7280; border-bottom:1px solid #DDD9D0; padding-bottom:.45rem; flex-wrap:wrap; }
+      .pa-pf-meta strong { color:#0D1B2A; }
+      .pa-pf-sec { font-size:7.5pt; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#0D1B2A; border-bottom:1.5px solid #C9963A; padding-bottom:.18rem; margin:.6rem 0 .35rem; }
+    `;
+    document.head.appendChild(s);
+  }
+
+  // HTML del panel
+  var gsHtml = [
+    {n:'1.284',l:'Docentes activos'},{n:'87',l:'Investigadores'},
+    {n:'12.450',l:'Alumnos matriculados'},{n:'638',l:'Egresados 2024'},
+    {n:'3.920',l:'Aspirantes 2025'},{n:'24',l:'Convenios vigentes'},
+    {n:'9',l:'Áreas / Secretarías'}
+  ].map(function(g){ return '<div class="pa-gs"><div class="pa-gs-num">'+g.n+'</div><div class="pa-gs-label">'+g.l+'</div></div>'; }).join('');
+
+  var selOpts = PA_AREAS.map(function(a){
+    return '<option value="'+a.cod+'">'+a.cod+' · '+PA_NAMES[a.cod]+'</option>';
+  }).join('');
+
+  var cardsHtml = PA_AREAS.map(function(a){
+    var c = PA_COLORS[a.cod]||'#0D1B2A';
+    var minis = a.kpisMini.map(function(k){
+      return '<div class="pa-mini"><div class="pa-mini-val">'+k.val+'</div><div class="pa-mini-label">'+k.label+'</div></div>';
+    }).join('');
+    var kpis = a.kpis.map(function(k){
+      var t = PA_TAGS[k.tag]||PA_TAGS.neu;
+      return '<div class="pa-kpi" style="border-top-color:'+c+'">'
+        +'<div class="pa-kpi-label">'+k.label+'</div>'
+        +'<div class="pa-kpi-val">'+k.val+'<span class="pa-kpi-unit">'+k.unit+'</span></div>'
+        +'<div class="pa-kpi-sub"><span class="pa-tag '+t.cls+'">'+t.icon+' '+k.sub+'</span></div>'
+        +'</div>';
+    }).join('');
+    var nota = a.nota ? '<div class="pa-nota"><strong>Nota:</strong> '+a.nota+'</div>' : '';
+    return '<div class="pa-card" id="pa-card-'+a.cod+'">'
+      +'<div class="pa-row" style="border-left-color:'+c+'" onclick="paTgl(\''+a.cod+'\')">'
+      +'<div class="pa-code" style="background:'+c+'">'+a.cod+'</div>'
+      +'<div class="pa-dot" style="background:'+c+'"></div>'
+      +'<div class="pa-name">'+PA_NAMES[a.cod]+'</div>'
+      +'<div class="pa-minis">'+minis+'</div>'
+      +'<div class="pa-chev">▼</div>'
+      +'</div>'
+      +'<div class="pa-detail"><div class="pa-grid">'+kpis+'</div>'+nota+'<div class="pa-fecha">Último dato: '+a.fecha+'</div></div>'
+      +'</div>';
+  }).join('');
+
+  root.innerHTML =
+    '<div class="pa-hd">'
+    +'<div><div class="pa-hd-ey">Facultad de Ciencias Económicas · UNLP</div>'
+    +'<div class="pa-hd-title">Panel por <span>Área</span></div>'
+    +'<div class="pa-hd-sub">Indicadores cuantitativos de gestión por secretaría · Datos ilustrativos</div></div>'
+    +'<div class="pa-hd-badge">Datos 2024–2025 · Ilustrativos</div>'
+    +'</div>'
+    +'<div class="pa-strip">'+gsHtml+'</div>'
+    +'<div class="pa-action">'
+    +'<span class="pa-action-label">Imprimir</span>'
+    +'<select class="pa-select" id="pa-select"><option value="todas">Todas las secretarías</option>'+selOpts+'</select>'
+    +'<button class="pa-btn" onclick="paImprimir()">🖨️ Imprimir</button>'
+    +'</div>'
+    +'<div class="pa-body">'
+    +'<div class="pa-sec-header">'
+    +'<div class="pa-sec-title">Indicadores por área</div>'
+    +'<button class="pa-toggle" id="pa-toggle-btn" onclick="paToggleTodo()">⊕ Expandir todo</button>'
+    +'</div>'
+    +'<div id="pa-cards">'+cardsHtml+'</div>'
+    +'</div>';
+}
+
+function paTgl(cod) {
+  var card = document.getElementById('pa-card-'+cod);
+  if (card) card.classList.toggle('open');
+  paActualizarBtn();
+}
+
+function paToggleTodo() {
+  var cards = document.querySelectorAll('.pa-card');
+  var hayAlgunaCerrada = Array.from(cards).some(function(c){ return !c.classList.contains('open'); });
+  cards.forEach(function(c){
+    hayAlgunaCerrada ? c.classList.add('open') : c.classList.remove('open');
+  });
+  paActualizarBtn();
+}
+
+function paActualizarBtn() {
+  var cards = document.querySelectorAll('.pa-card');
+  var btn = document.getElementById('pa-toggle-btn');
+  if (!btn) return;
+  var todasAbiertas = Array.from(cards).every(function(c){ return c.classList.contains('open'); });
+  btn.textContent = todasAbiertas ? '⊖ Colapsar todo' : '⊕ Expandir todo';
+}
+
+function paGetFecha() {
+  return new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
+}
+
+function paBuildKpiGrid(a, color) {
+  var tagMap = {up:'↑ ',down:'↓ ',warn:'⚠ ',neu:''};
+  return '<div class="pa-pf-grid">'+a.kpis.map(function(k){
+    return '<div class="pa-pf-kpi" style="border-top-color:'+color+'">'
+      +'<div class="pa-pf-kpi-label">'+k.label+'</div>'
+      +'<div class="pa-pf-kpi-val">'+k.val+'<span class="pa-pf-kpi-unit">'+k.unit+'</span></div>'
+      +'<div class="pa-pf-kpi-sub">'+(tagMap[k.tag]||'')+k.sub+'</div>'
+      +'</div>';
+  }).join('')+'</div>';
+}
+
+function paBuildNota(a) {
+  return a.nota ? '<div class="pa-pf-nota"><strong>Nota:</strong> '+a.nota+'</div>' : '';
+}
+
+function paImprimir() {
+  var sel = document.getElementById('pa-select');
+  if (!sel) return;
+  var val = sel.value;
+  var wrap = document.getElementById('print-frame-wrap');
+  if (!wrap) return;
+  var fecha = paGetFecha();
+
+  if (val === 'todas') {
+    var gsHtml = [
+      {n:'1.284',l:'Docentes activos'},{n:'87',l:'Investigadores'},
+      {n:'12.450',l:'Alumnos matriculados'},{n:'638',l:'Egresados 2024'},
+      {n:'3.920',l:'Aspirantes 2025'},{n:'24',l:'Convenios vigentes'},
+      {n:'9',l:'Áreas / Secretarías'}
+    ].map(function(g){ return '<div class="pa-pf-gs"><div class="pa-pf-gs-num">'+g.n+'</div><div class="pa-pf-gs-label">'+g.l+'</div></div>'; }).join('');
+
+    var bloques = PA_AREAS.map(function(a){
+      var c = PA_COLORS[a.cod]||'#0D1B2A';
+      return '<div class="pa-pf-area-hd" style="background:'+c+'">'
+        +'<span class="pa-pf-area-code">'+a.cod+'</span>'
+        +'<span class="pa-pf-area-name">'+PA_NAMES[a.cod]+'</span>'
+        +'<span class="pa-pf-area-fecha">Último dato: '+a.fecha+'</span>'
+        +'</div>'
+        +paBuildKpiGrid(a,c)+paBuildNota(a);
+    }).join('');
+
+    wrap.innerHTML = '<div class="pa-pf">'
+      +'<div class="pa-pf-hd"><div>'
+      +'<div class="pa-pf-inst">FCE · UNLP</div>'
+      +'<div class="pa-pf-title">Panel por Área</div>'
+      +'<div class="pa-pf-sub">Indicadores cuantitativos de gestión · Todas las secretarías</div>'
+      +'</div><div class="pa-pf-fecha">Generado: '+fecha+'<br>9 secretarías · Datos 2024–2025</div></div>'
+      +'<div class="pa-pf-strip">'+gsHtml+'</div>'
+      +'<div class="pa-pf-sec">Indicadores por secretaría</div>'
+      +bloques
+      +'<div class="pa-pf-footer"><span>Panel por Área · Facultad de Ciencias Económicas · UNLP</span><span>'+fecha+'</span></div>'
+      +'</div>';
+  } else {
+    var a = PA_AREAS.find(function(x){ return x.cod===val; });
+    if (!a) return;
+    var c = PA_COLORS[val]||'#0D1B2A';
+    wrap.innerHTML = '<div class="pa-pf">'
+      +'<div class="pa-pf-ficha-hd" style="background:'+c+'">'
+      +'<div><div style="font-size:7pt;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.18rem;">FCE · UNLP · Panel por Área</div>'
+      +'<div class="pa-pf-ficha-name">'+PA_NAMES[val]+'</div></div>'
+      +'<div class="pa-pf-badge">'+a.kpis.length+' indicadores</div>'
+      +'</div>'
+      +'<div class="pa-pf-meta">'
+      +'<span><strong>Área:</strong> '+val+'</span>'
+      +'<span><strong>Último dato:</strong> '+a.fecha+'</span>'
+      +'<span style="margin-left:auto"><strong>Generado:</strong> '+fecha+'</span>'
+      +'</div>'
+      +'<div class="pa-pf-sec">Indicadores</div>'
+      +paBuildKpiGrid(a,c)+paBuildNota(a)
+      +'<div class="pa-pf-footer"><span>'+PA_NAMES[val]+' · FCE · UNLP</span><span>'+fecha+'</span></div>'
+      +'</div>';
+  }
+
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ window.print(); });
+  });
+}
+// ── FIN PANEL POR ÁREA ────────────────────────────────────────────────────
 
 // Alias para compatibilidad con llamadas internas previas
 function switchView(mode) { switchTab(mode); }
