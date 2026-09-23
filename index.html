@@ -5266,9 +5266,11 @@ function paKpisConDato(a) {
 // Indicadores de la fila del título:
 // 1) los marcados con 📌 (en_fila) que tengan dato; 2) si no hay marcados, los 2 primeros con dato
 function paGetFila(a) {
-  var conDato = paKpisConDato(a);
-  var fijados = conDato.filter(function(k){ return k.en_fila; });
-  return (fijados.length ? fijados : conDato.slice(0, 2)).slice(0, PA_MAX_FILA);
+  // Fijados: cualquier indicador con nombre (aunque todavía no tenga valor → se muestra "—")
+  var fijados = paGetKpisArea(a).filter(function(k){ return k.en_fila && paTieneValor(k.label); });
+  if (fijados.length) return fijados.slice(0, PA_MAX_FILA);
+  // Automático: los 2 primeros con dato
+  return paKpisConDato(a).slice(0, 2);
 }
 
 // Fecha del último dato del área
@@ -5645,7 +5647,8 @@ async function buildPanelArea() {
     var fila = paGetFila(a);
     var minis = fila.length
       ? fila.map(function(k){
-          return '<div class="pa-mini"><div class="pa-mini-val">'+k.val+(k.unit||'')+'</div><div class="pa-mini-label">'+k.label+'</div></div>';
+          var mv = paTieneValor(k.val) ? k.val+(k.unit||'') : '<span style="color:#C9CDD4;">—</span>';
+          return '<div class="pa-mini"><div class="pa-mini-val">'+mv+'</div><div class="pa-mini-label">'+k.label+'</div></div>';
         }).join('')
       : '<div class="pa-mini"><div class="pa-mini-label" style="font-style:italic;text-transform:none;letter-spacing:0;">Sin indicadores cargados</div></div>';
 
@@ -5665,7 +5668,7 @@ async function buildPanelArea() {
         var kid = String(k._id).replace(/'/g,"\\'");
         var bs = 'background:none;border:none;cursor:pointer;font-size:.72rem;padding:.1rem .2rem;line-height:1;';
         tools = '<div style="display:flex;justify-content:flex-end;gap:.15rem;margin:-.35rem -.4rem .1rem 0;">'
-          + (valVacio || labelVacio ? '' :
+          + (labelVacio ? '' :
              '<button onclick="paToggleFila(\''+kid+'\',\''+acod+'\')" title="'+(k.en_fila?'Quitar de la fila del título':'Mostrar en la fila del título')+'" style="'+bs+'opacity:'+(k.en_fila?'1':'.3')+';">📌</button>')
           + '<button onclick="paEditarKpi(\''+kid+'\',\''+acod+'\')" title="Editar" style="'+bs+'color:#94A3B8;">✏</button>'
           + '<button onclick="paEliminarKpi(\''+kid+'\',\''+acod+'\')" title="Eliminar" style="'+bs+'color:#94A3B8;">🗑</button>'
@@ -5682,7 +5685,7 @@ async function buildPanelArea() {
         : '<div class="pa-kpi-label">'+k.label+'</div>';
       var borde = valVacio ? '#DDD9D0' : c;
       var extra = (valVacio || labelVacio) ? 'opacity:.6;' : '';
-      if (k.en_fila && !valVacio) extra += 'box-shadow:inset 0 0 0 1px '+c+';';
+      if (k.en_fila) extra += 'box-shadow:inset 0 0 0 1px '+c+';';
       return '<div class="pa-kpi" style="border-top-color:'+borde+';'+extra+'">'
         +tools+labelHtml+valHtml+subHtml+'</div>';
     }).join('');
@@ -5694,7 +5697,7 @@ async function buildPanelArea() {
     var addKpiBtn = '';
     if (isAdmin) {
       addKpiBtn = '<button onclick="paAgregarKpi(\''+acod+'\')" style="margin-top:.5rem;background:none;border:1px dashed rgba(201,150,58,.35);color:#C9963A;font-size:.73rem;font-weight:600;padding:.3rem .7rem;border-radius:5px;cursor:pointer;width:100%;">+ Agregar indicador</button>'
-        + '<div style="font-size:.66rem;color:#94A3B8;margin-top:.35rem;">📌 fija hasta '+PA_MAX_FILA+' indicadores en la fila del título. Si no fijás ninguno, se muestran los 2 primeros con dato.</div>';
+        + '<div style="font-size:.66rem;color:#94A3B8;margin-top:.35rem;">📌 fija hasta '+PA_MAX_FILA+' indicadores en la fila del título (aunque todavía no tengan valor). Si no fijás ninguno, se muestran los 2 primeros con dato.</div>';
     }
     var fechaArea = conDato.length ? paFechaArea(a) : '';
     var fechaActualizacion = fechaArea
