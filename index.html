@@ -2124,6 +2124,14 @@
               <option value="admin">Administrador</option>
             </select>
           </div>
+          <div class="admin-field">
+            <label>Área / dependencia</label>
+            <select id="new-unidad"></select>
+          </div>
+          <div class="admin-field">
+            <label>Cargo</label>
+            <select id="new-cargo"></select>
+          </div>
         </div>
         <div class="admin-field" style="margin-top:.6rem;">
           <label>Secciones visibles <span style="font-size:.6rem;color:#4A5568;text-transform:none;letter-spacing:0;">(dejar todo marcado = acceso completo)</span></label>
@@ -3954,7 +3962,7 @@ const AREA_NAMES = {
   POS:'Secretaría de Posgrado',
   SAA:'Secretaría de Asuntos Académicos',
   SAF:'Secretaría de Administración y Finanzas',
-  UCI:'Comunicación Institucional'
+  UCI:'Unidad de Comunicación Institucional'
 };
 const AREA_TOTALS = {BIE:19,CD:3,EXT:11,INV:15,PCI:6,POS:13,SAA:26,SAF:17,UCI:11};
 
@@ -5140,7 +5148,7 @@ var PA_NAMES = {
   POS:'Secretaría de Posgrado',
   SAA:'Secretaría de Asuntos Académicos',
   SAF:'Secretaría de Administración y Finanzas',
-  UCI:'Comunicación Institucional'
+  UCI:'Unidad de Comunicación Institucional'
 };
 var PA_AREAS = [
   {cod:'INV',nota:'Desarrollo propio HERA registrado ante DNDA. Investigadores cat. I-II crecieron 220% desde 2018 (de 25 a 55). Los 4 institutos acreditados por UNLP.',
@@ -5250,8 +5258,9 @@ function paTieneValor(v) {
 function paGetKpisArea(a) {
   if (_paKpisOk) {
     return (_paKpis[a.cod] || []).map(function(k){
-      return {label:k.label||'', val:k.valor, unit:k.unidad||'', sub:k.subtitulo||'',
-              tag:k.tag||'neu', _id:k.id, en_fila:!!k.en_fila, updated_at:k.updated_at};
+      return {label:k.label||'', val:k.valor, unit:paTieneValor(k.unidad)?k.unidad:'', sub:paTieneValor(k.subtitulo)?k.subtitulo:'',
+              tag:k.tag||'neu', _id:k.id, en_fila:!!k.en_fila, updated_at:paFechaKpi(k),
+              periodo:k.periodo||'', por:k.actualizado_por_nombre||'', fecha_dato:k.fecha_dato||''};
     });
   }
   // Sin conexión a Supabase → respaldo fijo del HTML
@@ -5273,17 +5282,47 @@ function paGetFila(a) {
   return paKpisConDato(a).slice(0, 2);
 }
 
+// Fecha del dato de un indicador: la que informó el área (fecha_dato) o, si no hay, la de la última edición
+function paFechaKpi(k) {
+  return k.fecha_dato || k.updated_at || '';
+}
+function paHoyISO() {
+  var d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+// Update tolerante: si todavía no existen las columnas nuevas (SQL sin ejecutar), reintenta sin ellas
+async function paUpdateKpi(id, obj) {
+  var r = await sb.from('pa_kpis').update(obj).eq('id', id);
+  if (r.error && /fecha_dato|periodo|column/i.test(r.error.message||'')) {
+    var o2 = Object.assign({}, obj); delete o2.fecha_dato; delete o2.periodo;
+    r = await sb.from('pa_kpis').update(o2).eq('id', id);
+  }
+  return r;
+}
+async function paInsertKpi(obj) {
+  var r = await sb.from('pa_kpis').insert(obj);
+  if (r.error && /fecha_dato|periodo|column/i.test(r.error.message||'')) {
+    var o2 = Object.assign({}, obj); delete o2.fecha_dato; delete o2.periodo;
+    r = await sb.from('pa_kpis').insert(o2);
+  }
+  return r;
+}
+
 // Fecha del último dato del área
 function paFechaArea(a) {
   if (!_paKpisOk) return a.fecha || '';
-  var f = (_paKpis[a.cod] || []).map(function(k){ return k.updated_at; }).filter(Boolean).sort().reverse()[0];
+  var f = (_paKpis[a.cod] || []).filter(function(k){ return paTieneValor(k.label) && paTieneValor(k.valor); })
+    .map(paFechaKpi).filter(Boolean).sort().reverse()[0];
   return f ? paFmtFecha(f) : '';
 }
 
 // Formatear fecha de actualización
 function paFmtFecha(iso) {
   if (!iso) return '';
-  var d = new Date(iso);
+  var d;
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso));
+  if (m) d = new Date(+m[1], +m[2]-1, +m[3]);   // fecha sola (fecha_dato): sin corrimiento de zona horaria
+  else d = new Date(iso);
   return d.toLocaleDateString('es-AR', {day:'2-digit', month:'short', year:'numeric'});
 }
 
@@ -5301,7 +5340,7 @@ async function paCargarBanda() {
         valor:      k.valor,
         activo:     true,
         orden:      k.banda_orden || 99,
-        updated_at: k.updated_at,
+        updated_at: paFechaKpi(k),
         _kpi:       k  // referencia al kpi original
       });
     });
@@ -5444,41 +5483,186 @@ function paCfgInitDrag() {
   });
 }
 
-// ── KPIs por área: editar desde el panel ──
-async function paEditarKpi(id, areaCod) {
-  var kpisArea = _paKpis[areaCod] || [];
-  var k = kpisArea.find(function(x){ return String(x.id) === String(id); });
-  if (!k) return;
-  var nuevoLabel = prompt('Nombre del indicador:', k.label);
-  if (nuevoLabel === null) return;
-  var nuevoValor = prompt('Valor:', k.valor);
-  if (nuevoValor === null) return;
-  var nuevoSub = prompt('Descripción (subtítulo):', k.subtitulo || '');
-  if (nuevoSub === null) return;
-  var update = {};
-  if (nuevoLabel.trim() && nuevoLabel.trim() !== k.label) update.label = nuevoLabel.trim();
-  // El valor se puede vaciar (queda "sin dato" y sale de la fila y la banda)
-  if (nuevoValor.trim() !== (k.valor || '')) update.valor = nuevoValor.trim();
-  if (nuevoSub.trim() !== (k.subtitulo || '')) update.subtitulo = nuevoSub.trim();
-  if (Object.keys(update).length === 0) return;
-  update.updated_at = new Date().toISOString();
-  var { error } = await sb.from('pa_kpis').update(update).eq('id', id);
-  if (error) { alert('Error al guardar.'); return; }
-  var _ab = paCardsAbiertas();
-  await paCargarKpis();
-  await buildPanelArea();
-  paRestaurarAbiertas(_ab);
+// ── Permisos del Panel por Área ──
+// Admin: todo. Usuarios con área (Secretarías, Prosecretarías, CD, UCI): cargan datos de SU área.
+// Decanato y Vicedecanato: consulta de todas las áreas, sin edición.
+var PA_SOLO_LECTURA = ['DEC','VDC'];
+var PA_MESES_DESACT = 6;
+
+function paEsAdmin() { return !!(currentPerfil && currentPerfil.rol === 'admin'); }
+function paMiArea() { return (currentPerfil && currentPerfil.area_cod) || null; }
+function paPuedeCargar(cod) {
+  if (paEsAdmin()) return true;
+  var mi = paMiArea();
+  return !!mi && mi === cod && PA_SOLO_LECTURA.indexOf(mi) < 0;
 }
+
+function paParseFecha(f) {
+  if (!f) return null;
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(f));
+  return m ? new Date(+m[1], +m[2]-1, +m[3]) : new Date(f);
+}
+// ¿El dato tiene más de PA_MESES_DESACT meses sin actualizar?
+function paDesactualizado(k) {
+  if (!_paKpisOk) return false;
+  var d = paParseFecha(k.updated_at || k.fecha_dato);
+  if (!d || isNaN(d)) return false;
+  var lim = new Date(); lim.setMonth(lim.getMonth() - PA_MESES_DESACT);
+  return d < lim;
+}
+// Última carga del área (fecha y quién), sólo entre indicadores con dato
+function paUltimaCarga(a) {
+  if (!_paKpisOk) return a.fecha ? null : null;
+  var best = null;
+  (_paKpis[a.cod] || []).forEach(function(k){
+    if (!paTieneValor(k.label) || !paTieneValor(k.valor)) return;
+    var f = paFechaKpi(k);
+    if (f && (!best || String(f) > String(best.fecha))) best = { fecha:f, por:k.actualizado_por_nombre||'' };
+  });
+  return best;
+}
+
+// Formatea enteros largos con punto de miles (1250 → 1.250). Respeta lo demás tal cual.
+function paNormalizarValor(v) {
+  v = (v || '').trim();
+  if (/^\d{4,}$/.test(v)) return Number(v).toLocaleString('es-AR');
+  return v;
+}
+
+// ── Formulario de carga / edición de un indicador ──
+function paEditarKpi(id, areaCod) {
+  var k = (_paKpis[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
+  if (!k) return;
+  if (!paPuedeCargar(areaCod)) { alert('No tenés permiso para modificar indicadores de esta área.'); return; }
+  var admin = paEsAdmin();
+  var c = PA_COLORS[areaCod] || '#0D1B2A';
+  var v = function(x){ return paTieneValor(x) ? paEsc(x) : ''; };
+  var fld = 'width:100%;box-sizing:border-box;font-family:Inter,sans-serif;font-size:.88rem;padding:.5rem .65rem;border:1px solid #DDD9D0;border-radius:6px;background:#fff;color:#0D1B2A;';
+  var lab = 'display:block;font-size:.68rem;font-weight:700;color:#6B7A8D;text-transform:uppercase;letter-spacing:.05em;margin:.8rem 0 .3rem;';
+  var tagOpts = [['neu','— Estable / sin comparación'],['up','↑ Mejora respecto del período anterior'],['down','↓ Empeora respecto del período anterior'],['warn','⚠ Requiere atención']]
+    .map(function(o){ return '<option value="'+o[0]+'"'+((k.tag||'neu')===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+  var ultimo = paTieneValor(k.valor)
+    ? '<div style="font-size:.74rem;color:#6B7A8D;background:#F5F2EC;border-radius:6px;padding:.5rem .7rem;margin-top:.2rem;">Dato actual: <strong style="color:#0D1B2A;">'+paEsc(k.valor)+(paTieneValor(k.unidad)?' '+paEsc(k.unidad):'')+'</strong>'
+      +(paTieneValor(k.periodo)?' · período '+paEsc(k.periodo):'')
+      +(paFechaKpi(k)?' · cargado el '+paFmtFecha(paFechaKpi(k)):'')
+      +(k.actualizado_por_nombre?' por '+paEsc(k.actualizado_por_nombre):'')+'</div>' : '';
+
+  var old = document.getElementById('pa-form-modal'); if (old) old.remove();
+  var m = document.createElement('div');
+  m.id = 'pa-form-modal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;font-family:Inter,sans-serif;';
+  m.innerHTML = '<div style="background:#fff;border-radius:12px;width:min(520px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">'
+    +'<div style="background:'+c+';color:#fff;padding:.9rem 1.2rem;border-radius:12px 12px 0 0;display:flex;align-items:center;gap:.8rem;">'
+    +'<div style="flex:1;"><div style="font-size:.66rem;opacity:.75;letter-spacing:.08em;text-transform:uppercase;">'+paEsc(PA_NAMES[areaCod]||areaCod)+'</div>'
+    +'<div style="font-size:1.05rem;font-weight:800;line-height:1.25;">'+(paTieneValor(k.label)?paEsc(k.label):'Indicador sin nombre')+'</div></div>'
+    +'<button onclick="paFormCerrar()" style="background:none;border:none;color:rgba(255,255,255,.75);font-size:1.1rem;cursor:pointer;">✕</button></div>'
+    +'<div style="padding:.6rem 1.2rem 1.1rem;">'
+    + ultimo
+    +(admin
+      ? '<label style="'+lab+'">Nombre del indicador</label><input id="paf-label" style="'+fld+'" value="'+v(k.label)+'">'
+        +'<label style="'+lab+'">Unidad <span style="text-transform:none;font-weight:400;">(%, $, hs… — vacío si no aplica)</span></label><input id="paf-unidad" style="'+fld+'" value="'+v(k.unidad)+'">'
+      : '')
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem;">'
+    +'<div><label style="'+lab+'">Valor *</label><input id="paf-valor" style="'+fld+'font-size:1.1rem;font-weight:700;" value="'+v(k.valor)+'" placeholder="Ej: 1.250">'
+    +(paTieneValor(k.unidad)?'<div style="font-size:.66rem;color:#94A3B8;margin-top:.2rem;">Unidad: '+paEsc(k.unidad)+'</div>':'')+'</div>'
+    +'<div><label style="'+lab+'">Período *</label><input id="paf-periodo" style="'+fld+'" value="'+v(k.periodo)+'" placeholder="Ej: 2025 · 1er cuatr. 2026"></div>'
+    +'</div>'
+    +'<label style="'+lab+'">Aclaración <span style="text-transform:none;font-weight:400;">(opcional, breve)</span></label><input id="paf-sub" style="'+fld+'" maxlength="90" value="'+v(k.subtitulo)+'" placeholder="Ej: Incluye becas UNLP y propias">'
+    +'<label style="'+lab+'">Tendencia</label><select id="paf-tag" style="'+fld+'">'+tagOpts+'</select>'
+    +'<div id="paf-msg" style="font-size:.76rem;color:#C62828;min-height:1rem;margin-top:.7rem;"></div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:.3rem;">'
+    +'<button onclick="paFormCerrar()" style="background:#fff;border:1px solid #DDD9D0;color:#0D1B2A;font-weight:600;font-size:.82rem;padding:.55rem 1rem;border-radius:6px;cursor:pointer;">Cancelar</button>'
+    +'<button id="paf-ok" onclick="paFormGuardar(\''+String(k.id).replace(/'/g,"\\'")+'\',\''+String(areaCod).replace(/'/g,"\\'")+'\')" style="background:#C9963A;border:none;color:#0D1B2A;font-weight:700;font-size:.82rem;padding:.55rem 1.2rem;border-radius:6px;cursor:pointer;">Guardar</button>'
+    +'</div></div></div>';
+  m.addEventListener('click', function(e){ if (e.target === m) paFormCerrar(); });
+  document.body.appendChild(m);
+  setTimeout(function(){ var f = document.getElementById(admin ? 'paf-label' : 'paf-valor'); if (f) f.focus(); }, 50);
+}
+
+function paFormCerrar() { var m = document.getElementById('pa-form-modal'); if (m) m.remove(); }
+
+async function paFormGuardar(id, areaCod) {
+  var k = (_paKpis[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
+  if (!k) return;
+  var admin = paEsAdmin();
+  var g = function(i){ var e = document.getElementById(i); return e ? e.value.trim() : ''; };
+  var msg = document.getElementById('paf-msg');
+  var btn = document.getElementById('paf-ok');
+  var valor = paNormalizarValor(g('paf-valor')), periodo = g('paf-periodo'), sub = g('paf-sub'), tag = g('paf-tag') || 'neu';
+
+  if (!admin && (!valor || !periodo)) { msg.textContent = 'Completá el valor y el período.'; return; }
+  if (valor && !periodo) { msg.textContent = 'Indicá a qué período corresponde el valor.'; return; }
+  btn.disabled = true; btn.style.opacity = '.5'; msg.style.color = '#6B7A8D'; msg.textContent = 'Guardando…';
+
+  // 1) Definición del indicador (sólo admin): nombre y unidad
+  if (admin) {
+    var def = {};
+    var nl = g('paf-label'), nu = g('paf-unidad');
+    if (nl && nl !== (k.label||'')) def.label = nl;
+    if (nu !== (paTieneValor(k.unidad) ? k.unidad : '')) def.unidad = nu;
+    if (Object.keys(def).length) {
+      var r0 = await sb.from('pa_kpis').update(def).eq('id', id);
+      if (r0.error) { msg.style.color='#C62828'; msg.textContent = 'Error al guardar: ' + r0.error.message; btn.disabled=false; btn.style.opacity='1'; return; }
+    }
+  }
+
+  // 2) El dato: sólo si cambió algo. Pasa por la función de Supabase que controla el permiso del área
+  var cambioDato = valor !== (paTieneValor(k.valor)?k.valor:'') || periodo !== (k.periodo||'')
+                || sub !== (paTieneValor(k.subtitulo)?k.subtitulo:'') || tag !== (k.tag||'neu');
+  if (cambioDato) {
+    var r = await sb.rpc('pa_cargar_dato', { p_id:id, p_valor:valor, p_periodo:periodo, p_aclaracion:sub, p_tag:tag });
+    if (r.error) {
+      msg.style.color='#C62828';
+      msg.textContent = /function|schema cache/i.test(r.error.message||'')
+        ? 'Falta ejecutar el SQL de carga por áreas en Supabase.'
+        : (r.error.message || 'No se pudo guardar.');
+      btn.disabled=false; btn.style.opacity='1'; return;
+    }
+  }
+  paFormCerrar();
+  if (typeof logAct === 'function' && cambioDato) { try { await logAct('editar', 'panelarea', 'Cargó '+areaCod+' · '+(k.label||'')+': '+valor+' ('+periodo+')'); } catch(e){} }
+  var abiertas = paCardsAbiertas();
+  await buildPanelArea();
+  paRestaurarAbiertas(abiertas);
+}
+
+// ── Historial de cargas de un indicador (admin) ──
+async function paHistorial(id, areaCod) {
+  var k = (_paKpis[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
+  var { data, error } = await sb.from('pa_kpis_hist').select('*').eq('kpi_id', id).order('created_at', { ascending:false }).limit(30);
+  if (error) { alert('No se pudo leer el historial. ¿Ejecutaste el SQL de carga por áreas?\n\n' + error.message); return; }
+  var filas = (data||[]).map(function(h){
+    return '<tr><td style="padding:.35rem .6rem;white-space:nowrap;">'+new Date(h.created_at).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</td>'
+      +'<td style="padding:.35rem .6rem;">'+paEsc(h.usuario_nombre||'')+'</td>'
+      +'<td style="padding:.35rem .6rem;color:#94A3B8;">'+paEsc(h.valor_anterior||'—')+(h.periodo_anterior?' <span style="font-size:.7rem;">('+paEsc(h.periodo_anterior)+')</span>':'')+'</td>'
+      +'<td style="padding:.35rem .6rem;font-weight:700;">'+paEsc(h.valor_nuevo||'—')+(h.periodo_nuevo?' <span style="font-size:.7rem;font-weight:400;">('+paEsc(h.periodo_nuevo)+')</span>':'')+'</td></tr>';
+  }).join('');
+  var old = document.getElementById('pa-form-modal'); if (old) old.remove();
+  var m = document.createElement('div');
+  m.id = 'pa-form-modal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;font-family:Inter,sans-serif;';
+  m.innerHTML = '<div style="background:#fff;border-radius:12px;width:min(640px,100%);max-height:85vh;overflow:auto;">'
+    +'<div style="background:#0D1B2A;color:#fff;padding:.9rem 1.2rem;border-radius:12px 12px 0 0;display:flex;"><div style="flex:1;"><div style="font-size:.66rem;opacity:.6;text-transform:uppercase;letter-spacing:.08em;">Historial de cargas · '+areaCod+'</div>'
+    +'<div style="font-weight:800;">'+paEsc(k?k.label:'')+'</div></div><button onclick="paFormCerrar()" style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;">✕</button></div>'
+    +(filas ? '<table style="width:100%;border-collapse:collapse;font-size:.8rem;"><tr style="font-size:.64rem;color:#6B7A8D;text-transform:uppercase;text-align:left;"><th style="padding:.5rem .6rem;">Fecha</th><th>Usuario</th><th>Antes</th><th>Después</th></tr>'+filas+'</table>'
+            : '<div style="padding:1.2rem;color:#94A3B8;font-size:.85rem;">Todavía no hay cargas registradas para este indicador.</div>')
+    +'</div>';
+  m.addEventListener('click', function(e){ if (e.target === m) paFormCerrar(); });
+  document.body.appendChild(m);
+}
+
+function paEsc(t) { return String(t==null?'':t).replace(/[&<>"]/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]; }); }
 
 async function paAgregarKpi(areaCod) {
   var label = prompt('Nombre del indicador (ej: "Personal no docente"):');
   if (!label || !label.trim()) return;
-  var valor = prompt('Valor (ej: "47"):');
-  if (!valor || !valor.trim()) return;
+  var valor = prompt('Valor (opcional — lo puede cargar después el área):', '');
+  if (valor === null) return;
   var unidad = prompt('Unidad (ej: "%", "hs" — dejá vacío si no aplica):', '') || '';
   var subtitulo = prompt('Subtítulo (descripción breve — opcional):', '') || '';
   var maxOrden = (_paKpis[areaCod]||[]).reduce(function(m,k){ return Math.max(m, k.orden||0); }, 0);
-  var { error } = await sb.from('pa_kpis').insert({
+  var { error } = await paInsertKpi({
+    fecha_dato: valor.trim() ? paHoyISO() : null,
     area_cod: areaCod,
     label: label.trim(),
     valor: valor.trim(),
@@ -5638,12 +5822,15 @@ async function buildPanelArea() {
     return '<option value="'+a.cod+'">'+a.cod+' · '+PA_NAMES[a.cod]+'</option>';
   }).join('');
 
-  var isAdmin = currentPerfil && currentPerfil.rol === 'admin';
+  var isAdmin = paEsAdmin();
+  var miArea = paMiArea();
   var cardsHtml = PA_AREAS.map(function(a){
     var c = PA_COLORS[a.cod]||'#0D1B2A';
     var acod = String(a.cod).replace(/'/g,"\\'");
+    var puedeCargar = paPuedeCargar(a.cod);
+    var esMiArea = (miArea === a.cod);
 
-    // ── Fila del título: sólo indicadores con dato real (fijados con 📌 o, si no hay, los 2 primeros)
+    // ── Fila del título
     var fila = paGetFila(a);
     var minis = fila.length
       ? fila.map(function(k){
@@ -5653,26 +5840,35 @@ async function buildPanelArea() {
       : '<div class="pa-mini"><div class="pa-mini-label" style="font-style:italic;text-transform:none;letter-spacing:0;">Sin indicadores cargados</div></div>';
 
     // ── Tarjetas de detalle
-    // Usuarios comunes: sólo indicadores con dato. Admin: todos (los vacíos atenuados, para completarlos o borrarlos)
+    // Consulta: sólo indicadores con dato. Admin y responsables del área: todos (los vacíos atenuados, para cargarlos)
     var todos = paGetKpisArea(a);
-    var visibles = isAdmin ? todos : todos.filter(function(k){ return paTieneValor(k.label) && paTieneValor(k.val); });
+    var verVacios = isAdmin || puedeCargar;
+    var visibles = verVacios ? todos.filter(function(k){ return isAdmin || paTieneValor(k.label); })
+                             : todos.filter(function(k){ return paTieneValor(k.label) && paTieneValor(k.val); });
     var conDato = paKpisConDato(a);
+    var nDesact = conDato.filter(paDesactualizado).length;
 
     var kpis = visibles.map(function(k){
       var t = PA_TAGS[k.tag]||PA_TAGS.neu;
       var valVacio = !paTieneValor(k.val);
       var labelVacio = !paTieneValor(k.label);
+      var desact = paDesactualizado(k);
       var subStr = (k.sub == null ? '' : k.sub.toString().trim());
+      var bs = 'background:none;border:none;cursor:pointer;font-size:.72rem;padding:.1rem .2rem;line-height:1;';
       var tools = '';
-      if (isAdmin && k._id) {
+      if (k._id && (isAdmin || puedeCargar)) {
         var kid = String(k._id).replace(/'/g,"\\'");
-        var bs = 'background:none;border:none;cursor:pointer;font-size:.72rem;padding:.1rem .2rem;line-height:1;';
-        tools = '<div style="display:flex;justify-content:flex-end;gap:.15rem;margin:-.35rem -.4rem .1rem 0;">'
-          + (labelVacio ? '' :
+        tools = '<div style="display:flex;justify-content:flex-end;gap:.15rem;margin:-.35rem -.4rem .1rem 0;">';
+        if (isAdmin) {
+          tools += (labelVacio ? '' :
              '<button onclick="paToggleFila(\''+kid+'\',\''+acod+'\')" title="'+(k.en_fila?'Quitar de la fila del título':'Mostrar en la fila del título')+'" style="'+bs+'opacity:'+(k.en_fila?'1':'.3')+';">📌</button>')
-          + '<button onclick="paEditarKpi(\''+kid+'\',\''+acod+'\')" title="Editar" style="'+bs+'color:#94A3B8;">✏</button>'
-          + '<button onclick="paEliminarKpi(\''+kid+'\',\''+acod+'\')" title="Eliminar" style="'+bs+'color:#94A3B8;">🗑</button>'
-          + '</div>';
+            + '<button onclick="paHistorial(\''+kid+'\',\''+acod+'\')" title="Historial de cargas" style="'+bs+'color:#94A3B8;">🕘</button>'
+            + '<button onclick="paEditarKpi(\''+kid+'\',\''+acod+'\')" title="Editar" style="'+bs+'color:#94A3B8;">✏</button>'
+            + '<button onclick="paEliminarKpi(\''+kid+'\',\''+acod+'\')" title="Eliminar" style="'+bs+'color:#94A3B8;">🗑</button>';
+        } else {
+          tools += '<button onclick="paEditarKpi(\''+kid+'\',\''+acod+'\')" title="Cargar dato" style="'+bs+'color:'+c+';font-weight:700;font-size:.7rem;border:1px solid '+c+'55;border-radius:4px;padding:.15rem .4rem;">✏ '+(valVacio?'Cargar':'Actualizar')+'</button>';
+        }
+        tools += '</div>';
       }
       var subHtml = (valVacio || !paTieneValor(subStr))
         ? ''
@@ -5683,33 +5879,44 @@ async function buildPanelArea() {
       var labelHtml = labelVacio
         ? '<div class="pa-kpi-label" style="color:#C62828;">(sin nombre)</div>'
         : '<div class="pa-kpi-label">'+k.label+'</div>';
-      var borde = valVacio ? '#DDD9D0' : c;
-      var extra = (valVacio || labelVacio) ? 'opacity:.6;' : '';
-      if (k.en_fila) extra += 'box-shadow:inset 0 0 0 1px '+c+';';
+      var meta = [];
+      if (!valVacio && paTieneValor(k.periodo)) meta.push('Período: '+k.periodo);
+      var metaHtml = meta.length ? '<div style="font-size:.66rem;color:#6B7A8D;margin-top:auto;padding-top:.25rem;">'+meta.join(' · ')+'</div>' : '';
+      var desactHtml = (!valVacio && desact)
+        ? '<div title="Sin actualizar hace más de '+PA_MESES_DESACT+' meses" style="font-size:.64rem;color:#E65100;font-weight:600;">⚠ Desactualizado</div>' : '';
+      var cargaHtml = (!valVacio && (isAdmin || puedeCargar) && (k.por || k.updated_at))
+        ? '<div style="font-size:.6rem;color:#A0AEC0;">Cargado '+(k.updated_at?paFmtFecha(k.updated_at):'')+(k.por?' · '+k.por:'')+'</div>' : '';
+      var borde = valVacio ? '#DDD9D0' : (desact ? '#E65100' : c);
+      var extra = (valVacio || labelVacio) ? 'opacity:.65;' : '';
+      if (k.en_fila && isAdmin) extra += 'box-shadow:inset 0 0 0 1px '+c+';';
       return '<div class="pa-kpi" style="border-top-color:'+borde+';'+extra+'">'
-        +tools+labelHtml+valHtml+subHtml+'</div>';
+        +tools+labelHtml+valHtml+subHtml+metaHtml+desactHtml+cargaHtml+'</div>';
     }).join('');
 
     var gridHtml = kpis
       ? '<div class="pa-grid">'+kpis+'</div>'
-      : '<div style="font-size:.8rem;color:#94A3B8;padding:1rem 0 .2rem;font-style:italic;">Esta secretaría todavía no cargó indicadores.</div>';
+      : '<div style="font-size:.8rem;color:#94A3B8;padding:1rem 0 .2rem;font-style:italic;">Esta secretaría todavía no tiene indicadores definidos.</div>';
 
     var addKpiBtn = '';
     if (isAdmin) {
       addKpiBtn = '<button onclick="paAgregarKpi(\''+acod+'\')" style="margin-top:.5rem;background:none;border:1px dashed rgba(201,150,58,.35);color:#C9963A;font-size:.73rem;font-weight:600;padding:.3rem .7rem;border-radius:5px;cursor:pointer;width:100%;">+ Agregar indicador</button>'
-        + '<div style="font-size:.66rem;color:#94A3B8;margin-top:.35rem;">📌 fija hasta '+PA_MAX_FILA+' indicadores en la fila del título (aunque todavía no tengan valor). Si no fijás ninguno, se muestran los 2 primeros con dato.</div>';
+        + '<div style="font-size:.66rem;color:#94A3B8;margin-top:.35rem;">📌 fija hasta '+PA_MAX_FILA+' indicadores en la fila del título (aunque todavía no tengan valor). Si no fijás ninguno, se muestran los 2 primeros con dato. 🕘 muestra quién cargó cada valor.</div>';
+    } else if (puedeCargar) {
+      addKpiBtn = '<div style="font-size:.7rem;color:#6B7A8D;margin-top:.6rem;background:#F5F2EC;border-radius:6px;padding:.5rem .7rem;">Para cargar o actualizar un dato usá <strong>✏</strong> en cada indicador. Si hace falta agregar, quitar o renombrar un indicador, pedíselo a la Secretaría de Planificación.</div>';
     }
-    var fechaArea = conDato.length ? paFechaArea(a) : '';
-    var fechaActualizacion = fechaArea
-      ? '<div style="font-size:.68rem;color:#94A3B8;margin-top:.6rem;text-align:right;">⏱ Actualizado: '+fechaArea+'</div>'
+    var ult = paUltimaCarga(a);
+    var fechaActualizacion = ult
+      ? '<div style="font-size:.68rem;color:#94A3B8;margin-top:.6rem;text-align:right;">⏱ Actualizado: '+paFmtFecha(ult.fecha)+(ult.por && (isAdmin||puedeCargar) ? ' · '+ult.por : '')+'</div>'
       : '';
-    // La nota fija del HTML sólo acompaña al respaldo sin conexión
     var nota = (!_paKpisOk && a.nota) ? '<div class="pa-nota"><strong>Nota:</strong> '+a.nota+'</div>' : '';
-    return '<div class="pa-card" id="pa-card-'+a.cod+'">'
+    var badges = '';
+    if (esMiArea && puedeCargar) badges += '<span style="font-size:.62rem;font-weight:700;color:'+c+';border:1px solid '+c+';border-radius:10px;padding:.1rem .5rem;margin-left:.5rem;white-space:nowrap;">TU ÁREA</span>';
+    if (nDesact) badges += '<span title="Indicadores sin actualizar hace más de '+PA_MESES_DESACT+' meses" style="font-size:.62rem;font-weight:700;color:#E65100;background:#FFF3E0;border-radius:10px;padding:.1rem .5rem;margin-left:.5rem;white-space:nowrap;">⚠ '+nDesact+' desactualizado'+(nDesact>1?'s':'')+'</span>';
+    return '<div class="pa-card'+(esMiArea && puedeCargar ? ' open' : '')+'" id="pa-card-'+a.cod+'">'
       +'<div class="pa-row" style="border-left-color:'+c+'" onclick="paTgl(\''+a.cod+'\')">'
       +'<div class="pa-code" style="background:'+c+'">'+a.cod+'</div>'
       +'<div class="pa-dot" style="background:'+c+'"></div>'
-      +'<div class="pa-name">'+PA_NAMES[a.cod]+'</div>'
+      +'<div class="pa-name">'+PA_NAMES[a.cod]+badges+'</div>'
       +'<div class="pa-minis">'+minis+'</div>'
       +'<div class="pa-chev">▼</div>'
       +'</div>'
@@ -5793,6 +6000,8 @@ function paBuildKpiGrid(a, color) {
       +'<div class="pa-pf-kpi-label">'+k.label+'</div>'
       +'<div class="pa-pf-kpi-val">'+k.val+'<span class="pa-pf-kpi-unit">'+(k.unit||'')+'</span></div>'
       +(sub ? '<div class="pa-pf-kpi-sub">'+sub+'</div>' : '')
+      +((paTieneValor(k.periodo)||paDesactualizado(k)) ? '<div class="pa-pf-kpi-sub" style="opacity:.8;">'
+          +(paTieneValor(k.periodo)?'Período: '+k.periodo:'')+(paDesactualizado(k)?(paTieneValor(k.periodo)?' · ':'')+'⚠ desactualizado':'')+'</div>' : '')
       +'</div>';
   }).join('')+'</div>';
 }
@@ -7251,7 +7460,8 @@ async function onLoginSuccess(user) {
   document.getElementById('user-bar-name').textContent = currentPerfil.nombre || user.email;
   const rolBadge = document.getElementById('user-bar-role');
   const rolLabels = { admin:'Administrador', usuario:'Usuario' };
-  rolBadge.textContent = rolLabels[currentPerfil.rol] || currentPerfil.rol;
+  rolBadge.textContent = currentPerfil.rol === 'admin' ? 'Administrador' : (currentPerfil.cargo || rolLabels[currentPerfil.rol] || currentPerfil.rol);
+  if (currentPerfil.dependencia) rolBadge.title = currentPerfil.dependencia;
   rolBadge.className = 'user-role-badge role-' + currentPerfil.rol;
 
   aplicarSecciones(currentPerfil.secciones || null);
@@ -7796,6 +8006,53 @@ async function guardarSecciones(uid) {
   loadAdminUsers();
 }
 
+// ── ÁREAS, DEPENDENCIAS Y CARGOS DE LOS USUARIOS ──
+// Cada dependencia pertenece a un área del Panel (area_cod). Las prosecretarías cargan en el panel de su Secretaría.
+const UNIDADES = [
+  { area:'SAA', nombre:'Secretaría de Asuntos Académicos' },
+  { area:'POS', nombre:'Secretaría de Posgrado' },
+  { area:'PCI', nombre:'Secretaría de Planificación y Control Institucional' },
+  { area:'INV', nombre:'Secretaría de Investigación y Vinculación Tecnológica' },
+  { area:'INV', nombre:'Prosecretaría de Investigación' },
+  { area:'INV', nombre:'Prosecretaría de Vinculación Tecnológica' },
+  { area:'EXT', nombre:'Secretaría de Extensión Universitaria' },
+  { area:'BIE', nombre:'Secretaría de Bienestar Universitario' },
+  { area:'BIE', nombre:'Prosecretaría de Inserción Laboral' },
+  { area:'SAF', nombre:'Secretaría de Administración y Finanzas' },
+  { area:'CD',  nombre:'Secretaría de Consejo Directivo' },
+  { area:'UCI', nombre:'Unidad de Comunicación Institucional' },
+  { area:'DEC', nombre:'Decanato' },
+  { area:'VDC', nombre:'Vicedecanato' }
+];
+const CARGOS = ['Decano/a', 'Vicedecano/a', 'Secretario/a', 'Prosecretario/a'];
+
+function unidadOptionsHtml(dependenciaActual) {
+  return '<option value="">— Sin área (sólo consulta) —</option>'
+    + UNIDADES.map(function(u, i){
+        var sel = (dependenciaActual && dependenciaActual === u.nombre) ? ' selected' : '';
+        var sangria = /^Prosecretar/.test(u.nombre) ? '\u00A0\u00A0\u00A0↳ ' : '';
+        return '<option value="'+i+'"'+sel+'>'+sangria+esc(u.nombre)+'</option>';
+      }).join('');
+}
+function cargoOptionsHtml(cargoActual) {
+  return '<option value="">— Sin cargo —</option>'
+    + CARGOS.map(function(c){ return '<option'+(cargoActual===c?' selected':'')+'>'+esc(c)+'</option>'; }).join('');
+}
+function unidadDesdeSelect(val) {
+  var u = (val === '' || val == null) ? null : UNIDADES[+val];
+  return u ? { area_cod:u.area, dependencia:u.nombre } : { area_cod:null, dependencia:null };
+}
+function initSelectsUsuario() {
+  var su = document.getElementById('new-unidad'); if (su && !su.options.length) su.innerHTML = unidadOptionsHtml('');
+  var sc = document.getElementById('new-cargo');  if (sc && !sc.options.length) sc.innerHTML = cargoOptionsHtml('');
+}
+function etiquetaPerfil(u) {
+  var partes = [];
+  if (u.cargo) partes.push(u.cargo);
+  if (u.dependencia) partes.push(u.dependencia);
+  return partes.join(' · ');
+}
+
 // ── OVERRIDE crearUsuario para incluir secciones ──
 async function crearUsuario() {
   const nombre = document.getElementById('new-nombre').value.trim();
@@ -7805,6 +8062,8 @@ async function crearUsuario() {
   const msg    = document.getElementById('admin-crear-msg');
   const btn    = document.getElementById('btn-crear-user');
   const secciones = getSeccionesSeleccionadas();
+  const unidad = unidadDesdeSelect(document.getElementById('new-unidad')?.value);
+  const cargo  = document.getElementById('new-cargo')?.value || null;
 
   if(!nombre||!email||!pass){ msg.textContent='Completá todos los campos.'; msg.className='admin-msg err'; return; }
   if(pass.length<6){ msg.textContent='La contraseña debe tener al menos 6 caracteres.'; msg.className='admin-msg err'; return; }
@@ -7814,7 +8073,7 @@ async function crearUsuario() {
 
   const { data, error } = await sb.auth.signUp({
     email, password: pass,
-    options: { data: { nombre, rol } }
+    options: { data: { nombre, rol, area_cod: unidad.area_cod, dependencia: unidad.dependencia, cargo } }
   });
 
   if(error){
@@ -7823,7 +8082,7 @@ async function crearUsuario() {
   }
 
   if(data.user){
-    await sb.from('perfiles').update({ nombre, rol, secciones }).eq('id', data.user.id);
+    await sb.from('perfiles').update({ nombre, rol, secciones, area_cod: unidad.area_cod, dependencia: unidad.dependencia, cargo }).eq('id', data.user.id);
   }
 
   msg.textContent='✅ Usuario creado correctamente.'; msg.className='admin-msg ok';
@@ -7833,6 +8092,8 @@ async function crearUsuario() {
   document.getElementById('new-email').value='';
   document.getElementById('new-pass').value='';
   document.getElementById('new-rol').value='usuario';
+  document.getElementById('new-unidad').value='';
+  document.getElementById('new-cargo').value='';
   toggleTodasSecciones(true);
   loadAdminUsers();
 }
@@ -7857,6 +8118,7 @@ async function loadAdminUsers() {
       <div class="admin-user-info">
         <div class="admin-user-name">${esc(u.nombre || '(sin nombre)')}</div>
         <div class="admin-user-email">${esc(u.email)}</div>
+        ${etiquetaPerfil(u) ? `<div style="font-size:.68rem;color:#C9963A;margin-top:.1rem;">${esc(etiquetaPerfil(u))}</div>` : ''}
       </div>
       <select class="admin-user-role-sel" onchange="cambiarRol('${escJs(u.id)}',this.value)">
         ${['usuario','admin'].map(r=>`<option value="${r}" ${u.rol===r?'selected':''}>${esc(rolLabels[r])}</option>`).join('')}
@@ -7864,7 +8126,7 @@ async function loadAdminUsers() {
       <button class="sec-action-btn" onclick="toggleSecEdit('${escJs(u.id)}')" title="Editar secciones">
         📂 ${esc(secLabel(u.secciones))}
       </button>
-      <button class="sec-action-btn" onclick="toggleEditPerfil('${escJs(u.id)}')" title="Editar nombre">
+      <button class="sec-action-btn" onclick="toggleEditPerfil('${escJs(u.id)}')" title="Editar nombre, área y cargo">
         ✏️ Editar
       </button>
       <button class="admin-toggle ${u.activo?'activo':'inactivo'}" onclick="toggleActivo('${escJs(u.id)}',${!!u.activo})">
@@ -7874,6 +8136,10 @@ async function loadAdminUsers() {
         <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;">
           <input id="edit-nombre-${escJs(u.id)}" type="text" value="${esc(u.nombre||'')}" placeholder="Nombre completo"
             style="flex:1;min-width:160px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#E2E8F0;padding:.35rem .6rem;font-size:.8rem;">
+          <select id="edit-unidad-${escJs(u.id)}" title="Área / dependencia"
+            style="min-width:200px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#E2E8F0;padding:.35rem .5rem;font-size:.8rem;">${unidadOptionsHtml(u.dependencia)}</select>
+          <select id="edit-cargo-${escJs(u.id)}" title="Cargo"
+            style="min-width:130px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:#E2E8F0;padding:.35rem .5rem;font-size:.8rem;">${cargoOptionsHtml(u.cargo)}</select>
           <button class="sec-action-btn" onclick="guardarPerfil('${escJs(u.id)}')">💾 Guardar</button>
           <button class="sec-action-btn" onclick="toggleEditPerfil('${escJs(u.id)}')">Cancelar</button>
         </div>
@@ -7901,14 +8167,19 @@ function toggleEditPerfil(uid) {
 async function guardarPerfil(uid) {
   const nombre = document.getElementById('edit-nombre-' + uid)?.value?.trim();
   if (!nombre) { alert('El nombre no puede estar vacío.'); return; }
+  const unidad = unidadDesdeSelect(document.getElementById('edit-unidad-' + uid)?.value);
+  const cargo  = document.getElementById('edit-cargo-' + uid)?.value || null;
   const { error } = await sb.from('perfiles').update({
     nombre,
+    area_cod: unidad.area_cod,
+    dependencia: unidad.dependencia,
+    cargo,
     modificado_por: currentUser.id,
     modificado_por_nombre: currentPerfil?.nombre || currentUser.email,
     fecha_modificacion: new Date().toISOString()
   }).eq('id', uid);
   if (error) { alert('No se pudo guardar. Intentá nuevamente.'); return; }
-  await logAct('editar', 'usuarios', 'Editó nombre de perfil (id: ' + uid + ')');
+  await logAct('editar', 'usuarios', 'Editó perfil (id: ' + uid + ') · ' + (unidad.dependencia || 'sin área') + (cargo ? ' · ' + cargo : ''));
   loadAdminUsers();
 }
 
@@ -7921,6 +8192,7 @@ function openAdmin() {
   } else {
     document.getElementById('admin-modal-content').style.display = 'block';
     document.getElementById('admin-no-permiso').style.display = 'none';
+    initSelectsUsuario();
     loadAdminUsers();
   }
 }
