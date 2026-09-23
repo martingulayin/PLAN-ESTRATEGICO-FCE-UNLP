@@ -5106,7 +5106,7 @@ function switchTab(tab) {
     if (v) { v.style.display = 'block'; v.classList.add('visible'); }
     const btn = document.getElementById('tabPanelArea');
     if (btn) btn.classList.add('active');
-    if (!window._paBuilt) { buildPanelArea(); window._paBuilt = true; }
+    buildPanelArea(); window._paBuilt = true; // siempre recarga desde Supabase
 
   } else if (tab === 'noticias') {
     const v = document.getElementById('noticiasView');
@@ -5236,6 +5236,47 @@ var PA_TAGS = {up:{cls:'pa-tag-up',icon:'↑'},down:{cls:'pa-tag-down',icon:'↓
 // ── Panel Área: indicadores dinámicos desde Supabase ──
 var _paBanda = [];   // banda: construida desde pa_kpis donde en_banda=true
 var _paKpis  = {};   // cache de pa_kpis por área: {INV:[...], SAA:[...], ...}
+var _paKpisOk = false; // true si Supabase respondió: desde ahí NUNCA se usan los datos fijos del HTML
+var PA_MAX_FILA = 3;   // máximo de indicadores en la fila del título de cada área
+
+// ¿El texto tiene contenido real? (descarta '', '—', '-', '.', etc.)
+function paTieneValor(v) {
+  v = (v == null ? '' : v.toString().trim());
+  return v !== '' && /[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ%]/.test(v);
+}
+
+// Fuente única de KPIs de un área — la usan la pantalla y la impresión
+// Devuelve [{label,val,unit,sub,tag,_id,en_fila,updated_at}]
+function paGetKpisArea(a) {
+  if (_paKpisOk) {
+    return (_paKpis[a.cod] || []).map(function(k){
+      return {label:k.label||'', val:k.valor, unit:k.unidad||'', sub:k.subtitulo||'',
+              tag:k.tag||'neu', _id:k.id, en_fila:!!k.en_fila, updated_at:k.updated_at};
+    });
+  }
+  // Sin conexión a Supabase → respaldo fijo del HTML
+  return (a.kpis || []).map(function(k){ return Object.assign({en_fila:false}, k); });
+}
+
+// KPIs con dato cargado (label y valor reales)
+function paKpisConDato(a) {
+  return paGetKpisArea(a).filter(function(k){ return paTieneValor(k.label) && paTieneValor(k.val); });
+}
+
+// Indicadores de la fila del título:
+// 1) los marcados con 📌 (en_fila) que tengan dato; 2) si no hay marcados, los 2 primeros con dato
+function paGetFila(a) {
+  var conDato = paKpisConDato(a);
+  var fijados = conDato.filter(function(k){ return k.en_fila; });
+  return (fijados.length ? fijados : conDato.slice(0, 2)).slice(0, PA_MAX_FILA);
+}
+
+// Fecha del último dato del área
+function paFechaArea(a) {
+  if (!_paKpisOk) return a.fecha || '';
+  var f = (_paKpis[a.cod] || []).map(function(k){ return k.updated_at; }).filter(Boolean).sort().reverse()[0];
+  return f ? paFmtFecha(f) : '';
+}
 
 // Formatear fecha de actualización
 function paFmtFecha(iso) {
@@ -5296,6 +5337,7 @@ async function paCargarKpis() {
     // Nota: en_banda y banda_orden vienen en el select('*')
     if (!error && data) {
       _paKpis = {};
+      _paKpisOk = true;
       data.forEach(function(k) {
         if (!_paKpis[k.area_cod]) _paKpis[k.area_cod] = [];
         _paKpis[k.area_cod].push(k);
@@ -5403,7 +5445,7 @@ function paCfgInitDrag() {
 // ── KPIs por área: editar desde el panel ──
 async function paEditarKpi(id, areaCod) {
   var kpisArea = _paKpis[areaCod] || [];
-  var k = kpisArea.find(function(x){ return x.id === id; });
+  var k = kpisArea.find(function(x){ return String(x.id) === String(id); });
   if (!k) return;
   var nuevoLabel = prompt('Nombre del indicador:', k.label);
   if (nuevoLabel === null) return;
@@ -5413,13 +5455,17 @@ async function paEditarKpi(id, areaCod) {
   if (nuevoSub === null) return;
   var update = {};
   if (nuevoLabel.trim() && nuevoLabel.trim() !== k.label) update.label = nuevoLabel.trim();
-  if (nuevoValor.trim() && nuevoValor.trim() !== k.valor) update.valor = nuevoValor.trim();
-  if (nuevoSub !== k.subtitulo) update.subtitulo = nuevoSub.trim();
+  // El valor se puede vaciar (queda "sin dato" y sale de la fila y la banda)
+  if (nuevoValor.trim() !== (k.valor || '')) update.valor = nuevoValor.trim();
+  if (nuevoSub.trim() !== (k.subtitulo || '')) update.subtitulo = nuevoSub.trim();
   if (Object.keys(update).length === 0) return;
+  update.updated_at = new Date().toISOString();
   var { error } = await sb.from('pa_kpis').update(update).eq('id', id);
   if (error) { alert('Error al guardar.'); return; }
+  var _ab = paCardsAbiertas();
   await paCargarKpis();
-  buildPanelArea();
+  await buildPanelArea();
+  paRestaurarAbiertas(_ab);
 }
 
 async function paAgregarKpi(areaCod) {
@@ -5441,18 +5487,51 @@ async function paAgregarKpi(areaCod) {
     activo: true
   });
   if (error) { alert('Error al agregar: ' + (error.message||'')); return; }
+  var _ab = paCardsAbiertas();
   await paCargarKpis();
-  buildPanelArea();
+  await buildPanelArea();
+  paRestaurarAbiertas(_ab);
+}
+
+// Fijar / quitar un indicador de la fila del título del área
+async function paToggleFila(id, areaCod) {
+  var kpisArea = _paKpis[areaCod] || [];
+  var k = kpisArea.find(function(x){ return String(x.id) === String(id); });
+  if (!k) return;
+  var nuevo = !k.en_fila;
+  if (nuevo) {
+    var fijados = kpisArea.filter(function(x){ return x.en_fila; }).length;
+    if (fijados >= PA_MAX_FILA) { alert('Podés fijar hasta ' + PA_MAX_FILA + ' indicadores en la fila del título. Quitá uno primero.'); return; }
+  }
+  var { error } = await sb.from('pa_kpis').update({ en_fila: nuevo }).eq('id', id);
+  if (error) {
+    alert('No se pudo guardar. ¿Ejecutaste el SQL que agrega la columna en_fila?\n\n' + (error.message || ''));
+    return;
+  }
+  var abiertas = paCardsAbiertas();
+  await paCargarKpis();
+  await buildPanelArea();
+  paRestaurarAbiertas(abiertas);
+}
+
+function paCardsAbiertas() {
+  return Array.from(document.querySelectorAll('.pa-card.open')).map(function(c){ return c.id; });
+}
+function paRestaurarAbiertas(ids) {
+  (ids || []).forEach(function(id){ var c = document.getElementById(id); if (c) c.classList.add('open'); });
+  paActualizarBtn();
 }
 
 async function paEliminarKpi(id, areaCod) {
   var kpisArea = _paKpis[areaCod] || [];
-  var k = kpisArea.find(function(x){ return x.id === id; });
+  var k = kpisArea.find(function(x){ return String(x.id) === String(id); });
   if (!k || !confirm('¿Eliminar "'+k.label+'"?')) return;
   var { error } = await sb.from('pa_kpis').delete().eq('id', id);
   if (error) { alert('Error al eliminar.'); return; }
+  var _ab = paCardsAbiertas();
   await paCargarKpis();
-  buildPanelArea();
+  await buildPanelArea();
+  paRestaurarAbiertas(_ab);
 }
 
 async function buildPanelArea() {
@@ -5557,76 +5636,72 @@ async function buildPanelArea() {
     return '<option value="'+a.cod+'">'+a.cod+' · '+PA_NAMES[a.cod]+'</option>';
   }).join('');
 
+  var isAdmin = currentPerfil && currentPerfil.rol === 'admin';
   var cardsHtml = PA_AREAS.map(function(a){
     var c = PA_COLORS[a.cod]||'#0D1B2A';
-    // kpisMini: si hay KPIs en Supabase, usar los primeros 2 con valor; si están todos vacíos mostrar "—"
-    // Solo usar los hardcoded si NO hay ningún registro en Supabase para esta área
-    var kpisSupabase = (_paKpis[a.cod] && _paKpis[a.cod].length > 0) ? _paKpis[a.cod] : [];
-    var kpisConValor = kpisSupabase.filter(function(k){
-      var v = k.valor == null ? '' : k.valor.toString().trim();
-      return /[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ%]/.test(v);
-    });
-    var miniSource;
-    if (kpisSupabase.length === 0) {
-      // Sin registros en Supabase → usar hardcoded
-      miniSource = a.kpisMini;
-    } else if (kpisConValor.length >= 2) {
-      // Hay 2+ KPIs con valor → usar los primeros 2
-      miniSource = kpisConValor.slice(0,2).map(function(k){ return {val:k.valor+(k.unidad||''), label:k.label}; });
-    } else if (kpisConValor.length === 1) {
-      // Solo 1 con valor
-      miniSource = [{val:kpisConValor[0].valor+(kpisConValor[0].unidad||''), label:kpisConValor[0].label}, {val:'—', label:'Sin datos'}];
-    } else {
-      // Hay registros pero todos vacíos → mostrar "—" (no usar hardcoded)
-      miniSource = [{val:'—', label:a.kpisMini[0].label}, {val:'—', label:a.kpisMini[1].label}];
-    }
-    var minis = miniSource.map(function(k){
-      return '<div class="pa-mini"><div class="pa-mini-val">'+k.val+'</div><div class="pa-mini-label">'+k.label+'</div></div>';
-    }).join('');
-    // KPIs: usar Supabase si hay datos, sino fallback al array PA_AREAS
-    var kpisData = (_paKpis[a.cod] && _paKpis[a.cod].length > 0)
-      ? _paKpis[a.cod].map(function(k){ return {label:k.label,val:k.valor,unit:k.unidad||'',sub:k.subtitulo||'',tag:k.tag||'neu',_id:k.id}; })
-      : a.kpis;
-    // Fecha de última actualización del área
-    var kpisFecha = (_paKpis[a.cod] && _paKpis[a.cod].length > 0)
-      ? _paKpis[a.cod].map(function(k){ return k.updated_at; }).filter(Boolean).sort().reverse()[0]
-      : null;
-    var isAdmin = currentPerfil && currentPerfil.rol === 'admin';
-    var kpis = kpisData.map(function(k){
+    var acod = String(a.cod).replace(/'/g,"\\'");
+
+    // ── Fila del título: sólo indicadores con dato real (fijados con 📌 o, si no hay, los 2 primeros)
+    var fila = paGetFila(a);
+    var minis = fila.length
+      ? fila.map(function(k){
+          return '<div class="pa-mini"><div class="pa-mini-val">'+k.val+(k.unit||'')+'</div><div class="pa-mini-label">'+k.label+'</div></div>';
+        }).join('')
+      : '<div class="pa-mini"><div class="pa-mini-label" style="font-style:italic;text-transform:none;letter-spacing:0;">Sin indicadores cargados</div></div>';
+
+    // ── Tarjetas de detalle
+    // Usuarios comunes: sólo indicadores con dato. Admin: todos (los vacíos atenuados, para completarlos o borrarlos)
+    var todos = paGetKpisArea(a);
+    var visibles = isAdmin ? todos : todos.filter(function(k){ return paTieneValor(k.label) && paTieneValor(k.val); });
+    var conDato = paKpisConDato(a);
+
+    var kpis = visibles.map(function(k){
       var t = PA_TAGS[k.tag]||PA_TAGS.neu;
-      var editBtn = '';
+      var valVacio = !paTieneValor(k.val);
+      var labelVacio = !paTieneValor(k.label);
+      var subStr = (k.sub == null ? '' : k.sub.toString().trim());
+      var tools = '';
       if (isAdmin && k._id) {
         var kid = String(k._id).replace(/'/g,"\\'");
-        var acod = String(a.cod).replace(/'/g,"\\'");
-        editBtn = '<button onclick="paEditarKpi(\'' +kid+ "',\'" +acod+ "\')" +'" style="background:none;border:none;cursor:pointer;color:#94A3B8;font-size:.7rem;padding:.1rem .25rem;float:right;" title="Editar">✏</button>';
+        var bs = 'background:none;border:none;cursor:pointer;font-size:.72rem;padding:.1rem .2rem;line-height:1;';
+        tools = '<div style="display:flex;justify-content:flex-end;gap:.15rem;margin:-.35rem -.4rem .1rem 0;">'
+          + (valVacio || labelVacio ? '' :
+             '<button onclick="paToggleFila(\''+kid+'\',\''+acod+'\')" title="'+(k.en_fila?'Quitar de la fila del título':'Mostrar en la fila del título')+'" style="'+bs+'opacity:'+(k.en_fila?'1':'.3')+';">📌</button>')
+          + '<button onclick="paEditarKpi(\''+kid+'\',\''+acod+'\')" title="Editar" style="'+bs+'color:#94A3B8;">✏</button>'
+          + '<button onclick="paEliminarKpi(\''+kid+'\',\''+acod+'\')" title="Eliminar" style="'+bs+'color:#94A3B8;">🗑</button>'
+          + '</div>';
       }
-      var valStr = (k.val == null ? '' : k.val.toString().trim());
-      var subStr = (k.sub == null ? '' : k.sub.toString().trim());
-      // Vacío = sin alfanuméricos (letras, números, %, símbolos de unidad útiles)
-      var valVacio = valStr === '' || !/[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ%]/.test(valStr);
-      var subVacio = subStr === '' || !/[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ%]/.test(subStr);
-      var subHtml = (valVacio || subVacio)
+      var subHtml = (valVacio || !paTieneValor(subStr))
         ? ''
         : '<div class="pa-kpi-sub"><span class="pa-tag '+t.cls+'">'+t.icon+' '+subStr+'</span></div>';
       var valHtml = valVacio
-        ? '<div class="pa-kpi-val" style="color:#C9CDD4;font-size:1.2rem;">—</div>'
-        : '<div class="pa-kpi-val">'+valStr+'<span class="pa-kpi-unit">'+k.unit+'</span></div>';
-      return '<div class="pa-kpi" style="border-top-color:'+(valVacio?'#DDD9D0':c)+'">'
-        +editBtn
-        +'<div class="pa-kpi-label">'+k.label+'</div>'
-        +valHtml
-        +subHtml
-        +'</div>';
+        ? '<div class="pa-kpi-val" style="color:#C9CDD4;font-size:1.2rem;">Sin dato</div>'
+        : '<div class="pa-kpi-val">'+k.val+'<span class="pa-kpi-unit">'+k.unit+'</span></div>';
+      var labelHtml = labelVacio
+        ? '<div class="pa-kpi-label" style="color:#C62828;">(sin nombre)</div>'
+        : '<div class="pa-kpi-label">'+k.label+'</div>';
+      var borde = valVacio ? '#DDD9D0' : c;
+      var extra = (valVacio || labelVacio) ? 'opacity:.6;' : '';
+      if (k.en_fila && !valVacio) extra += 'box-shadow:inset 0 0 0 1px '+c+';';
+      return '<div class="pa-kpi" style="border-top-color:'+borde+';'+extra+'">'
+        +tools+labelHtml+valHtml+subHtml+'</div>';
     }).join('');
+
+    var gridHtml = kpis
+      ? '<div class="pa-grid">'+kpis+'</div>'
+      : '<div style="font-size:.8rem;color:#94A3B8;padding:1rem 0 .2rem;font-style:italic;">Esta secretaría todavía no cargó indicadores.</div>';
+
     var addKpiBtn = '';
     if (isAdmin) {
-      var acod2 = String(a.cod).replace(/'/g,"\\'");
-      addKpiBtn = '<button onclick="paAgregarKpi(\'' +acod2+ "\')" +'" style="margin-top:.5rem;background:none;border:1px dashed rgba(201,150,58,.35);color:#C9963A;font-size:.73rem;font-weight:600;padding:.3rem .7rem;border-radius:5px;cursor:pointer;width:100%;">+ Agregar indicador</button>';
+      addKpiBtn = '<button onclick="paAgregarKpi(\''+acod+'\')" style="margin-top:.5rem;background:none;border:1px dashed rgba(201,150,58,.35);color:#C9963A;font-size:.73rem;font-weight:600;padding:.3rem .7rem;border-radius:5px;cursor:pointer;width:100%;">+ Agregar indicador</button>'
+        + '<div style="font-size:.66rem;color:#94A3B8;margin-top:.35rem;">📌 fija hasta '+PA_MAX_FILA+' indicadores en la fila del título. Si no fijás ninguno, se muestran los 2 primeros con dato.</div>';
     }
-    var fechaActualizacion = kpisFecha
-      ? '<div style="font-size:.68rem;color:#94A3B8;margin-top:.6rem;text-align:right;">⏱ Actualizado: '+paFmtFecha(kpisFecha)+'</div>'
-      : '<div class="pa-fecha">Último dato: '+a.fecha+'</div>';
-    var nota = (a.nota && kpisConValor.length > 0) ? '<div class="pa-nota"><strong>Nota:</strong> '+a.nota+'</div>' : '';
+    var fechaArea = conDato.length ? paFechaArea(a) : '';
+    var fechaActualizacion = fechaArea
+      ? '<div style="font-size:.68rem;color:#94A3B8;margin-top:.6rem;text-align:right;">⏱ Actualizado: '+fechaArea+'</div>'
+      : '';
+    // La nota fija del HTML sólo acompaña al respaldo sin conexión
+    var nota = (!_paKpisOk && a.nota) ? '<div class="pa-nota"><strong>Nota:</strong> '+a.nota+'</div>' : '';
     return '<div class="pa-card" id="pa-card-'+a.cod+'">'
       +'<div class="pa-row" style="border-left-color:'+c+'" onclick="paTgl(\''+a.cod+'\')">'
       +'<div class="pa-code" style="background:'+c+'">'+a.cod+'</div>'
@@ -5635,7 +5710,7 @@ async function buildPanelArea() {
       +'<div class="pa-minis">'+minis+'</div>'
       +'<div class="pa-chev">▼</div>'
       +'</div>'
-      +'<div class="pa-detail"><div class="pa-grid">'+kpis+'</div>'+addKpiBtn+nota+fechaActualizacion+'</div>'
+      +'<div class="pa-detail">'+gridHtml+addKpiBtn+nota+fechaActualizacion+'</div>'
       +'</div>';
   }).join('');
 
@@ -5643,10 +5718,10 @@ async function buildPanelArea() {
     '<div class="pa-hd">'
     +'<div><div class="pa-hd-ey">Facultad de Ciencias Económicas · UNLP</div>'
     +'<div class="pa-hd-title">Panel por <span>Área</span></div>'
-    +'<div class="pa-hd-sub">Indicadores cuantitativos de gestión por secretaría · Datos ilustrativos</div></div>'
+    +'<div class="pa-hd-sub">Indicadores cuantitativos de gestión por secretaría'+(_paKpisOk?'':' · Datos ilustrativos')+'</div></div>'
     +'<div style="display:flex;align-items:center;gap:.6rem;">'
     +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;">'
-    +'<div class="pa-hd-badge">Datos 2024–2025 · Ilustrativos</div>'
+    +(_paKpisOk ? '' : '<div class="pa-hd-badge">Datos 2024–2025 · Ilustrativos</div>')
     +'<div id="pa-banda-fecha" style="font-size:.65rem;color:rgba(255,255,255,.35);text-align:right;"></div>'
     +'</div>'
     +(currentPerfil && currentPerfil.rol==='admin' ? '<button onclick="paAbrirConfigBanda()" title="Configurar indicadores" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,.35);font-size:1rem;padding:.3rem;line-height:1;transition:color .2s;" onmouseover="this.style.color=\'#C9963A\'" onmouseout="this.style.color=\'rgba(255,255,255,.35)\'">⚙</button>' : '')
@@ -5707,20 +5782,24 @@ function paGetFecha() {
 
 function paBuildKpiGrid(a, color) {
   var tagMap = {up:'↑ ',down:'↓ ',warn:'⚠ ',neu:''};
-  return '<div class="pa-pf-grid">'+a.kpis.map(function(k){
+  var kpis = paKpisConDato(a);
+  if (!kpis.length) return '<div class="pa-pf-kpi-sub" style="padding:.2rem 0 .4rem;font-style:italic;">Sin indicadores cargados.</div>';
+  return '<div class="pa-pf-grid">'+kpis.map(function(k){
+    var sub = paTieneValor(k.sub) ? (tagMap[k.tag]||'')+k.sub : '';
     return '<div class="pa-pf-kpi" style="border-top-color:'+color+'">'
       +'<div class="pa-pf-kpi-label">'+k.label+'</div>'
-      +'<div class="pa-pf-kpi-val">'+k.val+'<span class="pa-pf-kpi-unit">'+k.unit+'</span></div>'
-      +'<div class="pa-pf-kpi-sub">'+(tagMap[k.tag]||'')+k.sub+'</div>'
+      +'<div class="pa-pf-kpi-val">'+k.val+'<span class="pa-pf-kpi-unit">'+(k.unit||'')+'</span></div>'
+      +(sub ? '<div class="pa-pf-kpi-sub">'+sub+'</div>' : '')
       +'</div>';
   }).join('')+'</div>';
 }
 
 function paBuildNota(a) {
-  return a.nota ? '<div class="pa-pf-nota"><strong>Nota:</strong> '+a.nota+'</div>' : '';
+  return (!_paKpisOk && a.nota) ? '<div class="pa-pf-nota"><strong>Nota:</strong> '+a.nota+'</div>' : '';
 }
 
-function paImprimir() {
+// Imprime / guarda como PDF con los datos vigentes en Supabase en ese momento
+async function paImprimir() {
   var sel = document.getElementById('pa-select');
   if (!sel) return;
   var val = sel.value;
@@ -5728,22 +5807,27 @@ function paImprimir() {
   if (!wrap) return;
   var fecha = paGetFecha();
 
+  // Traer los últimos datos antes de imprimir (por si alguien los cambió)
+  await paCargarKpis();
+  await paCargarBanda();
+
   if (val === 'todas') {
-    var gsHtml = [
-      {n:'1.284',l:'Docentes activos'},{n:'87',l:'Investigadores'},
-      {n:'12.450',l:'Alumnos matriculados'},{n:'638',l:'Egresados 2024'},
-      {n:'3.920',l:'Aspirantes 2025'},{n:'24',l:'Convenios vigentes'},
-      {n:'9',l:'Áreas / Secretarías'}
-    ].map(function(g){ return '<div class="pa-pf-gs"><div class="pa-pf-gs-num">'+g.n+'</div><div class="pa-pf-gs-label">'+g.l+'</div></div>'; }).join('');
+    var banda = _paBanda.filter(function(g){ return g.activo && paTieneValor(g.valor); });
+    var gsHtml = banda.map(function(g){
+      return '<div class="pa-pf-gs"><div class="pa-pf-gs-num">'+g.valor+'</div><div class="pa-pf-gs-label">'+g.label+'</div></div>';
+    }).join('');
 
     var bloques = PA_AREAS.map(function(a){
       var c = PA_COLORS[a.cod]||'#0D1B2A';
-      return '<div class="pa-pf-area-hd" style="background:'+c+'">'
+      var f = paKpisConDato(a).length ? paFechaArea(a) : '';
+      return '<div style="break-inside:avoid;page-break-inside:avoid;">'
+        +'<div class="pa-pf-area-hd" style="background:'+c+'">'
         +'<span class="pa-pf-area-code">'+a.cod+'</span>'
         +'<span class="pa-pf-area-name">'+PA_NAMES[a.cod]+'</span>'
-        +'<span class="pa-pf-area-fecha">Último dato: '+a.fecha+'</span>'
+        +(f ? '<span class="pa-pf-area-fecha">Actualizado: '+f+'</span>' : '')
         +'</div>'
-        +paBuildKpiGrid(a,c)+paBuildNota(a);
+        +paBuildKpiGrid(a,c)+paBuildNota(a)
+        +'</div>';
     }).join('');
 
     wrap.innerHTML = '<div class="pa-pf">'
@@ -5751,8 +5835,8 @@ function paImprimir() {
       +'<div class="pa-pf-inst">FCE · UNLP</div>'
       +'<div class="pa-pf-title">Panel por Área</div>'
       +'<div class="pa-pf-sub">Indicadores cuantitativos de gestión · Todas las secretarías</div>'
-      +'</div><div class="pa-pf-fecha">Generado: '+fecha+'<br>9 secretarías · Datos 2024–2025</div></div>'
-      +'<div class="pa-pf-strip">'+gsHtml+'</div>'
+      +'</div><div class="pa-pf-fecha">Generado: '+fecha+'<br>'+PA_AREAS.length+' secretarías</div></div>'
+      +(gsHtml ? '<div class="pa-pf-strip">'+gsHtml+'</div>' : '')
       +'<div class="pa-pf-sec">Indicadores por secretaría</div>'
       +bloques
       +'<div class="pa-pf-footer"><span>Panel por Área · Facultad de Ciencias Económicas · UNLP</span><span>'+fecha+'</span></div>'
@@ -5761,15 +5845,17 @@ function paImprimir() {
     var a = PA_AREAS.find(function(x){ return x.cod===val; });
     if (!a) return;
     var c = PA_COLORS[val]||'#0D1B2A';
+    var n = paKpisConDato(a).length;
+    var f = n ? paFechaArea(a) : '';
     wrap.innerHTML = '<div class="pa-pf">'
       +'<div class="pa-pf-ficha-hd" style="background:'+c+'">'
       +'<div><div style="font-size:7pt;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.18rem;">FCE · UNLP · Panel por Área</div>'
       +'<div class="pa-pf-ficha-name">'+PA_NAMES[val]+'</div></div>'
-      +'<div class="pa-pf-badge">'+a.kpis.length+' indicadores</div>'
+      +'<div class="pa-pf-badge">'+n+' indicador'+(n===1?'':'es')+'</div>'
       +'</div>'
       +'<div class="pa-pf-meta">'
       +'<span><strong>Área:</strong> '+val+'</span>'
-      +'<span><strong>Último dato:</strong> '+a.fecha+'</span>'
+      +(f ? '<span><strong>Actualizado:</strong> '+f+'</span>' : '')
       +'<span style="margin-left:auto"><strong>Generado:</strong> '+fecha+'</span>'
       +'</div>'
       +'<div class="pa-pf-sec">Indicadores</div>'
