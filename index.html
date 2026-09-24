@@ -5529,154 +5529,256 @@ function paNormalizarValor(v) {
   return v;
 }
 
-// ── Formulario de carga / edición de un indicador ──
-function paEditarKpi(id, areaCod) {
-  var k = (_paKpis[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
-  if (!k) return;
-  if (!paPuedeCargar(areaCod)) { alert('No tenés permiso para modificar indicadores de esta área.'); return; }
-  var admin = paEsAdmin();
-  var c = PA_COLORS[areaCod] || '#0D1B2A';
-  var v = function(x){ return paTieneValor(x) ? paEsc(x) : ''; };
-  var fld = 'width:100%;box-sizing:border-box;font-family:Inter,sans-serif;font-size:.88rem;padding:.5rem .65rem;border:1px solid #DDD9D0;border-radius:6px;background:#fff;color:#0D1B2A;';
-  var lab = 'display:block;font-size:.68rem;font-weight:700;color:#6B7A8D;text-transform:uppercase;letter-spacing:.05em;margin:.8rem 0 .3rem;';
-  var tagOpts = [['neu','— Estable / sin comparación'],['up','↑ Mejora respecto del período anterior'],['down','↓ Empeora respecto del período anterior'],['warn','⚠ Requiere atención']]
-    .map(function(o){ return '<option value="'+o[0]+'"'+((k.tag||'neu')===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
-  var ultimo = paTieneValor(k.valor)
-    ? '<div style="font-size:.74rem;color:#6B7A8D;background:#F5F2EC;border-radius:6px;padding:.5rem .7rem;margin-top:.2rem;">Dato actual: <strong style="color:#0D1B2A;">'+paEsc(k.valor)+(paTieneValor(k.unidad)?' '+paEsc(k.unidad):'')+'</strong>'
-      +(paTieneValor(k.periodo)?' · período '+paEsc(k.periodo):'')
-      +(paFechaKpi(k)?' · cargado el '+paFmtFecha(paFechaKpi(k)):'')
-      +(k.actualizado_por_nombre?' por '+paEsc(k.actualizado_por_nombre):'')+'</div>' : '';
+// ── Gestión de indicadores: formulario único para crear, renombrar y cargar datos ──
+var PA_MAX_KPIS = 10;          // tope por área (el admin puede superarlo)
+var _paEliminados = {};        // admin: indicadores desactivados por área
+var _paNovedades = {};         // admin: cambios de otros usuarios desde la última revisión, por área
 
+function paEditarKpi(id, areaCod) { paAbrirForm(id, areaCod); }
+function paAgregarKpi(areaCod) {
+  var n = (_paKpis[areaCod] || []).length;
+  if (!paEsAdmin() && n >= PA_MAX_KPIS) { alert('El área ya tiene ' + n + ' indicadores, que es el máximo. Eliminá uno antes de agregar otro.'); return; }
+  paAbrirForm(null, areaCod);
+}
+
+function paModal(html, ancho) {
   var old = document.getElementById('pa-form-modal'); if (old) old.remove();
   var m = document.createElement('div');
   m.id = 'pa-form-modal';
   m.style.cssText = 'position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;font-family:Inter,sans-serif;';
-  m.innerHTML = '<div style="background:#fff;border-radius:12px;width:min(520px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">'
-    +'<div style="background:'+c+';color:#fff;padding:.9rem 1.2rem;border-radius:12px 12px 0 0;display:flex;align-items:center;gap:.8rem;">'
-    +'<div style="flex:1;"><div style="font-size:.66rem;opacity:.75;letter-spacing:.08em;text-transform:uppercase;">'+paEsc(PA_NAMES[areaCod]||areaCod)+'</div>'
-    +'<div style="font-size:1.05rem;font-weight:800;line-height:1.25;">'+(paTieneValor(k.label)?paEsc(k.label):'Indicador sin nombre')+'</div></div>'
-    +'<button onclick="paFormCerrar()" style="background:none;border:none;color:rgba(255,255,255,.75);font-size:1.1rem;cursor:pointer;">✕</button></div>'
-    +'<div style="padding:.6rem 1.2rem 1.1rem;">'
-    + ultimo
-    +(admin
-      ? '<label style="'+lab+'">Nombre del indicador</label><input id="paf-label" style="'+fld+'" value="'+v(k.label)+'">'
-        +'<label style="'+lab+'">Unidad <span style="text-transform:none;font-weight:400;">(%, $, hs… — vacío si no aplica)</span></label><input id="paf-unidad" style="'+fld+'" value="'+v(k.unidad)+'">'
-      : '')
+  m.innerHTML = '<div style="background:#fff;border-radius:12px;width:min('+(ancho||560)+'px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">'+html+'</div>';
+  m.addEventListener('click', function(e){ if (e.target === m) paFormCerrar(); });
+  document.body.appendChild(m);
+  return m;
+}
+function paModalHead(color, eyebrow, titulo) {
+  return '<div style="background:'+color+';color:#fff;padding:.9rem 1.2rem;border-radius:12px 12px 0 0;display:flex;align-items:center;gap:.8rem;position:sticky;top:0;">'
+    +'<div style="flex:1;"><div style="font-size:.66rem;opacity:.75;letter-spacing:.08em;text-transform:uppercase;">'+eyebrow+'</div>'
+    +'<div style="font-size:1.05rem;font-weight:800;line-height:1.25;">'+titulo+'</div></div>'
+    +'<button onclick="paFormCerrar()" style="background:none;border:none;color:rgba(255,255,255,.75);font-size:1.1rem;cursor:pointer;">✕</button></div>';
+}
+function paFormCerrar() { var m = document.getElementById('pa-form-modal'); if (m) m.remove(); }
+function paEsc(t) { return String(t==null?'':t).replace(/[&<>"]/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]; }); }
+function paJs(t) { return String(t==null?'':t).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+// id = null → indicador nuevo
+function paAbrirForm(id, areaCod) {
+  var nuevo = !id;
+  var k = nuevo ? {} : (_paKpis[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
+  if (!k) return;
+  if (!paPuedeCargar(areaCod)) { alert('No tenés permiso para modificar indicadores de esta área.'); return; }
+  var c = PA_COLORS[areaCod] || '#0D1B2A';
+  var v = function(x){ return paTieneValor(x) ? paEsc(x) : ''; };
+  var fld = 'width:100%;box-sizing:border-box;font-family:Inter,sans-serif;font-size:.88rem;padding:.5rem .65rem;border:1px solid #DDD9D0;border-radius:6px;background:#fff;color:#0D1B2A;';
+  var lab = 'display:block;font-size:.68rem;font-weight:700;color:#6B7A8D;text-transform:uppercase;letter-spacing:.05em;margin:.8rem 0 .3rem;';
+  var sec = 'font-size:.72rem;font-weight:800;color:'+c+';text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 -.2rem;padding-top:.7rem;border-top:1px solid #EDE9E1;';
+  var tagOpts = [['neu','— Estable / sin comparación'],['up','↑ Mejora respecto del período anterior'],['down','↓ Empeora respecto del período anterior'],['warn','⚠ Requiere atención']]
+    .map(function(o){ return '<option value="'+o[0]+'"'+((k.tag||'neu')===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+  var ultimo = (!nuevo && paTieneValor(k.valor))
+    ? '<div style="font-size:.74rem;color:#6B7A8D;background:#F5F2EC;border-radius:6px;padding:.5rem .7rem;margin-top:.8rem;">Dato actual: <strong style="color:#0D1B2A;">'+paEsc(k.valor)+(paTieneValor(k.unidad)?' '+paEsc(k.unidad):'')+'</strong>'
+      +(paTieneValor(k.periodo)?' · período '+paEsc(k.periodo):'')
+      +(paFechaKpi(k)?' · cargado el '+paFmtFecha(paFechaKpi(k)):'')
+      +(k.actualizado_por_nombre?' por '+paEsc(k.actualizado_por_nombre):'')+'</div>' : '';
+  var nArea = (_paKpis[areaCod] || []).length;
+
+  paModal(
+    paModalHead(c, paEsc(PA_NAMES[areaCod]||areaCod), nuevo ? 'Nuevo indicador' : (paTieneValor(k.label)?paEsc(k.label):'Indicador sin nombre'))
+    +'<div style="padding:.2rem 1.2rem 1.1rem;">'
+    +(nuevo ? '<div style="font-size:.74rem;color:#6B7A8D;background:#F5F2EC;border-radius:6px;padding:.5rem .7rem;margin-top:.8rem;">El área tiene '+nArea+' de '+PA_MAX_KPIS+' indicadores. Elegí datos útiles para la conducción de la Facultad: pocos, relevantes y que puedas actualizar con regularidad.</div>' : ultimo)
+    +'<div style="'+sec+'">Indicador</div>'
+    +'<div style="display:grid;grid-template-columns:3fr 1fr;gap:0 .8rem;">'
+    +'<div><label style="'+lab+'">Nombre *</label><input id="paf-label" maxlength="80" style="'+fld+'" value="'+v(k.label)+'" placeholder="Ej: Egresados de grado del año"></div>'
+    +'<div><label style="'+lab+'">Unidad</label><input id="paf-unidad" maxlength="12" style="'+fld+'" value="'+v(k.unidad)+'" placeholder="%, $, hs"></div>'
+    +'</div>'
+    +'<div style="'+sec+'">Dato'+(nuevo?' <span style="text-transform:none;font-weight:400;color:#94A3B8;letter-spacing:0;">(opcional: lo podés cargar después)</span>':'')+'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem;">'
-    +'<div><label style="'+lab+'">Valor *</label><input id="paf-valor" style="'+fld+'font-size:1.1rem;font-weight:700;" value="'+v(k.valor)+'" placeholder="Ej: 1.250">'
-    +(paTieneValor(k.unidad)?'<div style="font-size:.66rem;color:#94A3B8;margin-top:.2rem;">Unidad: '+paEsc(k.unidad)+'</div>':'')+'</div>'
-    +'<div><label style="'+lab+'">Período *</label><input id="paf-periodo" style="'+fld+'" value="'+v(k.periodo)+'" placeholder="Ej: 2025 · 1er cuatr. 2026"></div>'
+    +'<div><label style="'+lab+'">Valor'+(nuevo?'':' *')+'</label><input id="paf-valor" style="'+fld+'font-size:1.1rem;font-weight:700;" value="'+v(k.valor)+'" placeholder="Ej: 1.250"></div>'
+    +'<div><label style="'+lab+'">Período'+(nuevo?'':' *')+'</label><input id="paf-periodo" style="'+fld+'" value="'+v(k.periodo)+'" placeholder="Ej: 2025 · 1er cuatr. 2026"></div>'
     +'</div>'
     +'<label style="'+lab+'">Aclaración <span style="text-transform:none;font-weight:400;">(opcional, breve)</span></label><input id="paf-sub" style="'+fld+'" maxlength="90" value="'+v(k.subtitulo)+'" placeholder="Ej: Incluye becas UNLP y propias">'
     +'<label style="'+lab+'">Tendencia</label><select id="paf-tag" style="'+fld+'">'+tagOpts+'</select>'
     +'<div id="paf-msg" style="font-size:.76rem;color:#C62828;min-height:1rem;margin-top:.7rem;"></div>'
     +'<div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:.3rem;">'
     +'<button onclick="paFormCerrar()" style="background:#fff;border:1px solid #DDD9D0;color:#0D1B2A;font-weight:600;font-size:.82rem;padding:.55rem 1rem;border-radius:6px;cursor:pointer;">Cancelar</button>'
-    +'<button id="paf-ok" onclick="paFormGuardar(\''+String(k.id).replace(/'/g,"\\'")+'\',\''+String(areaCod).replace(/'/g,"\\'")+'\')" style="background:#C9963A;border:none;color:#0D1B2A;font-weight:700;font-size:.82rem;padding:.55rem 1.2rem;border-radius:6px;cursor:pointer;">Guardar</button>'
-    +'</div></div></div>';
-  m.addEventListener('click', function(e){ if (e.target === m) paFormCerrar(); });
-  document.body.appendChild(m);
-  setTimeout(function(){ var f = document.getElementById(admin ? 'paf-label' : 'paf-valor'); if (f) f.focus(); }, 50);
+    +'<button id="paf-ok" onclick="paFormGuardar(\''+(nuevo?'':paJs(k.id))+'\',\''+paJs(areaCod)+'\')" style="background:#C9963A;border:none;color:#0D1B2A;font-weight:700;font-size:.82rem;padding:.55rem 1.2rem;border-radius:6px;cursor:pointer;">'+(nuevo?'Crear indicador':'Guardar')+'</button>'
+    +'</div></div>', 560);
+  setTimeout(function(){ var f = document.getElementById(nuevo ? 'paf-label' : 'paf-valor'); if (f) f.focus(); }, 50);
 }
 
-function paFormCerrar() { var m = document.getElementById('pa-form-modal'); if (m) m.remove(); }
+function paErrorRpc(err) {
+  var t = (err && err.message) || 'No se pudo guardar.';
+  if (/function .* does not exist|schema cache|Could not find the function/i.test(t)) return 'Falta ejecutar en Supabase el SQL de gestión de indicadores por área.';
+  return t;
+}
 
 async function paFormGuardar(id, areaCod) {
-  var k = (_paKpis[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
+  var nuevo = !id;
+  var k = nuevo ? {} : (_paKpis[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
   if (!k) return;
-  var admin = paEsAdmin();
   var g = function(i){ var e = document.getElementById(i); return e ? e.value.trim() : ''; };
   var msg = document.getElementById('paf-msg');
   var btn = document.getElementById('paf-ok');
+  var label = g('paf-label'), unidad = g('paf-unidad');
   var valor = paNormalizarValor(g('paf-valor')), periodo = g('paf-periodo'), sub = g('paf-sub'), tag = g('paf-tag') || 'neu';
+  var falla = function(t){ msg.style.color='#C62828'; msg.textContent = t; btn.disabled=false; btn.style.opacity='1'; };
 
-  if (!admin && (!valor || !periodo)) { msg.textContent = 'Completá el valor y el período.'; return; }
+  if (!paTieneValor(label)) { msg.textContent = 'El indicador necesita un nombre.'; return; }
+  var dup = (_paKpis[areaCod] || []).some(function(x){ return String(x.id) !== String(id) && (x.label||'').trim().toLowerCase() === label.toLowerCase(); });
+  if (dup) { msg.textContent = 'Ya existe un indicador con ese nombre en el área.'; return; }
   if (valor && !periodo) { msg.textContent = 'Indicá a qué período corresponde el valor.'; return; }
+  if (!nuevo && !paEsAdmin() && (!valor || !periodo)) { msg.textContent = 'Completá el valor y el período.'; return; }
   btn.disabled = true; btn.style.opacity = '.5'; msg.style.color = '#6B7A8D'; msg.textContent = 'Guardando…';
 
-  // 1) Definición del indicador (sólo admin): nombre y unidad
-  if (admin) {
-    var def = {};
-    var nl = g('paf-label'), nu = g('paf-unidad');
-    if (nl && nl !== (k.label||'')) def.label = nl;
-    if (nu !== (paTieneValor(k.unidad) ? k.unidad : '')) def.unidad = nu;
-    if (Object.keys(def).length) {
-      var r0 = await sb.from('pa_kpis').update(def).eq('id', id);
-      if (r0.error) { msg.style.color='#C62828'; msg.textContent = 'Error al guardar: ' + r0.error.message; btn.disabled=false; btn.style.opacity='1'; return; }
+  if (nuevo) {
+    var r0 = await sb.rpc('pa_crear_kpi', { p_area:areaCod, p_label:label, p_unidad:unidad, p_valor:valor, p_periodo:periodo, p_aclaracion:sub, p_tag:tag });
+    if (r0.error) return falla(paErrorRpc(r0.error));
+    if (typeof logAct === 'function') { try { await logAct('crear', 'panelarea', 'Creó indicador '+areaCod+' · '+label); } catch(e){} }
+  } else {
+    // 1) Nombre / unidad
+    if (label !== (k.label||'').trim() || unidad !== (paTieneValor(k.unidad) ? k.unidad.trim() : '')) {
+      var r1 = await sb.rpc('pa_editar_kpi', { p_id:id, p_label:label, p_unidad:unidad });
+      if (r1.error) return falla(paErrorRpc(r1.error));
     }
-  }
-
-  // 2) El dato: sólo si cambió algo. Pasa por la función de Supabase que controla el permiso del área
-  var cambioDato = valor !== (paTieneValor(k.valor)?k.valor:'') || periodo !== (k.periodo||'')
-                || sub !== (paTieneValor(k.subtitulo)?k.subtitulo:'') || tag !== (k.tag||'neu');
-  if (cambioDato) {
-    var r = await sb.rpc('pa_cargar_dato', { p_id:id, p_valor:valor, p_periodo:periodo, p_aclaracion:sub, p_tag:tag });
-    if (r.error) {
-      msg.style.color='#C62828';
-      msg.textContent = /function|schema cache/i.test(r.error.message||'')
-        ? 'Falta ejecutar el SQL de carga por áreas en Supabase.'
-        : (r.error.message || 'No se pudo guardar.');
-      btn.disabled=false; btn.style.opacity='1'; return;
+    // 2) Dato
+    var cambioDato = valor !== (paTieneValor(k.valor)?k.valor:'') || periodo !== (k.periodo||'')
+                  || sub !== (paTieneValor(k.subtitulo)?k.subtitulo:'') || tag !== (k.tag||'neu');
+    if (cambioDato) {
+      var r2 = await sb.rpc('pa_cargar_dato', { p_id:id, p_valor:valor, p_periodo:periodo, p_aclaracion:sub, p_tag:tag });
+      if (r2.error) return falla(paErrorRpc(r2.error));
+      if (typeof logAct === 'function') { try { await logAct('editar', 'panelarea', 'Cargó '+areaCod+' · '+label+': '+valor+' ('+periodo+')'); } catch(e){} }
     }
   }
   paFormCerrar();
-  if (typeof logAct === 'function' && cambioDato) { try { await logAct('editar', 'panelarea', 'Cargó '+areaCod+' · '+(k.label||'')+': '+valor+' ('+periodo+')'); } catch(e){} }
   var abiertas = paCardsAbiertas();
   await buildPanelArea();
   paRestaurarAbiertas(abiertas);
 }
 
-// ── Historial de cargas de un indicador (admin) ──
-async function paHistorial(id, areaCod) {
+// ── Eliminar = desactivar (recuperable por el admin) ──
+async function paEliminarKpi(id, areaCod) {
   var k = (_paKpis[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
-  var { data, error } = await sb.from('pa_kpis_hist').select('*').eq('kpi_id', id).order('created_at', { ascending:false }).limit(30);
-  if (error) { alert('No se pudo leer el historial. ¿Ejecutaste el SQL de carga por áreas?\n\n' + error.message); return; }
-  var filas = (data||[]).map(function(h){
-    return '<tr><td style="padding:.35rem .6rem;white-space:nowrap;">'+new Date(h.created_at).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</td>'
-      +'<td style="padding:.35rem .6rem;">'+paEsc(h.usuario_nombre||'')+'</td>'
-      +'<td style="padding:.35rem .6rem;color:#94A3B8;">'+paEsc(h.valor_anterior||'—')+(h.periodo_anterior?' <span style="font-size:.7rem;">('+paEsc(h.periodo_anterior)+')</span>':'')+'</td>'
-      +'<td style="padding:.35rem .6rem;font-weight:700;">'+paEsc(h.valor_nuevo||'—')+(h.periodo_nuevo?' <span style="font-size:.7rem;font-weight:400;">('+paEsc(h.periodo_nuevo)+')</span>':'')+'</td></tr>';
-  }).join('');
-  var old = document.getElementById('pa-form-modal'); if (old) old.remove();
-  var m = document.createElement('div');
-  m.id = 'pa-form-modal';
-  m.style.cssText = 'position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;font-family:Inter,sans-serif;';
-  m.innerHTML = '<div style="background:#fff;border-radius:12px;width:min(640px,100%);max-height:85vh;overflow:auto;">'
-    +'<div style="background:#0D1B2A;color:#fff;padding:.9rem 1.2rem;border-radius:12px 12px 0 0;display:flex;"><div style="flex:1;"><div style="font-size:.66rem;opacity:.6;text-transform:uppercase;letter-spacing:.08em;">Historial de cargas · '+areaCod+'</div>'
-    +'<div style="font-weight:800;">'+paEsc(k?k.label:'')+'</div></div><button onclick="paFormCerrar()" style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;">✕</button></div>'
-    +(filas ? '<table style="width:100%;border-collapse:collapse;font-size:.8rem;"><tr style="font-size:.64rem;color:#6B7A8D;text-transform:uppercase;text-align:left;"><th style="padding:.5rem .6rem;">Fecha</th><th>Usuario</th><th>Antes</th><th>Después</th></tr>'+filas+'</table>'
-            : '<div style="padding:1.2rem;color:#94A3B8;font-size:.85rem;">Todavía no hay cargas registradas para este indicador.</div>')
-    +'</div>';
-  m.addEventListener('click', function(e){ if (e.target === m) paFormCerrar(); });
-  document.body.appendChild(m);
+  if (!k) return;
+  var nombre = paTieneValor(k.label) ? k.label : '(sin nombre)';
+  if (!confirm('¿Eliminar el indicador "'+nombre+'"?\n\nDeja de mostrarse en el panel. Queda guardado con su historial y el administrador lo puede recuperar.')) return;
+  var r = await sb.rpc('pa_eliminar_kpi', { p_id:id });
+  if (r.error) { alert(paErrorRpc(r.error)); return; }
+  if (typeof logAct === 'function') { try { await logAct('eliminar', 'panelarea', 'Eliminó indicador '+areaCod+' · '+nombre); } catch(e){} }
+  var ab = paCardsAbiertas();
+  await buildPanelArea();
+  paRestaurarAbiertas(ab);
 }
 
-function paEsc(t) { return String(t==null?'':t).replace(/[&<>"]/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]; }); }
+// ── Admin: datos extra (eliminados y novedades) ──
+async function paCargarAdminExtra() {
+  _paEliminados = {}; _paNovedades = {};
+  if (!paEsAdmin() || !sb) return;
+  try {
+    var e = await sb.from('pa_kpis').select('*').eq('activo', false).order('eliminado_at', { ascending:false });
+    (e.data || []).forEach(function(k){ (_paEliminados[k.area_cod] = _paEliminados[k.area_cod] || []).push(k); });
 
-async function paAgregarKpi(areaCod) {
-  var label = prompt('Nombre del indicador (ej: "Personal no docente"):');
-  if (!label || !label.trim()) return;
-  var valor = prompt('Valor (opcional — lo puede cargar después el área):', '');
-  if (valor === null) return;
-  var unidad = prompt('Unidad (ej: "%", "hs" — dejá vacío si no aplica):', '') || '';
-  var subtitulo = prompt('Subtítulo (descripción breve — opcional):', '') || '';
-  var maxOrden = (_paKpis[areaCod]||[]).reduce(function(m,k){ return Math.max(m, k.orden||0); }, 0);
-  var { error } = await paInsertKpi({
-    fecha_dato: valor.trim() ? paHoyISO() : null,
-    area_cod: areaCod,
-    label: label.trim(),
-    valor: valor.trim(),
-    unidad: unidad.trim(),
-    subtitulo: subtitulo.trim(),
-    tag: 'neu',
-    orden: maxOrden + 1,
-    activo: true
-  });
-  if (error) { alert('Error al agregar: ' + (error.message||'')); return; }
-  var _ab = paCardsAbiertas();
-  await paCargarKpis();
+    var yo = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.id : null;
+    var rev = {};
+    if (yo) {
+      var rv = await sb.from('pa_revisiones').select('*').eq('usuario_id', yo);
+      (rv.data || []).forEach(function(r){ rev[r.area_cod] = r.revisado_at; });
+    }
+    var desde = new Date(); desde.setDate(desde.getDate() - 30);   // sin revisión previa: últimos 30 días
+    var h = await sb.from('pa_kpis_hist').select('*').gte('created_at', desde.toISOString()).order('created_at', { ascending:false }).limit(500);
+    (h.data || []).forEach(function(x){
+      if (yo && x.usuario_id === yo) return;                        // no avisar de mis propios cambios
+      if (rev[x.area_cod] && x.created_at <= rev[x.area_cod]) return;
+      (_paNovedades[x.area_cod] = _paNovedades[x.area_cod] || []).push(x);
+    });
+  } catch(err) { /* tablas nuevas aún no creadas */ }
+}
+
+var PA_TIPOS_HIST = {
+  carga:        { t:'Cargó dato',   c:'#1F618D' },
+  alta:         { t:'Creó',         c:'#2E7D32' },
+  edicion:      { t:'Editó',        c:'#784212' },
+  baja:         { t:'Eliminó',      c:'#C62828' },
+  restauracion: { t:'Recuperó',     c:'#4A235A' }
+};
+function paFilaHist(h, conIndicador) {
+  var ti = PA_TIPOS_HIST[h.tipo || 'carga'] || PA_TIPOS_HIST.carga;
+  var det = (h.tipo || 'carga') === 'carga'
+    ? '<span style="color:#94A3B8;">'+paEsc(h.valor_anterior||'—')+'</span> → <strong>'+paEsc(h.valor_nuevo||'—')+'</strong>'+(h.periodo_nuevo?' <span style="font-size:.7rem;">('+paEsc(h.periodo_nuevo)+')</span>':'')
+    : paEsc(h.detalle||'');
+  return '<tr>'
+    +'<td style="padding:.4rem .6rem;white-space:nowrap;vertical-align:top;font-size:.72rem;color:#6B7A8D;">'+new Date(h.created_at).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</td>'
+    +'<td style="padding:.4rem .6rem;vertical-align:top;"><span style="font-size:.66rem;font-weight:700;color:'+ti.c+';text-transform:uppercase;white-space:nowrap;">'+ti.t+'</span></td>'
+    +(conIndicador ? '<td style="padding:.4rem .6rem;vertical-align:top;font-weight:600;">'+paEsc(h.label||'')+'</td>' : '')
+    +'<td style="padding:.4rem .6rem;vertical-align:top;">'+det+'</td>'
+    +'<td style="padding:.4rem .6rem;vertical-align:top;white-space:nowrap;">'+paEsc(h.usuario_nombre||'')+'</td>'
+    +'</tr>';
+}
+
+// ── Historial de un indicador (admin) ──
+async function paHistorial(id, areaCod) {
+  var k = (_paKpis[areaCod] || []).concat(_paEliminados[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
+  var { data, error } = await sb.from('pa_kpis_hist').select('*').eq('kpi_id', id).order('created_at', { ascending:false }).limit(50);
+  if (error) { alert('No se pudo leer el historial.\n\n' + error.message); return; }
+  var filas = (data||[]).map(function(h){ return paFilaHist(h, false); }).join('');
+  paModal(paModalHead('#0D1B2A', 'Historial · '+areaCod, paEsc(k?k.label:''))
+    +(filas ? '<table style="width:100%;border-collapse:collapse;font-size:.8rem;">'+filas+'</table>'
+            : '<div style="padding:1.2rem;color:#94A3B8;font-size:.85rem;">Todavía no hay movimientos registrados para este indicador.</div>'), 720);
+}
+
+// ── Novedades por área (admin) ──
+function paVerNovedades(areaCod) {
+  var lista = _paNovedades[areaCod] || [];
+  var filas = lista.map(function(h){ return paFilaHist(h, true); }).join('');
+  paModal(paModalHead(PA_COLORS[areaCod]||'#0D1B2A', 'Cambios nuevos · '+areaCod, paEsc(PA_NAMES[areaCod]||areaCod))
+    +'<div style="padding:.7rem 1.2rem;font-size:.76rem;color:#6B7A8D;">Cambios hechos por el área desde tu última revisión.</div>'
+    +'<table style="width:100%;border-collapse:collapse;font-size:.8rem;">'+filas+'</table>'
+    +'<div style="display:flex;justify-content:flex-end;padding:.9rem 1.2rem;border-top:1px solid #EDE9E1;margin-top:.4rem;">'
+    +'<button onclick="paMarcarRevisado(\''+paJs(areaCod)+'\')" style="background:#C9963A;border:none;color:#0D1B2A;font-weight:700;font-size:.82rem;padding:.55rem 1.2rem;border-radius:6px;cursor:pointer;">✔ Marcar como revisado</button></div>', 820);
+}
+async function paMarcarRevisado(areaCod) {
+  var yo = (typeof currentUser !== 'undefined' && currentUser) ? currentUser.id : null;
+  if (!yo) return;
+  var r = await sb.from('pa_revisiones').upsert({ usuario_id:yo, area_cod:areaCod, revisado_at:new Date().toISOString() });
+  if (r.error) { alert(paErrorRpc(r.error)); return; }
+  paFormCerrar();
+  var ab = paCardsAbiertas();
   await buildPanelArea();
-  paRestaurarAbiertas(_ab);
+  paRestaurarAbiertas(ab);
+}
+
+// ── Eliminados (admin): recuperar o borrar definitivamente ──
+function paVerEliminados(areaCod) {
+  var lista = _paEliminados[areaCod] || [];
+  var bs = 'border-radius:5px;font-size:.72rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;';
+  var filas = lista.map(function(k){
+    return '<div style="display:flex;align-items:center;gap:.8rem;padding:.6rem 1.2rem;border-bottom:1px solid #F0ECE4;">'
+      +'<div style="flex:1;"><div style="font-weight:700;font-size:.85rem;">'+paEsc(paTieneValor(k.label)?k.label:'(sin nombre)')+'</div>'
+      +'<div style="font-size:.7rem;color:#6B7A8D;">'+(paTieneValor(k.valor)?'Último valor: '+paEsc(k.valor)+(k.periodo?' ('+paEsc(k.periodo)+')':'')+' · ':'')
+      +'Eliminado '+(k.eliminado_at?paFmtFecha(k.eliminado_at):'')+(k.eliminado_por_nombre?' por '+paEsc(k.eliminado_por_nombre):'')+'</div></div>'
+      +'<button onclick="paHistorial(\''+paJs(k.id)+'\',\''+paJs(areaCod)+'\')" style="'+bs+'background:#fff;border:1px solid #DDD9D0;color:#0D1B2A;">🕘</button>'
+      +'<button onclick="paRestaurarKpi(\''+paJs(k.id)+'\',\''+paJs(areaCod)+'\')" style="'+bs+'background:#0D1B2A;border:none;color:#E8B455;">↩ Recuperar</button>'
+      +'<button onclick="paBorrarDefinitivo(\''+paJs(k.id)+'\',\''+paJs(areaCod)+'\')" style="'+bs+'background:#fff;border:1px solid #F5C6C6;color:#C62828;">Borrar definitivamente</button>'
+      +'</div>';
+  }).join('');
+  paModal(paModalHead(PA_COLORS[areaCod]||'#0D1B2A', 'Indicadores eliminados · '+areaCod, paEsc(PA_NAMES[areaCod]||areaCod))
+    +(filas || '<div style="padding:1.2rem;color:#94A3B8;font-size:.85rem;">No hay indicadores eliminados.</div>'), 760);
+}
+async function paRestaurarKpi(id, areaCod) {
+  var r = await sb.rpc('pa_restaurar_kpi', { p_id:id });
+  if (r.error) { alert(paErrorRpc(r.error)); return; }
+  paFormCerrar();
+  var ab = paCardsAbiertas();
+  await buildPanelArea();
+  paRestaurarAbiertas(ab);
+}
+async function paBorrarDefinitivo(id, areaCod) {
+  var k = (_paEliminados[areaCod] || []).find(function(x){ return String(x.id) === String(id); });
+  if (!confirm('¿Borrar DEFINITIVAMENTE "'+(k?k.label:'')+'"?\n\nSe pierde también su historial. Esta acción no se puede deshacer.')) return;
+  var r = await sb.from('pa_kpis').delete().eq('id', id);
+  if (r.error) { alert('No se pudo borrar: ' + r.error.message); return; }
+  paFormCerrar();
+  var ab = paCardsAbiertas();
+  await buildPanelArea();
+  paRestaurarAbiertas(ab);
 }
 
 // Fijar / quitar un indicador de la fila del título del área
@@ -5708,24 +5810,13 @@ function paRestaurarAbiertas(ids) {
   paActualizarBtn();
 }
 
-async function paEliminarKpi(id, areaCod) {
-  var kpisArea = _paKpis[areaCod] || [];
-  var k = kpisArea.find(function(x){ return String(x.id) === String(id); });
-  if (!k || !confirm('¿Eliminar "'+k.label+'"?')) return;
-  var { error } = await sb.from('pa_kpis').delete().eq('id', id);
-  if (error) { alert('Error al eliminar.'); return; }
-  var _ab = paCardsAbiertas();
-  await paCargarKpis();
-  await buildPanelArea();
-  paRestaurarAbiertas(_ab);
-}
-
 async function buildPanelArea() {
   var root = document.getElementById('panelarea-root');
   if (!root) return;
   // Cargar KPIs desde Supabase, luego armar banda desde ellos
   await paCargarKpis();
   await paCargarBanda(); // construye _paBanda desde _paKpis
+  await paCargarAdminExtra();
 
   // Inyectar CSS del panel
   if (!document.getElementById('pa-style')) {
@@ -5866,7 +5957,8 @@ async function buildPanelArea() {
             + '<button onclick="paEditarKpi(\''+kid+'\',\''+acod+'\')" title="Editar" style="'+bs+'color:#94A3B8;">✏</button>'
             + '<button onclick="paEliminarKpi(\''+kid+'\',\''+acod+'\')" title="Eliminar" style="'+bs+'color:#94A3B8;">🗑</button>';
         } else {
-          tools += '<button onclick="paEditarKpi(\''+kid+'\',\''+acod+'\')" title="Cargar dato" style="'+bs+'color:'+c+';font-weight:700;font-size:.7rem;border:1px solid '+c+'55;border-radius:4px;padding:.15rem .4rem;">✏ '+(valVacio?'Cargar':'Actualizar')+'</button>';
+          tools += '<button onclick="paEditarKpi(\''+kid+'\',\''+acod+'\')" title="Cargar dato" style="'+bs+'color:'+c+';font-weight:700;font-size:.7rem;border:1px solid '+c+'55;border-radius:4px;padding:.15rem .4rem;">✏ '+(valVacio?'Cargar':'Actualizar')+'</button>'
+            + '<button onclick="paEliminarKpi(\''+kid+'\',\''+acod+'\')" title="Eliminar indicador" style="'+bs+'color:#94A3B8;">🗑</button>';
         }
         tools += '</div>';
       }
@@ -5898,11 +5990,22 @@ async function buildPanelArea() {
       : '<div style="font-size:.8rem;color:#94A3B8;padding:1rem 0 .2rem;font-style:italic;">Esta secretaría todavía no tiene indicadores definidos.</div>';
 
     var addKpiBtn = '';
-    if (isAdmin) {
-      addKpiBtn = '<button onclick="paAgregarKpi(\''+acod+'\')" style="margin-top:.5rem;background:none;border:1px dashed rgba(201,150,58,.35);color:#C9963A;font-size:.73rem;font-weight:600;padding:.3rem .7rem;border-radius:5px;cursor:pointer;width:100%;">+ Agregar indicador</button>'
-        + '<div style="font-size:.66rem;color:#94A3B8;margin-top:.35rem;">📌 fija hasta '+PA_MAX_FILA+' indicadores en la fila del título (aunque todavía no tengan valor). Si no fijás ninguno, se muestran los 2 primeros con dato. 🕘 muestra quién cargó cada valor.</div>';
-    } else if (puedeCargar) {
-      addKpiBtn = '<div style="font-size:.7rem;color:#6B7A8D;margin-top:.6rem;background:#F5F2EC;border-radius:6px;padding:.5rem .7rem;">Para cargar o actualizar un dato usá <strong>✏</strong> en cada indicador. Si hace falta agregar, quitar o renombrar un indicador, pedíselo a la Secretaría de Planificación.</div>';
+    var nAct = (_paKpis[a.cod] || []).length;
+    if (puedeCargar) {
+      var lleno = nAct >= PA_MAX_KPIS;
+      var bloq = lleno && !isAdmin;
+      addKpiBtn = '<button '+(bloq?'disabled ':'')+'onclick="paAgregarKpi(\''+acod+'\')" style="margin-top:.5rem;background:none;border:1px dashed '+(bloq?'#DDD9D0':'rgba(201,150,58,.35)')+';color:'+(bloq?'#A0AEC0':'#C9963A')+';font-size:.73rem;font-weight:600;padding:.3rem .7rem;border-radius:5px;cursor:'+(bloq?'not-allowed':'pointer')+';width:100%;">'
+        + (bloq ? 'Máximo de '+PA_MAX_KPIS+' indicadores alcanzado · eliminá uno para agregar otro' : '+ Agregar indicador')
+        + ' <span style="font-weight:400;color:#94A3B8;">('+nAct+' de '+PA_MAX_KPIS+')</span></button>';
+      if (isAdmin) {
+        var nElim = (_paEliminados[a.cod] || []).length;
+        addKpiBtn += '<div style="display:flex;gap:1rem;align-items:flex-start;margin-top:.35rem;">'
+          + '<div style="font-size:.66rem;color:#94A3B8;flex:1;">📌 fija hasta '+PA_MAX_FILA+' indicadores en la fila del título. Si no fijás ninguno, se muestran los 2 primeros con dato. 🕘 muestra el historial de cada indicador.</div>'
+          + (nElim ? '<button onclick="paVerEliminados(\''+acod+'\')" style="background:none;border:none;color:#6B7A8D;font-size:.7rem;cursor:pointer;text-decoration:underline;white-space:nowrap;">🗂 Eliminados ('+nElim+')</button>' : '')
+          + '</div>';
+      } else {
+        addKpiBtn += '<div style="font-size:.7rem;color:#6B7A8D;margin-top:.6rem;background:#F5F2EC;border-radius:6px;padding:.5rem .7rem;">Con <strong>✏</strong> cargás o actualizás el dato y podés cambiar el nombre del indicador. Con <strong>🗑</strong> lo eliminás (lo puede recuperar la Secretaría de Planificación). Elegí indicadores útiles para la conducción: pocos, relevantes y que puedan actualizarse con regularidad.</div>';
+      }
     }
     var ult = paUltimaCarga(a);
     var fechaActualizacion = ult
@@ -5911,6 +6014,8 @@ async function buildPanelArea() {
     var nota = (!_paKpisOk && a.nota) ? '<div class="pa-nota"><strong>Nota:</strong> '+a.nota+'</div>' : '';
     var badges = '';
     if (esMiArea && puedeCargar) badges += '<span style="font-size:.62rem;font-weight:700;color:'+c+';border:1px solid '+c+';border-radius:10px;padding:.1rem .5rem;margin-left:.5rem;white-space:nowrap;">TU ÁREA</span>';
+    var nNov = isAdmin ? (_paNovedades[a.cod] || []).length : 0;
+    if (nNov) badges += '<span onclick="event.stopPropagation();paVerNovedades(\''+acod+'\')" title="Ver los cambios que hizo el área" style="cursor:pointer;font-size:.62rem;font-weight:700;color:#fff;background:#C9963A;border-radius:10px;padding:.12rem .55rem;margin-left:.5rem;white-space:nowrap;">🆕 '+nNov+' cambio'+(nNov>1?'s':'')+'</span>';
     if (nDesact) badges += '<span title="Indicadores sin actualizar hace más de '+PA_MESES_DESACT+' meses" style="font-size:.62rem;font-weight:700;color:#E65100;background:#FFF3E0;border-radius:10px;padding:.1rem .5rem;margin-left:.5rem;white-space:nowrap;">⚠ '+nDesact+' desactualizado'+(nDesact>1?'s':'')+'</span>';
     return '<div class="pa-card'+(esMiArea && puedeCargar ? ' open' : '')+'" id="pa-card-'+a.cod+'">'
       +'<div class="pa-row" style="border-left-color:'+c+'" onclick="paTgl(\''+a.cod+'\')">'
