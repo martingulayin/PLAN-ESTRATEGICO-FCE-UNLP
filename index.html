@@ -1983,6 +1983,228 @@
 @media(max-width:620px){#anuariofceView .an-g3,#anuariofceView .an-g2{grid-template-columns:1fr}#anuariofceView .an-kpi-grid{grid-template-columns:1fr 1fr}#anuariofceView .an-ph{flex-direction:column}}
 @media(max-width:420px){#anuariofceView .an-kpi-grid,#anuariofceView .an-eco-kpi-grid{grid-template-columns:1fr}}
 </style>
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   MÓDULO MENSAJES — estética del Portal PE (azul marino, dorado, crema)
+   Clases con prefijo fr- : no afectan al resto del portal.
+   ══════════════════════════════════════════════════════════════════════ */
+#mensajesView{display:none;background:var(--cream);min-height:100vh;padding:2.5rem 2rem 3rem;}
+#mensajesView .fr-wrap{max-width:1080px;margin:0 auto;}
+.fr-head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;}
+.fr-h2{font-family:'Inter',sans-serif;color:var(--navy);font-size:2rem;font-weight:700;margin-bottom:.25rem;letter-spacing:-.01em;}
+.fr-sub{color:#666;font-size:.95rem;}
+
+/* Botones */
+.fr-btn{padding:.6rem 1.2rem;background:var(--gold);color:var(--navy);border:none;border-radius:5px;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
+.fr-btn:hover{background:var(--gold-l);}
+.fr-btn:disabled{background:#B8B2A6;cursor:not-allowed;}
+.fr-btn-sec{padding:.55rem 1rem;background:transparent;color:var(--navy);border:1.5px solid var(--border);border-radius:5px;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;}
+.fr-btn-sec:hover{border-color:var(--gold);color:#8B6914;}
+
+/* Aviso en tiempo real */
+#foro-aviso{display:none;align-items:center;gap:.7rem;background:#FBF3E4;border:1px solid rgba(201,150,58,.4);border-left:4px solid var(--gold);border-radius:6px;padding:.7rem 1rem;margin-bottom:1.4rem;font-size:.85rem;color:var(--navy);cursor:pointer;}
+#foro-aviso:hover{background:#F8ECD5;}
+.fr-aviso-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.fr-aviso-ver{margin-left:auto;font-weight:600;color:#8B6914;white-space:nowrap;}
+
+/* Rótulos de sección (estilo "PRESENTACIÓN DE ACCIONES…") */
+.fr-sec{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem;}
+.fr-sec span{font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+.fr-sec span::before{content:"";display:inline-block;width:18px;height:2px;background:var(--gold);vertical-align:middle;margin-right:.6rem;}
+.fr-sec em{font-style:normal;font-size:.7rem;font-weight:700;color:var(--navy);background:#EDE7DA;border-radius:10px;padding:.05rem .5rem;}
+
+/* Comunicados */
+.fr-coms{display:flex;flex-direction:column;gap:.7rem;}
+.fr-com{display:flex;align-items:center;gap:1rem;background:var(--white);border-radius:10px;box-shadow:0 2px 12px rgba(13,27,42,.06);border-left:4px solid var(--gold);padding:1rem 1.2rem;cursor:pointer;transition:box-shadow .15s,transform .15s;}
+.fr-com:hover{box-shadow:0 6px 20px rgba(13,27,42,.1);}
+.fr-com.nv-urgente{border-left-color:#C0392B;}
+.fr-com.nv-importante{border-left-color:var(--gold);}
+.fr-com.nv-informativo{border-left-color:var(--ee1);}
+.fr-com-main{flex:1;min-width:0;}
+.fr-com-top{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.35rem;}
+.fr-com-tit{font-size:1.02rem;font-weight:600;color:var(--navy);line-height:1.35;}
+.fr-com-meta{font-size:.78rem;color:var(--muted);margin-top:.25rem;}
+.fr-com-side{font-size:.75rem;color:var(--muted);white-space:nowrap;}
+.fr-com-side b{color:var(--navy);}
+.fr-bold{font-weight:700 !important;}
+.fr-mas{display:block;margin:.8rem auto 0;background:none;border:none;font-size:.78rem;font-weight:600;color:#8B6914;cursor:pointer;}
+.fr-mas:hover{text-decoration:underline;}
+.fr-vacio-box{background:var(--white);border:1px dashed var(--border);border-radius:10px;padding:1.4rem;text-align:center;font-size:.88rem;color:var(--muted);}
+
+/* Etiquetas */
+.fr-nivel{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.18rem .55rem;border-radius:3px;}
+.fr-nivel.urgente{background:rgba(192,57,43,.1);color:#A93226;}
+.fr-nivel.importante{background:rgba(201,150,58,.15);color:#7A5A10;}
+.fr-nivel.informativo{background:rgba(26,82,118,.1);color:var(--ee1);}
+.fr-pill{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.15rem .5rem;border-radius:3px;margin-left:.4rem;vertical-align:middle;}
+.fr-com-top .fr-pill{margin-left:0;}
+.fr-pill.nuevas{background:var(--navy);color:var(--gold-l);}
+.fr-pill.fijado{background:#EDE7DA;color:#7A5A10;}
+.fr-pill.cerrado{background:#EEF0F3;color:var(--muted);}
+.fr-pill.debate{background:#EDE7DA;color:var(--navy);margin-left:0;}
+.fr-pin{color:var(--gold);font-size:.65rem;margin-right:.4rem;vertical-align:middle;}
+
+/* Filtros */
+.fr-chips{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.9rem;}
+.fr-chip{background:var(--white);border:1px solid var(--border);border-radius:999px;padding:.35rem .9rem;font-family:'Inter',sans-serif;font-size:.74rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;}
+.fr-chip:hover{border-color:var(--gold);color:var(--navy);}
+.fr-chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+/* Tabla de debates */
+.fr-tabla{background:var(--white);border-radius:10px;box-shadow:0 2px 12px rgba(13,27,42,.06);}
+.fr-grid{display:grid;grid-template-columns:40px minmax(0,1fr) 180px 180px 90px 40px;gap:.6rem;align-items:center;padding:.85rem 1rem;}
+.fr-head{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--gold);padding-top:.75rem;padding-bottom:.75rem;}
+.fr-row{border-bottom:1px solid #EEE9DF;cursor:pointer;transition:background .12s;}
+.fr-row:last-child{border-bottom:none;}
+.fr-row:hover{background:#FBF9F5;}
+.fr-row.fijado{background:#FDFAF3;}
+.fr-row-tit{font-size:.95rem;font-weight:500;color:var(--navy);line-height:1.35;}
+.fr-row-sub{display:none;font-size:.74rem;color:var(--muted);margin-top:.2rem;}
+.fr-num{text-align:center;font-size:.92rem;font-weight:700;color:var(--navy);}
+.fr-head .fr-num{font-size:.64rem;color:var(--muted);}
+.fr-sm{display:none;}
+.fr-persona{display:flex;align-items:center;gap:.55rem;min-width:0;}
+.fr-persona-txt{min-width:0;}
+.fr-persona-nom{font-size:.8rem;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fr-persona-fec{font-size:.72rem;color:var(--muted);}
+.fr-av{width:34px;height:34px;border-radius:50%;background:var(--navy);color:var(--gold);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0;}
+.fr-av.sm{width:28px;height:28px;font-size:.7rem;}
+.fr-star,.fr-kebab{background:none;border:none;cursor:pointer;color:#B8B2A6;font-size:1.1rem;line-height:1;padding:.3rem;border-radius:4px;}
+.fr-star.on{color:var(--gold);}
+.fr-star:hover,.fr-kebab:hover{color:var(--navy);background:#F3EFE6;}
+.fr-vacio{padding:2rem 1rem;text-align:center;font-size:.88rem;color:var(--muted);}
+
+/* Menú ⋮ */
+.fr-menu-wrap{position:relative;}
+.fr-menu{position:absolute;right:0;top:100%;z-index:40;display:none;min-width:180px;background:var(--navy);border:1px solid rgba(201,150,58,.3);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.25);padding:.35rem 0;}
+.fr-menu.open{display:block;}
+.fr-menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:.5rem .95rem;font-family:'Inter',sans-serif;font-size:.8rem;color:#E2E8F0;cursor:pointer;}
+.fr-menu button:hover{background:rgba(201,150,58,.12);color:var(--gold-l);}
+.fr-menu button.peligro{color:#F1948A;}
+
+/* Tema abierto */
+.fr-tema-bar{display:flex;align-items:center;gap:.4rem;margin-bottom:1.2rem;}
+.fr-volver{background:none;border:none;padding:0;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;color:#8B6914;cursor:pointer;}
+.fr-volver:hover{text-decoration:underline;}
+.fr-tema-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem;}
+.fr-tema-tags .fr-pill{margin-left:0;}
+.fr-tema-tit{font-family:'Inter',sans-serif;font-size:1.65rem;font-weight:700;color:var(--navy);line-height:1.25;margin-bottom:1.2rem;}
+.fr-post{background:var(--white);border-radius:10px;box-shadow:0 2px 12px rgba(13,27,42,.06);padding:1.1rem 1.3rem;margin-bottom:.75rem;}
+.fr-post.original{border-left:4px solid var(--navy);}
+.fr-post.original.nv-urgente{border-left-color:#C0392B;}
+.fr-post.original.nv-importante{border-left-color:var(--gold);}
+.fr-post.original.nv-informativo{border-left-color:var(--ee1);}
+.fr-post.nueva{box-shadow:0 0 0 1.5px rgba(201,150,58,.55),0 2px 12px rgba(13,27,42,.06);}
+.fr-post-head{display:flex;align-items:center;gap:.65rem;margin-bottom:.7rem;}
+.fr-post-autor{font-size:.88rem;font-weight:700;color:var(--navy);}
+.fr-post-fecha{font-size:.74rem;color:var(--muted);}
+.fr-texto{font-size:.95rem;color:var(--text);line-height:1.7;white-space:pre-wrap;word-wrap:break-word;}
+.fr-post-acc{display:flex;gap:1.1rem;margin-top:.75rem;}
+.fr-post-acc button{background:none;border:none;padding:0;font-family:'Inter',sans-serif;font-size:.74rem;font-weight:600;color:var(--muted);cursor:pointer;}
+.fr-post-acc button:hover{color:#8B6914;}
+.fr-post-acc button.peligro:hover{color:#C0392B;}
+.fr-cita{background:var(--cream);border-left:3px solid var(--gold);padding:.5rem .8rem;margin-bottom:.7rem;font-size:.82rem;color:var(--muted);line-height:1.5;}
+.fr-cita b{color:var(--navy);}
+.fr-sep{display:flex;align-items:center;gap:.8rem;margin:1.2rem 0 .8rem;font-size:.64rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+.fr-sep::before,.fr-sep::after{content:"";flex:1;height:1px;background:rgba(201,150,58,.45);}
+.fr-vistos{display:flex;align-items:center;gap:.7rem;margin-top:1rem;padding-top:.8rem;border-top:1px solid #EEE9DF;font-size:.78rem;color:var(--muted);}
+.fr-vistos b{color:var(--navy);}
+.fr-vistos-av{display:flex;}
+.fr-vistos-av span{width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--gold);border:2px solid var(--white);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;margin-left:-6px;}
+.fr-vistos-av span:first-child{margin-left:0;}
+.fr-mencion{color:#8B6914;font-weight:600;background:rgba(201,150,58,.12);border-radius:3px;padding:0 3px;}
+.fr-mencion.yo{color:var(--navy);background:rgba(201,150,58,.3);}
+
+/* Caja de respuesta */
+.fr-composer{background:var(--white);border-radius:10px;box-shadow:0 2px 12px rgba(13,27,42,.06);padding:1.1rem 1.3rem;margin-top:1.2rem;border-top:3px solid var(--gold);}
+.fr-ta-wrap{position:relative;}
+.fr-textarea{width:100%;min-height:90px;padding:.7rem .85rem;font-family:'Inter',sans-serif;font-size:.92rem;color:var(--text);background:#FDFCFA;border:1.5px solid var(--border);border-radius:6px;outline:none;resize:vertical;transition:border-color .2s;}
+.fr-textarea:focus{border-color:var(--gold);background:var(--white);}
+.fr-acc-row{display:flex;align-items:center;gap:.7rem;margin-top:.6rem;flex-wrap:wrap;}
+.fr-hint{margin-left:auto;font-size:.7rem;color:var(--muted);}
+.fr-err{font-size:.76rem;color:#C0392B;}
+.fr-aviso{font-size:.76rem;color:#8B6914;margin-bottom:.5rem;}
+.fr-cita-prev{display:flex;align-items:flex-start;gap:.5rem;}
+.fr-cita-prev .fr-cita{flex:1;}
+.fr-cita-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;}
+.fr-cerrado{margin-top:1.2rem;padding:1rem;border:1px dashed var(--border);border-radius:10px;text-align:center;font-size:.86rem;color:var(--muted);}
+.fr-dd{position:absolute;left:0;top:100%;z-index:50;margin-top:4px;min-width:260px;background:var(--navy);border:1px solid rgba(201,150,58,.3);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.25);padding:.3rem 0;}
+.fr-dd-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .8rem;cursor:pointer;color:#E2E8F0;font-size:.8rem;}
+.fr-dd-item:hover{background:rgba(201,150,58,.12);}
+.fr-dd-item small{display:block;font-size:.68rem;color:#94A3B8;}
+.fr-dd-vacio{padding:.55rem .85rem;font-size:.78rem;color:#94A3B8;}
+
+/* Menciones */
+.fr-pill.mencion{background:rgba(201,150,58,.18);color:#7A5A10;border:1px solid rgba(201,150,58,.5);}
+.fr-menc-box{background:var(--navy);border-radius:10px;padding:1rem 1.2rem .6rem;margin-bottom:2rem;box-shadow:0 6px 20px rgba(13,27,42,.18);}
+.fr-menc-head{display:flex;align-items:center;gap:.55rem;margin-bottom:.5rem;}
+.fr-menc-head span:not(.fr-menc-arroba){font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+.fr-menc-head em{font-style:normal;font-size:.7rem;font-weight:800;color:var(--navy);background:var(--gold);border-radius:10px;padding:.05rem .5rem;}
+.fr-menc-arroba{width:22px;height:22px;border-radius:50%;background:rgba(201,150,58,.18);color:var(--gold-l);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;}
+.fr-menc-todas{margin-left:auto;background:none;border:none;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;color:#94A3B8;cursor:pointer;}
+.fr-menc-todas:hover{color:var(--gold-l);}
+.fr-menc-item{display:flex;align-items:center;gap:.7rem;padding:.6rem 0;border-top:1px solid rgba(255,255,255,.07);cursor:pointer;}
+.fr-menc-item:hover .fr-menc-txt span{color:var(--gold-l);text-decoration:underline;}
+.fr-menc-txt{flex:1;min-width:0;font-size:.86rem;color:#CBD5E0;line-height:1.4;}
+.fr-menc-txt b{color:#fff;}
+.fr-menc-txt span{color:var(--gold);font-weight:600;}
+.fr-menc-fec{font-size:.72rem;color:#94A3B8;white-space:nowrap;}
+.fr-menc-mas{font-size:.74rem;color:#94A3B8;padding:.4rem 0 .2rem;border-top:1px solid rgba(255,255,255,.07);}
+.fr-post.destacada{animation:fr-destello 2.6s ease;}
+@keyframes fr-destello{0%,40%{box-shadow:0 0 0 3px var(--gold),0 2px 12px rgba(13,27,42,.06);}100%{box-shadow:0 2px 12px rgba(13,27,42,.06);}}
+#fr-toast{position:fixed;left:1.5rem;bottom:1.5rem;z-index:9000;display:flex;align-items:center;gap:.7rem;max-width:min(460px,calc(100vw - 3rem));background:var(--navy);border:1px solid rgba(201,150,58,.35);border-left:4px solid var(--gold);border-radius:8px;box-shadow:0 12px 36px rgba(0,0,0,.35);padding:.75rem .9rem;color:#E2E8F0;font-family:'Inter',sans-serif;font-size:.85rem;transform:translateY(140%);opacity:0;transition:transform .3s ease,opacity .3s ease;pointer-events:none;}
+#fr-toast.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+.fr-toast-ico{width:26px;height:26px;border-radius:50%;background:rgba(201,150,58,.18);color:var(--gold-l);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;}
+.fr-toast-txt{flex:1;min-width:0;line-height:1.4;}
+.fr-toast-ver{background:var(--gold);color:var(--navy);border:none;border-radius:4px;padding:.35rem .75rem;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
+.fr-toast-ver:hover{background:var(--gold-l);}
+.fr-toast-x{background:none;border:none;color:#718096;cursor:pointer;font-size:.9rem;}
+@media(max-width:768px){#fr-toast{left:.75rem;right:.75rem;bottom:.75rem;max-width:none;}.fr-menc-fec{display:none;}}
+
+/* Contador en la solapa */
+#foro-tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:.35rem;border-radius:9px;background:var(--gold);color:var(--navy);font-size:.66rem;font-weight:800;vertical-align:middle;}
+
+/* Modal (mismo lenguaje que "Gestión institucional") */
+#foro-overlay{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1.5rem;}
+#foro-overlay.open{display:flex;}
+.fr-modal{background:#0D1B2A;border:1px solid rgba(201,150,58,.3);border-radius:.9rem;width:100%;max-width:640px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.6);}
+.fr-modal-head{padding:1.2rem 1.6rem;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;}
+.fr-modal-title{font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:700;color:#fff;}
+.fr-modal-close{background:none;border:none;color:#718096;font-size:1.2rem;cursor:pointer;}
+.fr-modal-close:hover{color:#fff;}
+.fr-modal-body{padding:1.3rem 1.6rem;overflow-y:auto;}
+.fr-field{margin-bottom:.9rem;}
+.fr-field label{display:block;font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#718096;margin-bottom:.35rem;}
+.fr-field input,.fr-field select,.fr-field textarea{width:100%;padding:.6rem .8rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:5px;color:#fff;font-family:'Inter',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;resize:vertical;}
+.fr-field input:focus,.fr-field select:focus,.fr-field textarea:focus{border-color:var(--gold);}
+.fr-field select option{background:#162439;}
+.fr-field-hint{font-size:.66rem;color:#718096;margin-top:.3rem;}
+.fr-modal-foot{padding:1rem 1.6rem;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:flex-end;gap:.6rem;}
+.fr-modal-foot .fr-btn-sec{color:#CBD5E0;border-color:rgba(255,255,255,.2);}
+.fr-modal-foot .fr-btn-sec:hover{color:var(--gold-l);border-color:var(--gold);}
+.fr-m-msg{font-size:.76rem;margin-right:auto;}
+.fr-m-msg.ok{color:#48BB78;}
+.fr-m-msg.err{color:#F1948A;}
+
+@media(max-width:900px){
+  .fr-grid{grid-template-columns:34px minmax(0,1fr) 54px 34px;}
+  .fr-c-ini,.fr-c-ult{display:none;}
+  .fr-row-sub{display:block;}
+  .fr-lg{display:none;}.fr-sm{display:inline;}
+}
+@media(max-width:768px){
+  #mensajesView{padding:1.4rem 1rem 2.5rem;}
+  .fr-h2{font-size:1.5rem;}
+  .fr-head-row{margin-bottom:1.4rem;}
+  .fr-com{padding:.85rem .9rem;gap:.6rem;}
+  .fr-com-side{display:none;}
+  .fr-tema-tit{font-size:1.3rem;}
+  .fr-post,.fr-composer{padding:.9rem 1rem;}
+  .fr-hint{display:none;}
+  .fr-modal{max-width:100%;max-height:100vh;height:100vh;border-radius:0;}
+  #foro-overlay{padding:0;align-items:flex-end;}
+}
+</style>
 </head>
 <body>
 
@@ -2140,14 +2362,14 @@
             <button class="sec-action-btn" onclick="toggleTodasSecciones(false)">Desmarcar todas</button>
           </div>
           <div class="secciones-grid" id="secciones-grid">
-            <label class="seccion-check"><input type="checkbox" value="decano" checked><label>🎙️ Mensaje del Decano</label></label>
-            <label class="seccion-check"><input type="checkbox" value="lineamientos" checked><label>📄 Lineamientos Estratégicos</label></label>
+            <label class="seccion-check"><input type="checkbox" value="decano" checked><label>🎙️ Palabras del Decano</label></label>
+            <label class="seccion-check"><input type="checkbox" value="lineamientos" checked><label>📄 Lineamientos PE</label></label>
             <label class="seccion-check"><input type="checkbox" value="mapa" checked><label>⊞ Mapa Estratégico</label></label>
             <label class="seccion-check"><input type="checkbox" value="area" checked><label>☰ Por Secretaría</label></label>
             <label class="seccion-check"><input type="checkbox" value="proceso" checked><label>◎ Proceso Metodológico</label></label>
             <label class="seccion-check"><input type="checkbox" value="timeline" checked><label>📅 Cronograma</label></label>
             <label class="seccion-check"><input type="checkbox" value="tablero" checked><label>📊 Tablero Institucional</label></label>
-            <label class="seccion-check"><input type="checkbox" value="anuario" checked><label>📈 Tablero Anuario FCE</label></label>
+            <label class="seccion-check"><input type="checkbox" value="anuario" checked><label>📈 Anuario FCE-UNLP</label></label>
             <label class="seccion-check"><input type="checkbox" value="panelarea" checked><label>📋 Panel por Área</label></label>
             <label class="seccion-check"><input type="checkbox" value="seguimiento" checked><label>✅ Seguimiento PE</label></label>
           </div>
@@ -2597,16 +2819,24 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
       Secciones
     </button>
   <nav class="tabs-bar" id="tabs-bar">
+    <!-- Uso diario -->
     <button class="tab-btn active" id="tabInicio"    onclick="switchTab('inicio')"><span class="tab-icon">🏠</span> Inicio</button>
-    <button class="tab-btn" id="tabDecano" onclick="switchTab('decano')"><span class="tab-icon">🎙️</span> Mensaje del Decano</button>
-    <button class="tab-btn" id="tabLineamientos" onclick="switchTab('lineamientos-hub')"><span class="tab-icon">📄</span> Lineamientos Estratégicos</button>
+    <button class="tab-btn" id="tabMensajes" onclick="switchTab('mensajes')"><span class="tab-icon">💬</span> Mensajes<span id="foro-tab-badge" style="display:none;">0</span></button>
+    <span class="tab-sep" aria-hidden="true"></span>
+    <!-- Gestión -->
+    <button class="tab-btn" id="tabSeguimiento" onclick="switchTab('seguimiento')"><span class="tab-icon">✅</span> Seguimiento</button>
+    <button class="tab-btn" id="tabPanelArea" onclick="switchTab('panelarea')"><span class="tab-icon">📋</span> Panel por Área</button>
+    <button class="tab-btn" id="tabTablero" onclick="switchTab('tablero')"><span class="tab-icon">📊</span> Tablero institucional</button>
+    <button class="tab-btn" id="tabAnuario" onclick="switchTab('anuario')"><span class="tab-icon">📈</span> Anuario FCE-UNLP</button>
+    <span class="tab-sep" aria-hidden="true"></span>
+    <!-- El plan -->
+    <button class="tab-btn" id="tabDecano" onclick="switchTab('decano')"><span class="tab-icon">🎙️</span> Palabras del Decano</button>
+    <button class="tab-btn" id="tabLineamientos" onclick="switchTab('lineamientos-hub')"><span class="tab-icon">📄</span> Lineamientos PE</button>
     <button class="tab-btn" id="tabMapa"          onclick="switchTab('mapa')"><span class="tab-icon">⊞</span> Mapa estratégico</button>
     <button class="tab-btn" id="tabArea"    onclick="switchTab('area')"><span class="tab-icon">☰</span> Por secretaría</button>
-    <button class="tab-btn" id="tabTimeline" onclick="switchTab('timeline')"><span class="tab-icon">📅</span> Cronograma PE 2026–2030</button>
-    <button class="tab-btn" id="tabTablero" onclick="switchTab('tablero')"><span class="tab-icon">📊</span> Tablero institucional</button>
-    <button class="tab-btn" id="tabAnuario" onclick="switchTab('anuario')"><span class="tab-icon">📈</span> Tablero Anuario FCE - UNLP</button>
-    <button class="tab-btn" id="tabPanelArea" onclick="switchTab('panelarea')"><span class="tab-icon">📋</span> Panel por Área</button>
-    <button class="tab-btn" id="tabSeguimiento" onclick="switchTab('seguimiento')"><span class="tab-icon">✅</span> Seguimiento</button>
+    <span class="tab-sep" aria-hidden="true"></span>
+    <!-- Consulta ocasional -->
+    <button class="tab-btn" id="tabTimeline" onclick="switchTab('timeline')"><span class="tab-icon">📅</span> Cronograma</button>
   </nav>
   </div><!-- tabs-wrap -->
 </header>
@@ -2923,61 +3153,62 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
     <!-- derecha: cards de acceso -->
     <div class="portada-hero-right">
       <div class="portada-cards">
-        <!-- 1. Proceso Metodológico -->
-        <div class="portada-card" style="--card-color:#C9963A" onclick="switchTab('proceso')">
-          <div class="pc-icon">◎</div>
-          <div class="pc-title">Proceso Metodológico</div>
-          <div class="pc-desc">Cómo se construyó el plan: del diagnóstico a las 121 acciones</div>
-          <div class="pc-meta">6 etapas <span class="pc-arrow">→</span></div>
+        <!-- Orden alineado con la barra de solapas: uso diario → gestión → el plan -->
+        <!-- 1. Mensajes -->
+        <div class="portada-card" style="--card-color:#C9963A" onclick="switchTab('mensajes')">
+          <div class="pc-icon">💬</div>
+          <div class="pc-title">Mensajes</div>
+          <div class="pc-desc">Comunicados oficiales y debates del equipo del Plan Estratégico</div>
+          <div class="pc-meta"><span id="foro-portada-meta">Comunicados y debates</span> <span class="pc-arrow">→</span></div>
         </div>
-        <!-- 2. Lineamientos -->
-        <div class="portada-card" style="--card-color:#A07830" onclick="switchTab('lineamientos')">
-          <div class="pc-icon">📄</div>
-          <div class="pc-title">Lineamientos Estratégicos</div>
-          <div class="pc-desc">Marco conceptual, ejes y gobernanza inteligente</div>
-          <div class="pc-meta">3 ejes · 13 OE <span class="pc-arrow">→</span></div>
-        </div>
-        <!-- 3. Mapa -->
-        <div class="portada-card" style="--card-color:#806020" onclick="switchTab('mapa')">
-          <div class="pc-icon">⊞</div>
-          <div class="pc-title">Mapa Estratégico</div>
-          <div class="pc-desc">OE por área con detalle de acciones</div>
-          <div class="pc-meta">9 áreas · 121 acciones <span class="pc-arrow">→</span></div>
-        </div>
-        <!-- 4. Por Secretaría -->
-        <div class="portada-card" style="--card-color:#604810" onclick="switchTab('area')">
-          <div class="pc-icon">☰</div>
-          <div class="pc-title">Por Secretaría</div>
-          <div class="pc-desc">Acciones de cada área agrupadas por OE</div>
-          <div class="pc-meta">Ver por área <span class="pc-arrow">→</span></div>
-        </div>
-        <!-- 5. Línea de Tiempo -->
-        <div class="portada-card" style="--card-color:#604810" onclick="switchTab('timeline')">
-          <div class="pc-icon">📅</div>
-          <div class="pc-title">Cronograma PE 2026–2030</div>
-          <div class="pc-desc">Seguimiento trimestral e hitos 2026–2030</div>
-          <div class="pc-meta"><span id="portadaPct">—</span> <span class="pc-arrow">→</span></div>
-        </div>
-        <!-- 6. Seguimiento PE — mismo tamaño -->
+        <!-- 2. Seguimiento PE -->
         <div class="portada-card" style="--card-color:#C9963A" onclick="switchTab('seguimiento')">
-          <div class="pc-icon">📈</div>
+          <div class="pc-icon">✅</div>
           <div class="pc-title">Seguimiento PE</div>
           <div class="pc-desc">Monitoreo de avance por secretaría y objetivo estratégico</div>
           <div class="pc-meta">Disponible oct 2026 <span class="pc-arrow">→</span></div>
         </div>
-        <!-- 7. Tablero Institucional -->
+        <!-- 3. Panel por Área -->
+        <div class="portada-card" style="--card-color:#2E4057" onclick="switchTab('panelarea')">
+          <div class="pc-icon">📋</div>
+          <div class="pc-title">Panel por Área</div>
+          <div class="pc-desc">Indicadores cuantitativos de gestión por secretaría: docentes, investigadores, presupuesto, becas y más. Vista integrada de toda la institución.</div>
+          <div class="pc-meta">9 secretarías · Indicadores de gestión <span class="pc-arrow">→</span></div>
+        </div>
+        <!-- 4. Tablero Institucional -->
         <div class="portada-card" style="--card-color:#1A5276" onclick="switchTab('tablero')">
           <div class="pc-icon">📊</div>
           <div class="pc-title">Tablero Institucional</div>
           <div class="pc-desc">Indicadores clave de la FCE: aspirantes, egresados, retención y tendencias 2016–2024 por carrera. El tablero más importante para la gestión cotidiana.</div>
           <div class="pc-meta">Datos 2023–2024 · Filtro por carrera <span class="pc-arrow">→</span></div>
         </div>
-        <!-- 8. Panel por Área -->
-        <div class="portada-card" style="--card-color:#2E4057" onclick="switchTab('panelarea')">
-          <div class="pc-icon">📋</div>
-          <div class="pc-title">Panel por Área</div>
-          <div class="pc-desc">Indicadores cuantitativos de gestión por secretaría: docentes, investigadores, presupuesto, becas y más. Vista integrada de toda la institución.</div>
-          <div class="pc-meta">9 secretarías · Indicadores de gestión <span class="pc-arrow">→</span></div>
+        <!-- 5. Anuario FCE-UNLP -->
+        <div class="portada-card" style="--card-color:#1F618D" onclick="switchTab('anuario')">
+          <div class="pc-icon">📈</div>
+          <div class="pc-title">Anuario FCE-UNLP</div>
+          <div class="pc-desc">Perfil de ingresantes, estudiantes y egresados: carrera, género, edad y procedencia.</div>
+          <div class="pc-meta">Anuario Estadístico UNLP · 2023–2025 <span class="pc-arrow">→</span></div>
+        </div>
+        <!-- 6. Lineamientos PE -->
+        <div class="portada-card" style="--card-color:#A07830" onclick="switchTab('lineamientos')">
+          <div class="pc-icon">📄</div>
+          <div class="pc-title">Lineamientos PE</div>
+          <div class="pc-desc">Marco conceptual, ejes y gobernanza inteligente</div>
+          <div class="pc-meta">3 ejes · 13 OE <span class="pc-arrow">→</span></div>
+        </div>
+        <!-- 7. Mapa Estratégico -->
+        <div class="portada-card" style="--card-color:#806020" onclick="switchTab('mapa')">
+          <div class="pc-icon">⊞</div>
+          <div class="pc-title">Mapa Estratégico</div>
+          <div class="pc-desc">OE por área con detalle de acciones</div>
+          <div class="pc-meta">9 áreas · 121 acciones <span class="pc-arrow">→</span></div>
+        </div>
+        <!-- 8. Por Secretaría -->
+        <div class="portada-card" style="--card-color:#604810" onclick="switchTab('area')">
+          <div class="pc-icon">☰</div>
+          <div class="pc-title">Por Secretaría</div>
+          <div class="pc-desc">Acciones de cada área agrupadas por OE</div>
+          <div class="pc-meta">Ver por área <span class="pc-arrow">→</span></div>
         </div>
       </div>
     </div><!-- portada-hero-right -->
@@ -3940,6 +4171,65 @@ function initAnuarioTab(){
 </div><!-- resumenView -->
 
 <!-- ===== NOTICIAS PE ===== -->
+<!-- ══════════════════════════════════════════════════════
+     MENSAJES — comunicados oficiales y debates
+     ══════════════════════════════════════════════════════ -->
+<div id="mensajesView">
+  <div class="fr-wrap">
+    <div class="fr-head-row">
+      <div>
+        <h2 class="fr-h2">Mensajes</h2>
+        <p class="fr-sub">Comunicados oficiales y debates del equipo del Plan Estratégico 2026–2030</p>
+      </div>
+      <button class="fr-btn" onclick="Foro.nuevo()">+ Nuevo tema</button>
+    </div>
+    <div id="foro-aviso"></div>
+    <div id="foro-contenido"></div>
+  </div>
+</div><!-- mensajesView -->
+
+<!-- Modal nuevo / editar tema -->
+<div id="foro-overlay" onclick="if(event.target===this)Foro.cerrarModal()">
+  <div class="fr-modal">
+    <div class="fr-modal-head">
+      <div class="fr-modal-title" id="fr-m-title">Nuevo tema</div>
+      <button class="fr-modal-close" onclick="Foro.cerrarModal()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="fr-modal-body">
+      <input type="hidden" id="fr-m-id">
+      <div class="fr-field" id="fr-m-tipo-wrap" style="display:none;">
+        <label>Tipo</label>
+        <select id="fr-m-tipo" onchange="Foro.camposModal()">
+          <option value="debate">Debate — abierto a la conversación</option>
+          <option value="comunicado">Comunicado oficial — con nivel y control de lectura</option>
+        </select>
+      </div>
+      <div class="fr-field">
+        <label>Título</label>
+        <input type="text" id="fr-m-titulo" maxlength="200" placeholder="Asunto del tema">
+      </div>
+      <div class="fr-field" id="fr-m-nivel-wrap" style="display:none;">
+        <label>Nivel</label>
+        <select id="fr-m-nivel">
+          <option value="informativo">Informativo</option>
+          <option value="importante">Importante</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+      <div class="fr-field">
+        <label>Contenido</label>
+        <div class="fr-ta-wrap"><textarea id="fr-m-cuerpo" rows="7" maxlength="10000"></textarea></div>
+        <div class="fr-field-hint">Escribí @ para mencionar a un integrante del equipo.</div>
+      </div>
+    </div>
+    <div class="fr-modal-foot">
+      <span class="fr-m-msg" id="fr-m-msg"></span>
+      <button class="fr-btn-sec" onclick="Foro.cerrarModal()">Cancelar</button>
+      <button class="fr-btn" id="fr-m-btn" onclick="Foro.guardar()">Publicar</button>
+    </div>
+  </div>
+</div>
+
 <div id="noticiasView" style="display:none; background:#f5f2ec; min-height:100vh; padding:2.5rem 2rem;">
   <div style="max-width:860px; margin:0 auto;">
     <h2 style="font-family:'Inter',sans-serif; color:#0D1B2A; font-size:2rem; margin-bottom:0.25rem;">Noticias del Plan Estratégico</h2>
@@ -5018,7 +5308,7 @@ function buildNoticias() {
 
 function switchTab(tab) {
   // Ocultar todas las secciones
-  const secciones = ['portadaView','decanoView','lineamientosHubView','lineamientosView','mapaSection','areaView','procesoView','timelineView','seguimientoView','tableroView','anuariofceView','panelAreaView','noticiasView','resumenView'];
+  const secciones = ['portadaView','decanoView','lineamientosHubView','lineamientosView','mapaSection','areaView','procesoView','timelineView','seguimientoView','tableroView','anuariofceView','panelAreaView','noticiasView','resumenView','mensajesView'];
   secciones.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -5035,7 +5325,7 @@ function switchTab(tab) {
   if (notes) notes.style.display = 'none';
 
   // Desactivar todos los tabs
-  ['tabInicio','tabDecano','tabLineamientos','tabMapa','tabArea','tabTimeline','tabSeguimiento','tabTablero','tabPanelArea','tabResumen'].forEach(id => {
+  ['tabInicio','tabMensajes','tabDecano','tabLineamientos','tabMapa','tabArea','tabTimeline','tabSeguimiento','tabTablero','tabPanelArea','tabResumen'].forEach(id => {
     const b = document.getElementById(id);
     if (b) b.classList.remove('active');
   });
@@ -5127,6 +5417,14 @@ function switchTab(tab) {
     const btn = document.getElementById('tabResumen');
     if (btn) btn.classList.add('active');
     cargarResumenEjecutivo();
+
+  } else if (tab === 'mensajes') {
+    const v = document.getElementById('mensajesView');
+    if (v) { v.style.display = 'block'; v.classList.add('visible'); }
+    const btn = document.getElementById('tabMensajes');
+    if (btn) btn.classList.add('active');
+    if (typeof closePanel === 'function') closePanel();
+    if (window.Foro) Foro.mostrar();
   }
 }
 
@@ -7092,14 +7390,14 @@ document.addEventListener('keydown', e => { if(e.key==='Escape'){ cerrarBuscador
 // Mapa de secciones para el buscador integral
 const BUSCAR_SECCIONES = [
   { id:'portadaView',       tab:'inicio',       label:'Inicio' },
-  { id:'decanoView',        tab:'decano',        label:'Mensaje del Decano' },
-  { id:'lineamientosView',  tab:'lineamientos',  label:'Lineamientos estratégicos' },
+  { id:'decanoView',        tab:'decano',        label:'Palabras del Decano' },
+  { id:'lineamientosView',  tab:'lineamientos',  label:'Lineamientos PE' },
   { id:'mapaSection',       tab:'mapa',          label:'Mapa estratégico' },
   { id:'areaView',          tab:'area',          label:'Por secretaría' },
   { id:'procesoView',       tab:'proceso',       label:'Proceso metodológico' },
-  { id:'timelineView',      tab:'timeline',      label:'Cronograma PE 2026–2030' },
+  { id:'timelineView',      tab:'timeline',      label:'Cronograma' },
   { id:'tableroView',       tab:'tablero',       label:'Tablero institucional' },
-  { id:'anuariofceView',    tab:'anuario',       label:'Tablero Anuario FCE - UNLP' },
+  { id:'anuariofceView',    tab:'anuario',       label:'Anuario FCE-UNLP' },
   { id:'panelAreaView',     tab:'panelarea',     label:'Panel por Área' },
   { id:'seguimientoView',   tab:'seguimiento',   label:'Seguimiento PE' },
 ];
@@ -7591,6 +7889,7 @@ async function onLoginSuccess(user) {
   await initBanner();
   await checkAvisosNuevos();
   await checkHitosActivos();
+  if (window.Foro) Foro.iniciar();   // Mensajes: carga temas y activa tiempo real
 }
 
 
@@ -7607,6 +7906,7 @@ async function doLogout() {
 async function cerrarSesion(motivo) {
   detenerVigilanciaInactividad();
   if (_intervalActividad) { clearInterval(_intervalActividad); _intervalActividad = null; }
+  if (window.Foro) Foro.detener();    // Mensajes: corta tiempo real y limpia datos
   try { await sb.auth.signOut(); } catch(e) {}
   currentUser = null; currentPerfil = null;
 
@@ -8032,6 +8332,25 @@ function aplicarSecciones(secciones) {
   tabsTodos.forEach(tabId => {
     const tab = document.getElementById(tabId);
     if(tab) tab.style.display = tabsVisible.has(tabId) ? '' : 'none';
+  });
+  ajustarSeparadoresTabs();
+}
+
+// Oculta un separador de la barra de solapas si no tiene solapas visibles
+// a ambos lados (evita líneas dobles o al final cuando hay secciones ocultas).
+function ajustarSeparadoresTabs() {
+  const bar = document.getElementById('tabs-bar');
+  if(!bar) return;
+  const visible = el => el.classList.contains('tab-btn') && el.style.display !== 'none';
+  let hayAntes = false, pendiente = null;
+  [...bar.children].forEach(el => {
+    if(el.classList.contains('tab-sep')) {
+      el.style.display = 'none';
+      if(hayAntes) pendiente = el;          // se muestra solo si después viene una solapa visible
+    } else if(visible(el)) {
+      if(pendiente) { pendiente.style.display = ''; pendiente = null; }
+      hayAntes = true;
+    }
   });
 }
 
@@ -9326,5 +9645,653 @@ async function hitoEliminar(id) {
   <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAIAAAAn5KxJAAAIRklEQVR42u1Za2xdRxH+ZnfPuQ8/YxunxklwGoc0aVIiHhIiBPGnEqqA8pCQQCkKAqk/QOqPCoJQJMTjXyXUikoQpBYhflS0UCFRikqrFKhE27hqAwQnTho7cW3X7+vr+zzn7M7w4/jeXDvXju04qS2xOj/uPWdmd3Z2Ht/M0oEn3wIY9Yeq95IJACAAQLjxYKoQVxhruVikziTXvzIibvk16n+Suj+XHxUikfpcsuISFZ3JapSyCYYRAsm6WMndZkEdtoJSTWztTJv/6IHVmKncBlmIV9Toip9XiBe3eSiuHyw3o40ybwVBt4Y6QWxuaMX/1+hanWnLpFDF4JsOk6sxHlE3M48BIJXPIusVeFV87mbmMSKyRD6izWgNhkhksWSyEQqljT4Yw+uGebcXGyyy0bX70O0T3zA5VTOBIlIEEcSFjhMAoomIKHa2+E1MFvNVyQikCK5i8ZqIARHRRDGBAJrAgMi1H5V1oUACIRBDWOo6U40bFSMuObdQdBFaPM8omgtsyAyIp3STpwmUt67sOA4UMZkmBOzKTpo9LQAB2ch6ihJKZULbaDQRCJiPnK/IVyoT2rTRHhEDCshHruyYAQiaPJ0y2i2u+gwARws5quTcRzvSH+/cxgJfqYDt7wbHpwJ7b3fb0a5WT6m+ycxfRjKh4JN3tHyorUmEPIWA5emh8ZkgvKs5dbij6ZmhyaTWBeu+0NMxXAj+NZv76p2dL747W3IcOP7crvahfPncbP74vq5XJ7NDuXJKq5Jz9+1qO9TerERCkeeHp85nS7Gsi2qmuFxWRAVrP93VceJwr3W2ZDlkfmpw/Gt3bn/8yCFmW3L84P6en/3n0sOvXfzS7r0P9O6MXORYCtb+eWTqSsHtb238zoHdv708kTIoWHd8744Xxqb/MTb904/sDd4Y+MPVKcdyrLf7j+9MvjqZefhgz4m+gf65QoPReeu+tW9H0eGZwfEPtqR/ffTu46/0X8gWU0ZzRVYT20Xl6JGPnBX5ef/VH5293JHwS1YeOtBjWe59vm+0VPrnZ498vbf7J2eHMoG1Ij9889KvBka2JUzgyFcUsmSjiCpulotswAxSZcfH9rz/91cmiZCzUcRCRHNhZCueAEFg5aWR6ScH3gGjO+Ud29P10OsXG4zmmnKZF6U5YkMkRIHjvOWWpO5uSuXCaKhYngmtE9eRSrcmtIMYokgw71zJCYhBTOQUKSGO/2pNBDYaV4vFzqT+cEdj0UaaiMBMbJQiAkhogVeaE7ot7bU2mHeDsC1loBwqU4HYCIHiTgkRaMHbBExgwHlKG6VKsD6Jr+ix/sG2RKIQRYpitYlHoih2Hsg1LEbVhoOCFCy/Mpn5cs8dfxud1pXkIiLVoBH78bzl2UIZmg62Nv57NkfXB3xdEwuUJgDHe3d+o3fnb94efvT8cDy1AAL88sIogUpOEkoBOHFP78nDex85N/hY/xVDJLQ4VBJElANafPPcyPTJQ7s7G5NlZqZ4J4SF3YIIJcf37+psNdi3rbkj4T1xaaTV9xc5Ey1uPMXBaiCbOzOdeXMm62slIgDFaLCqgpjsjanZc3P5C3PzCVIhM0kcGQULKiYhCOArNVoq9c/l79/ZOR9aTQQIiKo9LwEUMB0EV4rl4XLw0th0PoSvqRaDmIqy4r0xgwH8fTzzg9f/25xK7G5OcdzoUk7A3z3U055MnHzrQiAM4LmRicfPDXU2pNOeLgVWKEY0AnIQhgiBQcJASqtnr058+65dTCwCUHVRFjDAvlanR2ef6L/alE40aJ3QioWXIPw6eTBldEs60eyZiMUxK4JlWOFv7t3x4L6elFFOGECjZ5qSibTWIkKAIrCIAmkiIjiQApGQCDcac2YmG7D71Pb2+SgUIoqzoCJSsYbRYHRDMtHu+5qIRaSiwvhRTCw1WmWBFbHCoQgRpoNgtFBs9BJdCb/BGFJqoljMlCNNyooELCV2AZwAmmiyHLb7nhWeKIdFdtuT/mQpVIqsSIxG/zQ21d3QFIgQwYlkQpsth5lyWBZhwLE4EVfJlKzgah4DwKkFp48UkkYZorSnImIYmi/zqYtXHvnYPac/84mS5bZk4tH+S/koak94hujHh/d97+CekPnzp/sKImdm5+fC8qkjdz81OHbfjs60wl8nplMJ1eRpgTR4+uXxmdFCri1hLLjZM1/8QGdX2m/1vWeHR5Oa0r6OSJyCrYdddOorD9ScPYnwSLH48sTMWDHURL7SfbPz57NzgWC4WP7FwNCpSyNa60jc5VyubyZzIZs7O5d7bSobsjDohbHp/a1NRzvbio6/f3ZgKrC+pkLozs0VIpGQcTlXGMqXMoEtOdvo6/elvI6E/3a+PFws9s/nJ8qRIRW3w5ZYJHU8/UJNPKGyc0Vnk1qnta662Ly1luM0q5o9owl564Jr2IVaPU8RESFyko0iTeREmjyT1IoFOWsbtI4BV946Q5TUai6MImEIAdLs+aGwBlJGL1cNLRJ0AW4RMRzXcGiiCqZbQHExKqsS2AoxAZoWEkDV2mK5qzAyxmu6puJxIoogAMtKTbJFNRfXo3bXbZOlfukqNULXZa/uf8mcTm5QvhqB3vT9nIWA7zaiMlt7kbHGSm3L9J4MK1a3uJ28/r7G0tb4qidaX29iCZej9QlKWItK5T07+uXvFzeXGZjVMy+5PFnZDKpzLiVb0j5atdxGRNbXKFrt9kQ2yOsJSjbQ8mgtBk2rd4mFm7vqMa1SAcufO613V8sRVOt6WsRw081RuUXEW+aywTDZJVl3OaW+tzf7BhCoJR1n2YwaFUUr4dUNHnwzR8+3pDe+0WPr3NxtFUH/BxIrqEqac1ZaAAAAAElFTkSuQmCC" alt="Asistente Virtual FCE">
 </a>
 <div id="fab-tooltip">Asistente Virtual FCE</div>
+<script>
+// ════════════════════════════════════════════════════════════════════════
+//  MÓDULO MENSAJES — comunicados oficiales + debates
+//  Autocontenido: todo vive dentro del objeto global `Foro`. Del resto del
+//  portal solo usa: sb (Supabase), currentUser, currentPerfil, esc, escJs,
+//  logAct y switchTab. Tablas: foro_temas, foro_respuestas, foro_vistos,
+//  foro_lecturas, foro_favoritos (ver foro-pe.sql).
+// ════════════════════════════════════════════════════════════════════════
+window.Foro = (function () {
+  const T = { temas:'foro_temas', resp:'foro_respuestas', vistos:'foro_vistos', lect:'foro_lecturas', fav:'foro_favoritos', menc:'foro_menciones' };
+  const NIVEL = {
+    urgente:     { lbl:'Urgente',     cls:'urgente' },
+    importante:  { lbl:'Importante',  cls:'importante' },
+    informativo: { lbl:'Informativo', cls:'informativo' },
+  };
+
+  // ── Estado ──
+  let temas = [];            // [{id, tipo, nivel, titulo, cuerpo, autor, autorId, ...}]
+  let resp = {};             // { tema_id: [respuestas ordenadas] }
+  let lecturas = {};         // { tema_id: ISO última lectura }
+  let favoritos = new Set();
+  let usuarios = [];         // [{nombre, cargo}] para menciones y "Visto por"
+  let activo = null;         // tema abierto
+  let lectPrev = null;       // lectura anterior del tema abierto
+  let filtro = 'todos';
+  let cita = null;
+  let editando = null;
+  let verTodosCom = false;
+  let menciones = [];        // avisos de @mención sin leer: [{id, temaId, respuestaId, autor, createdAt}]
+  let mencPendiente = null;  // mención recién llegada por tiempo real (se avisa tras recargar)
+  let destacar = null;       // id de respuesta a resaltar al abrir desde una mención
+  let canal = null, recargaT = null, iniciado = false;
+
+  // ── Utilidades ──
+  const $ = id => document.getElementById(id);
+  const ts = iso => { const t = Date.parse(iso || ''); return isNaN(t) ? 0 : t; };
+  const yoId = () => (typeof currentUser !== 'undefined' && currentUser) ? currentUser.id : null;
+  const yoNombre = () => (typeof currentPerfil !== 'undefined' && currentPerfil?.nombre) || (currentUser?.email || '').split('@')[0] || 'Usuario';
+  const esAdmin = () => (typeof currentPerfil !== 'undefined' && currentPerfil?.rol === 'admin');
+  const esMio = x => !!x && (x.autorId ? x.autorId === yoId() : x.autor === yoNombre());
+  const puedeGestionar = x => esAdmin() || esMio(x);
+  const registrar = (a, d) => { try { if(typeof logAct === 'function') logAct(a, 'mensajes', d); } catch(e) {} };
+  const recortar = (t, n) => { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n) + '…' : t; };
+  const inicial = n => esc(String(n || '?').trim().charAt(0).toUpperCase());
+  const vistaVisible = () => { const v = $('mensajesView'); return v && v.style.display !== 'none'; };
+
+  function fecha(iso) {
+    const d = new Date(iso); if(isNaN(d)) return '';
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const dia = new Date(d); dia.setHours(0,0,0,0);
+    const hora = d.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', hour12:false });
+    const dif = Math.round((hoy - dia) / 86400000);
+    if(dif === 0) return 'hoy ' + hora;
+    if(dif === 1) return 'ayer ' + hora;
+    const o = { day:'numeric', month:'short' };
+    if(d.getFullYear() !== hoy.getFullYear()) o.year = 'numeric';
+    return d.toLocaleDateString('es-AR', o).replace('.', '');
+  }
+
+  // Menciones: escapa primero y después resalta @Nombre de usuarios reales
+  function conMenciones(texto) {
+    let html = esc(texto || '');
+    const yo = yoNombre().toLowerCase();
+    usuarios.map(u => u.nombre).filter(Boolean).sort((a,b) => b.length - a.length).forEach(n => {
+      const nEsc = esc(n).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      html = html.replace(new RegExp('@' + nEsc + '(?![\\wáéíóúñ])', 'gi'),
+        m => `<span class="fr-mencion${n.toLowerCase() === yo ? ' yo' : ''}">${m}</span>`);
+    });
+    return html;
+  }
+
+  // ── Usuarios para menciones y "Visto por" ──
+  // 1º la función segura del SQL (foro_usuarios). Si falla o no existe,
+  // se intenta leer perfiles directamente (funciona al menos para el admin).
+  async function cargarUsuarios() {
+    let lista = [];
+    try {
+      const { data, error } = await sb.rpc('foro_usuarios');
+      if(error) console.warn('Foro: foro_usuarios() no disponible —', error.message);
+      else lista = data || [];
+    } catch(e) { console.warn('Foro: error llamando foro_usuarios()', e); }
+    if(!lista.length) {
+      const { data, error } = await sb.from('perfiles').select('nombre, cargo, activo');
+      if(error) console.warn('Foro: no se pudo leer perfiles —', error.message);
+      lista = (data || []).filter(u => u.nombre && u.activo !== false).map(u => ({ nombre: u.nombre, cargo: u.cargo || '' }));
+    }
+    usuarios = lista.filter(u => u && u.nombre);
+    return usuarios;
+  }
+
+  // ── Carga ──
+  function mapResp(r) {
+    return { id:r.id, temaId:r.tema_id, autor:r.autor_nombre, autorId:r.autor_id, texto:r.texto,
+             createdAt:r.created_at, editado:r.editado_at, respuestaA:r.respuesta_a };
+  }
+
+  async function cargar() {
+    const uid = yoId();
+    if(!uid) return;
+    const [rT, rR, rV, rL, rF, rU, rM] = await Promise.all([
+      sb.from(T.temas).select('*').order('created_at', { ascending:false }),
+      sb.from(T.resp).select('*').order('created_at', { ascending:true }),
+      sb.from(T.vistos).select('tema_id, usuario_id, usuario_nombre'),
+      sb.from(T.lect).select('tema_id, ultima_lectura_at').eq('usuario_id', uid),
+      sb.from(T.fav).select('tema_id').eq('usuario_id', uid),
+      usuarios.length ? Promise.resolve(null) : cargarUsuarios(),
+      sb.from(T.menc).select('id, tema_id, respuesta_id, autor_nombre, created_at').eq('mencionado_id', uid).eq('leida', false).order('created_at', { ascending:false }),
+    ]);
+    if(rT.error) { console.error('Foro: error cargando temas', rT.error); return; }
+
+    resp = {};
+    (rR.data || []).forEach(r => { (resp[r.tema_id] = resp[r.tema_id] || []).push(mapResp(r)); });
+    const vistos = {};
+    (rV.data || []).forEach(v => { (vistos[v.tema_id] = vistos[v.tema_id] || []).push({ id:v.usuario_id, nombre:v.usuario_nombre }); });
+    lecturas = {};
+    (rL.data || []).forEach(l => { lecturas[l.tema_id] = l.ultima_lectura_at; });
+    favoritos = new Set((rF.data || []).map(f => f.tema_id));
+    if(rM && rM.error) console.warn('Foro: avisos de menciones no disponibles —', rM.error.message);
+    menciones = ((rM && rM.data) || []).map(m => ({ id:m.id, temaId:m.tema_id, respuestaId:m.respuesta_id, autor:m.autor_nombre, createdAt:m.created_at }));
+
+    temas = (rT.data || []).map(t => {
+      const rs = resp[t.id] || [];
+      const ult = rs[rs.length - 1];
+      return {
+        id:t.id, tipo:t.tipo, nivel:t.tipo === 'comunicado' ? (t.nivel || 'informativo') : null,
+        titulo:t.titulo, cuerpo:t.cuerpo, autor:t.autor_nombre, autorId:t.autor_id, cargo:t.cargo || '',
+        createdAt:t.created_at, editado:t.editado_at, fijado:!!t.fijado, cerrado:!!t.cerrado,
+        ultimoAt: ult ? ult.createdAt : t.created_at, ultimoAutor: ult ? ult.autor : t.autor_nombre,
+        cantResp: rs.length, vistos: vistos[t.id] || [],
+      };
+    }).sort((a,b) => ts(b.ultimoAt) - ts(a.ultimoAt));
+
+    if(activo && !temas.find(t => t.id === activo)) activo = null;
+    render();
+    badge();
+  }
+
+  // ── Lectura / novedades ──
+  function yoVi(t) { return t.vistos.some(v => v.id === yoId()); }
+  function nuevas(t) {
+    const rs = resp[t.id] || [];
+    const l = lecturas[t.id];
+    if(!l) {
+      if(t.tipo === 'comunicado' && yoVi(t)) return 0;
+      return rs.filter(r => !esMio(r)).length;
+    }
+    return rs.filter(r => ts(r.createdAt) > ts(l) && !esMio(r)).length;
+  }
+  const mencionesDe = t => menciones.filter(m => m.temaId === t.id);
+  function noLeido(t) {
+    if(mencionesDe(t).length) return true;
+    if(esMio(t) && !nuevas(t)) return false;
+    if(t.tipo === 'comunicado') { if(!yoVi(t)) return true; }
+    else if(!lecturas[t.id]) return true;
+    return nuevas(t) > 0;
+  }
+  function badge() {
+    const n = temas.filter(noLeido).length;
+    const b = $('foro-tab-badge');
+    if(b) { b.textContent = n; b.style.display = n > 0 ? '' : 'none'; }
+    const pm = $('foro-portada-meta');   // tarjeta Mensajes de la portada
+    if(pm) pm.textContent = !iniciado ? 'Comunicados y debates'
+      : n ? `${n} tema${n > 1 ? 's' : ''} con novedades` : 'Al día · sin novedades';
+  }
+
+  async function registrarLectura(t) {
+    if(!t || !yoId()) return;
+    const iso = new Date(Math.max(Date.now(), ts(t.ultimoAt))).toISOString();
+    lecturas[t.id] = iso;
+    badge();
+    const { error } = await sb.from(T.lect).upsert(
+      { usuario_id: yoId(), tema_id: t.id, ultima_lectura_at: iso }, { onConflict: 'usuario_id,tema_id' });
+    if(error) console.error('Foro: error registrando lectura', error);
+  }
+  async function marcarVisto(t) {
+    if(!t || t.tipo !== 'comunicado' || yoVi(t) || !yoId()) return;
+    const { error } = await sb.from(T.vistos).insert({ tema_id: t.id, usuario_id: yoId(), usuario_nombre: yoNombre() });
+    if(error && error.code !== '23505') { console.error('Foro: error marcando visto', error); return; }
+    t.vistos.push({ id: yoId(), nombre: yoNombre() });
+    render(); badge();
+  }
+
+  // ══ RENDER ════════════════════════════════════════════════════════════
+  function render() {
+    const cont = $('foro-contenido');
+    if(!cont) return;
+    cerrarMenus();
+    const t = activo ? temas.find(x => x.id === activo) : null;
+    if(t) renderTema(cont, t); else { activo = null; renderLista(cont); }
+  }
+
+  function menuTema(t) {
+    if(!puedeGestionar(t)) return '';
+    const id = escJs(t.id);
+    let it = `<button onclick="Foro.editar('${id}')">Editar</button>`;
+    if(esAdmin()) it += `<button onclick="Foro.fijar('${id}')">${t.fijado ? 'Desfijar' : 'Fijar arriba'}</button>`;
+    it += `<button onclick="Foro.cerrar('${id}')">${t.cerrado ? 'Reabrir tema' : 'Cerrar a respuestas'}</button>`;
+    it += `<button class="peligro" onclick="Foro.eliminar('${id}')">Eliminar</button>`;
+    return `<div class="fr-menu-wrap" onclick="event.stopPropagation();if(event.target.closest('.fr-menu button'))this.querySelector('.fr-menu').classList.remove('open')">
+      <button class="fr-kebab" aria-label="Acciones del tema" onclick="Foro.menu('${id}')">⋮</button>
+      <div class="fr-menu" id="fr-menu-${esc(t.id)}">${it}</div>
+    </div>`;
+  }
+  function cerrarMenus() { document.querySelectorAll('.fr-menu.open').forEach(m => m.classList.remove('open')); }
+  function persona(nombre, iso) {
+    return `<div class="fr-persona"><div class="fr-av">${inicial(nombre)}</div>
+      <div class="fr-persona-txt"><div class="fr-persona-nom" title="${esc(nombre)}">${esc(nombre)}</div>
+      <div class="fr-persona-fec">${esc(fecha(iso))}</div></div></div>`;
+  }
+  function pillMenc(t) { return mencionesDe(t).length ? '<span class="fr-pill mencion">@ Te mencionaron</span>' : ''; }
+  function pillNuevas(n) { return n ? `<span class="fr-pill nuevas">${n} nueva${n > 1 ? 's' : ''}</span>` : ''; }
+  const star = t => { const f = favoritos.has(t.id);
+    return `<button class="fr-star ${f ? 'on' : ''}" aria-label="${f ? 'Quitar de favoritos' : 'Marcar como favorito'}" title="${f ? 'Quitar de favoritos' : 'Marcar como favorito'}" onclick="Foro.favorito('${escJs(t.id)}', event)">${f ? '★' : '☆'}</button>`; };
+
+  // ── Lista ──
+  function renderLista(cont) {
+    const LIM = 4;
+    const coms = temas.filter(t => t.tipo === 'comunicado').sort((a,b) =>
+      (b.fijado - a.fijado) || (noLeido(b) - noLeido(a)) || (ts(b.createdAt) - ts(a.createdAt)));
+    const comsVis = verTodosCom ? coms : coms.slice(0, LIM);
+    const total = usuarios.length || 1;
+    let h = '';
+
+    const mencVis = menciones.filter(m => temas.some(t => t.id === m.temaId));
+    if(mencVis.length) {
+      h += `<div class="fr-menc-box">
+        <div class="fr-menc-head"><span class="fr-menc-arroba">@</span><span>Te mencionaron</span><em>${mencVis.length}</em>
+          <button class="fr-menc-todas" onclick="Foro.leerMenciones()">Marcar todas como leídas</button></div>
+        ${mencVis.slice(0, 5).map(m => { const t = temas.find(x => x.id === m.temaId);
+          return `<div class="fr-menc-item" onclick="Foro.irMencion('${escJs(m.id)}')">
+            <div class="fr-av sm">${inicial(m.autor)}</div>
+            <div class="fr-menc-txt"><b>${esc(m.autor)}</b> te mencionó ${m.respuestaId ? 'en una respuesta de' : 'en'} <span>«${esc(t.titulo)}»</span></div>
+            <div class="fr-menc-fec">${esc(fecha(m.createdAt))}</div>
+          </div>`; }).join('')}
+        ${mencVis.length > 5 ? `<div class="fr-menc-mas">y ${mencVis.length - 5} más</div>` : ''}
+      </div>`;
+    }
+    h += `<div class="fr-sec"><span>Comunicados oficiales</span><em>${coms.length}</em></div>`;
+    if(coms.length) {
+      h += `<div class="fr-coms">${comsVis.map(t => {
+        const nv = NIVEL[t.nivel] || NIVEL.informativo;
+        return `<div class="fr-com nv-${nv.cls}" onclick="Foro.abrir('${escJs(t.id)}')">
+          <div class="fr-com-main">
+            <div class="fr-com-top"><span class="fr-nivel ${nv.cls}">${nv.lbl}</span>${t.fijado ? '<span class="fr-pill fijado">Fijado</span>' : ''}${pillNuevas(nuevas(t))}${pillMenc(t)}</div>
+            <div class="fr-com-tit ${noLeido(t) ? 'fr-bold' : ''}">${esc(t.titulo)}</div>
+            <div class="fr-com-meta">${esc(t.autor)} · ${esc(fecha(t.createdAt))}${t.cantResp ? ` · ${t.cantResp} respuesta${t.cantResp > 1 ? 's' : ''}` : ''}</div>
+          </div>
+          <div class="fr-com-side">Visto por <b>${t.vistos.length}</b> de <b>${total}</b></div>
+          ${menuTema(t)}
+        </div>`; }).join('')}</div>
+      ${coms.length > LIM ? `<button class="fr-mas" onclick="Foro.verCom()">${verTodosCom ? 'Mostrar menos' : `Ver comunicados anteriores (${coms.length - LIM})`}</button>` : ''}`;
+    } else {
+      h += `<div class="fr-vacio-box">${esAdmin() ? 'Todavía no hay comunicados. Publicá el primero con “Nuevo tema”.' : 'No hay comunicados publicados.'}</div>`;
+    }
+
+    const todos = temas.filter(t => t.tipo === 'debate');
+    const F = { todos:()=>true, novedades:noLeido, favoritos:t=>favoritos.has(t.id), mios:esMio };
+    const debs = todos.filter(F[filtro] || F.todos).sort((a,b) => (b.fijado - a.fijado) || (ts(b.ultimoAt) - ts(a.ultimoAt)));
+    const nNov = todos.filter(noLeido).length;
+    const chip = (k, l) => `<button class="fr-chip ${filtro === k ? 'on' : ''}" onclick="Foro.filtrar('${k}')">${l}</button>`;
+
+    h += `<div class="fr-sec" style="margin-top:2.2rem;"><span>Debates</span><em>${todos.length}</em></div>
+    <div class="fr-chips">${chip('todos','Todos')}${chip('novedades','Con novedades' + (nNov ? ` (${nNov})` : ''))}${chip('favoritos','★ Favoritos')}${chip('mios','Iniciados por mí')}</div>
+    <div class="fr-tabla">
+      <div class="fr-grid fr-head"><span></span><span>Tema</span><span class="fr-c-ini">Iniciado por</span><span class="fr-c-ult">Último mensaje ↓</span><span class="fr-num"><span class="fr-lg">Respuestas</span><span class="fr-sm">Resp.</span></span><span></span></div>
+      ${debs.map(t => {
+        const nuevo = !lecturas[t.id] && !esMio(t);
+        return `<div class="fr-grid fr-row ${t.fijado ? 'fijado' : ''}" onclick="Foro.abrir('${escJs(t.id)}')">
+          ${star(t)}
+          <div style="min-width:0;">
+            <div class="fr-row-tit ${noLeido(t) ? 'fr-bold' : ''}">${t.fijado ? '<span class="fr-pin" title="Fijado">▲</span>' : ''}${esc(t.titulo)}${nuevo ? '<span class="fr-pill nuevas">Nuevo</span>' : pillNuevas(nuevas(t))}${pillMenc(t)}${t.cerrado ? '<span class="fr-pill cerrado">Cerrado</span>' : ''}</div>
+            <div class="fr-row-sub">${esc(t.autor)} · último: ${esc(t.ultimoAutor)}, ${esc(fecha(t.ultimoAt))}</div>
+          </div>
+          <div class="fr-c-ini">${persona(t.autor, t.createdAt)}</div>
+          <div class="fr-c-ult">${persona(t.ultimoAutor, t.ultimoAt)}</div>
+          <div class="fr-num">${t.cantResp}</div>
+          <div>${menuTema(t)}</div>
+        </div>`; }).join('') || `<div class="fr-vacio">${filtro === 'todos' ? 'Todavía no hay debates. Abrí el primero con “Nuevo tema”.' : 'No hay temas en este filtro.'}</div>`}
+    </div>`;
+    cont.innerHTML = h;
+  }
+
+  // ── Tema abierto ──
+  function renderTema(cont, t) {
+    const taPrev = $('fr-resp-text'), borrador = taPrev ? taPrev.value : '', foco = taPrev && document.activeElement === taPrev;
+    const edPrev = $('fr-edit-text'), borradorEd = edPrev && edPrev.dataset.id === String(editando) ? edPrev.value : null;
+    const rs = resp[t.id] || [];
+    const porId = {}; rs.forEach(r => porId[r.id] = r);
+    const nv = t.tipo === 'comunicado' ? (NIVEL[t.nivel] || NIVEL.informativo) : null;
+    const puedeResp = !t.cerrado || esAdmin();
+    const corte = lectPrev ? ts(lectPrev) : null;
+    let sep = false;
+
+    const posts = rs.map(r => {
+      const esNueva = corte !== null && ts(r.createdAt) > corte && !esMio(r);
+      let s = ''; if(esNueva && !sep) { s = '<div class="fr-sep">Nuevas desde tu última visita</div>'; sep = true; }
+      const c = r.respuestaA ? porId[r.respuestaA] : null;
+      const citaH = r.respuestaA ? `<div class="fr-cita">${c ? `<b>${esc(c.autor)}</b> escribió: ${esc(recortar(c.texto, 180))}` : '<i>Mensaje citado eliminado</i>'}</div>` : '';
+      const ed = editando === r.id;
+      const cuerpo = ed
+        ? `<textarea id="fr-edit-text" class="fr-textarea" data-id="${esc(r.id)}" rows="3">${esc(borradorEd !== null ? borradorEd : r.texto)}</textarea>
+           <div class="fr-acc-row"><button class="fr-btn" onclick="Foro.guardarEdicion('${escJs(r.id)}')">Guardar</button><button class="fr-btn-sec" onclick="Foro.cancelarEdicion()">Cancelar</button></div>`
+        : `<div class="fr-texto">${conMenciones(r.texto)}</div>`;
+      const acc = ed ? '' : `<div class="fr-post-acc">
+          ${puedeResp ? `<button onclick="Foro.citar('${escJs(r.id)}')">Citar</button>` : ''}
+          ${puedeGestionar(r) ? `<button onclick="Foro.editarResp('${escJs(r.id)}')">Editar</button><button class="peligro" onclick="Foro.eliminarResp('${escJs(r.id)}')">Eliminar</button>` : ''}
+        </div>`;
+      return `${s}<div class="fr-post ${esNueva ? 'nueva' : ''} ${destacar === r.id ? 'destacada' : ''}" id="fr-post-${esc(r.id)}">
+        <div class="fr-post-head"><div class="fr-av sm">${inicial(r.autor)}</div>
+          <div><div class="fr-post-autor">${esc(r.autor)}</div><div class="fr-post-fecha">${esc(fecha(r.createdAt))}${r.editado ? ' · editado' : ''}</div></div></div>
+        ${citaH}${cuerpo}${acc}
+      </div>`;
+    }).join('');
+
+    const citaPrev = cita && porId[cita] ? `<div class="fr-cita-prev"><div class="fr-cita"><b>${esc(porId[cita].autor)}</b> escribió: ${esc(recortar(porId[cita].texto, 180))}</div>
+      <button class="fr-cita-x" aria-label="Quitar cita" onclick="Foro.quitarCita()">✕</button></div>` : '';
+
+    const vistosH = t.tipo === 'comunicado' ? `<div class="fr-vistos">
+        <div class="fr-vistos-av">${t.vistos.slice(0,5).map(v => `<span title="${esc(v.nombre)}">${inicial(v.nombre)}</span>`).join('')}${t.vistos.length > 5 ? `<span>+${t.vistos.length - 5}</span>` : ''}</div>
+        <span>Visto por <b>${t.vistos.length}</b> de <b>${usuarios.length || 1}</b></span></div>` : '';
+
+    cont.innerHTML = `
+      <div class="fr-tema-bar">
+        <button class="fr-volver" onclick="Foro.volver()">← Volver a mensajes</button>
+        <span style="flex:1"></span>${star(t)}${menuTema(t)}
+      </div>
+      <div class="fr-tema-tags">${nv ? `<span class="fr-nivel ${nv.cls}">${nv.lbl}</span>` : '<span class="fr-pill debate">Debate</span>'}${t.fijado ? '<span class="fr-pill fijado">Fijado</span>' : ''}${t.cerrado ? '<span class="fr-pill cerrado">Cerrado</span>' : ''}</div>
+      <h3 class="fr-tema-tit">${esc(t.titulo)}</h3>
+      <div class="fr-post original ${nv ? 'nv-' + nv.cls : ''}">
+        <div class="fr-post-head"><div class="fr-av">${inicial(t.autor)}</div>
+          <div><div class="fr-post-autor">${esc(t.autor)}</div><div class="fr-post-fecha">${t.cargo ? esc(t.cargo) + ' · ' : ''}${esc(fecha(t.createdAt))}${t.editado ? ' · editado' : ''}</div></div></div>
+        <div class="fr-texto">${conMenciones(t.cuerpo)}</div>
+        ${vistosH}
+      </div>
+      <div class="fr-sec" style="margin-top:1.6rem;"><span>${rs.length ? 'Respuestas' : 'Sin respuestas todavía'}</span>${rs.length ? `<em>${rs.length}</em>` : ''}</div>
+      ${posts}
+      ${puedeResp ? `<div class="fr-composer">
+        ${t.cerrado ? '<div class="fr-aviso">El tema está cerrado: respondés como administrador.</div>' : ''}
+        ${citaPrev}
+        <div class="fr-ta-wrap" id="fr-resp-wrap">
+          <textarea id="fr-resp-text" class="fr-textarea" rows="3" placeholder="Escribí tu respuesta… Usá @ para mencionar a alguien"
+            onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')Foro.responder()" oninput="Foro._err('')"></textarea>
+        </div>
+        <div class="fr-acc-row">
+          <button class="fr-btn" id="fr-resp-btn" onclick="Foro.responder()">Responder</button>
+          <span class="fr-err" id="fr-resp-err"></span>
+          <span class="fr-hint">@ para mencionar · Ctrl+Enter para enviar</span>
+        </div>
+      </div>` : '<div class="fr-cerrado">Este tema está cerrado a nuevas respuestas.</div>'}`;
+
+    const ta = $('fr-resp-text');
+    if(ta) { ta.value = borrador; activarMenciones(ta); if(foco) ta.focus(); }
+    const te = $('fr-edit-text'); if(te) activarMenciones(te);
+  }
+
+  // ── Menciones @ (desplegable) ──
+  function activarMenciones(ta) {
+    if(ta.dataset.frMenciones) return;          // evita duplicar el listener
+    ta.dataset.frMenciones = '1';
+    ta.addEventListener('input', async () => {
+      const antes = ta.value.substring(0, ta.selectionStart);
+      const m = antes.match(/(?:^|[\s(])@([\wáéíóúñÁÉÍÓÚÑ ]{0,30})$/);
+      let dd = ta.parentNode.querySelector('.fr-dd');
+      if(!m) { if(dd) dd.remove(); return; }
+      if(!usuarios.length) await cargarUsuarios();
+      const q = m[1].toLowerCase().trim();
+      const sinTildes = x => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const otros = usuarios.filter(u => u.nombre && u.nombre !== yoNombre());
+      const lista = otros.filter(u => sinTildes(u.nombre).includes(sinTildes(q))).slice(0, 6);
+      if(!dd) { dd = document.createElement('div'); dd.className = 'fr-dd'; ta.parentNode.appendChild(dd); }
+      // Dentro del modal (que tiene scroll propio) el desplegable se ubica
+      // "flotando" sobre la pantalla para que no quede cortado.
+      if(ta.closest('#foro-overlay')) {
+        const r = ta.getBoundingClientRect();
+        const abajo = window.innerHeight - r.bottom > 240;
+        Object.assign(dd.style, { position:'fixed', left: r.left + 'px', zIndex: 10000,
+          top: abajo ? (r.bottom + 4) + 'px' : 'auto', bottom: abajo ? 'auto' : (window.innerHeight - r.top + 4) + 'px', marginTop: 0 });
+      }
+      if(!lista.length) {
+        dd.innerHTML = `<div class="fr-dd-vacio">${otros.length
+          ? 'Ningún usuario coincide con “' + esc(m[1].trim()) + '”'
+          : 'No se pudo cargar la lista de usuarios. Revisá que se haya ejecutado foro-pe.sql.'}</div>`;
+        return;
+      }
+      dd.innerHTML = lista.map(u => `<div class="fr-dd-item" data-n="${esc(u.nombre)}"><span class="fr-av sm">${inicial(u.nombre)}</span><span><b>${esc(u.nombre)}</b><small>${esc(u.cargo || '')}</small></span></div>`).join('');
+      dd.querySelectorAll('.fr-dd-item').forEach(el => el.addEventListener('mousedown', ev => {
+        ev.preventDefault();
+        const pos = ta.selectionStart, val = ta.value;
+        const pre = val.substring(0, pos).replace(/@[\wáéíóúñÁÉÍÓÚÑ ]*$/, '@' + el.dataset.n + ' ');
+        ta.value = pre + val.substring(pos); ta.focus(); ta.selectionStart = ta.selectionEnd = pre.length;
+        dd.remove();
+      }));
+    });
+    ta.addEventListener('blur', () => setTimeout(() => { const dd = ta.parentNode.querySelector('.fr-dd'); if(dd) dd.remove(); }, 150));
+  }
+
+  // ══ ACCIONES ══════════════════════════════════════════════════════════
+  async function borrar(tabla, id, etiqueta) {
+    const { data, error } = await sb.from(tabla).delete().eq('id', id).select();
+    if(error) { console.error(error); alert(`No se pudo eliminar ${etiqueta}: ${error.message}`); return false; }
+    if(!data || !data.length) { alert(`No se pudo eliminar ${etiqueta}. Es posible que no tengas permiso o que ya no exista. Recargá la página para ver el estado actual.`); return false; }
+    return true;
+  }
+
+  function abrir(id, respId) {
+    const t = temas.find(x => x.id === id); if(!t) return;
+    destacar = respId || null;
+    if(!vistaVisible() && typeof switchTab === 'function') switchTab('mensajes');
+    activo = id;
+    lectPrev = lecturas[id] || null;
+    if(!lectPrev && !nuevas(t)) lectPrev = t.ultimoAt;
+    cita = null; editando = null;
+    render();
+    const post = destacar && $('fr-post-' + destacar);
+    if(post) setTimeout(() => post.scrollIntoView({ behavior:'smooth', block:'center' }), 60);
+    else { const v = $('mensajesView'); if(v) window.scrollTo({ top: Math.max(0, v.getBoundingClientRect().top + window.scrollY - 20), behavior:'smooth' }); }
+    destacar = null;
+    registrarLectura(t);
+    marcarVisto(t);
+    leerMencionesTema(t.id);
+  }
+
+  // ── Menciones: marcar como leídas ──
+  async function marcarMencionesLeidas(ids) {
+    if(!ids.length) return;
+    menciones = menciones.filter(m => !ids.includes(m.id));
+    badge();
+    const { error } = await sb.from(T.menc).update({ leida: true }).in('id', ids);
+    if(error) console.error('Foro: error marcando menciones', error);
+  }
+  function leerMencionesTema(temaId) { return marcarMencionesLeidas(menciones.filter(m => m.temaId === temaId).map(m => m.id)); }
+  function irMencion(mid) { const m = menciones.find(x => x.id === mid); if(m) abrir(m.temaId, m.respuestaId); }
+
+  // Aviso flotante (se ve aunque estés en otra sección del portal)
+  let toastT = null;
+  function toast(texto, temaId, respId) {
+    let el = $('fr-toast');
+    if(!el) { el = document.createElement('div'); el.id = 'fr-toast'; document.body.appendChild(el); }
+    el.innerHTML = `<span class="fr-toast-ico">@</span><span class="fr-toast-txt">${esc(texto)}</span><button class="fr-toast-ver">Ver</button><button class="fr-toast-x" aria-label="Cerrar">✕</button>`;
+    el.querySelector('.fr-toast-ver').onclick = () => { el.classList.remove('show'); abrir(temaId, respId); };
+    el.querySelector('.fr-toast-x').onclick = () => el.classList.remove('show');
+    el.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 12000);
+  }
+  function volver() { activo = null; lectPrev = null; cita = null; editando = null; render(); }
+
+  async function favorito(id, ev) {
+    if(ev) ev.stopPropagation();
+    const era = favoritos.has(id);
+    era ? favoritos.delete(id) : favoritos.add(id); render();
+    const { error } = era
+      ? await sb.from(T.fav).delete().eq('usuario_id', yoId()).eq('tema_id', id)
+      : await sb.from(T.fav).insert({ usuario_id: yoId(), tema_id: id });
+    if(error && error.code !== '23505') { console.error(error); era ? favoritos.add(id) : favoritos.delete(id); render(); }
+  }
+  async function fijar(id) {
+    const t = temas.find(x => x.id === id); if(!t || !esAdmin()) return;
+    const { error } = await sb.from(T.temas).update({ fijado: !t.fijado }).eq('id', id);
+    if(error) { alert('No se pudo actualizar el tema.'); console.error(error); return; }
+    registrar(t.fijado ? 'editar' : 'editar', (t.fijado ? 'Desfijó: ' : 'Fijó: ') + t.titulo);
+    await cargar();
+  }
+  async function cerrar(id) {
+    const t = temas.find(x => x.id === id); if(!t || !puedeGestionar(t)) return;
+    const { error } = await sb.from(T.temas).update({ cerrado: !t.cerrado }).eq('id', id);
+    if(error) { alert('No se pudo actualizar el tema.'); console.error(error); return; }
+    await cargar();
+  }
+  async function eliminar(id) {
+    const t = temas.find(x => x.id === id); if(!t || !puedeGestionar(t)) return;
+    const extra = t.cantResp ? ` y sus ${t.cantResp} respuesta${t.cantResp > 1 ? 's' : ''}` : '';
+    if(!confirm(`¿Eliminás "${t.titulo}"${extra}? No se puede deshacer.`)) return;
+    if(!(await borrar(T.temas, id, 'el tema'))) { await cargar(); return; }
+    registrar('eliminar', 'Eliminó tema: ' + t.titulo);
+    if(activo === id) activo = null;
+    await cargar();
+  }
+
+  // ── Modal nuevo / editar tema ──
+  function camposModal() {
+    const tipo = $('fr-m-tipo').value;
+    $('fr-m-tipo-wrap').style.display = esAdmin() ? '' : 'none';
+    $('fr-m-nivel-wrap').style.display = tipo === 'comunicado' ? '' : 'none';
+    $('fr-m-cuerpo').placeholder = tipo === 'comunicado' ? 'Texto del comunicado…' : 'Planteá el tema o la consulta…';
+  }
+  function msgModal(t, tipo) { const el = $('fr-m-msg'); el.textContent = t; el.className = 'fr-m-msg' + (tipo ? ' ' + tipo : ''); }
+  function nuevo() {
+    $('fr-m-id').value = ''; $('fr-m-titulo').value = ''; $('fr-m-cuerpo').value = '';
+    $('fr-m-tipo').value = 'debate'; $('fr-m-nivel').value = 'informativo';
+    $('fr-m-title').textContent = 'Nuevo tema'; $('fr-m-btn').textContent = 'Publicar';
+    msgModal(''); camposModal();
+    $('foro-overlay').classList.add('open');
+    activarMenciones($('fr-m-cuerpo'));
+    setTimeout(() => $('fr-m-titulo').focus(), 50);
+  }
+  function editar(id) {
+    const t = temas.find(x => x.id === id); if(!t || !puedeGestionar(t)) return;
+    $('fr-m-id').value = t.id; $('fr-m-titulo').value = t.titulo; $('fr-m-cuerpo').value = t.cuerpo;
+    $('fr-m-tipo').value = t.tipo; $('fr-m-nivel').value = t.nivel || 'informativo';
+    $('fr-m-title').textContent = 'Editar tema'; $('fr-m-btn').textContent = 'Guardar cambios';
+    msgModal(''); camposModal();
+    $('foro-overlay').classList.add('open');
+    activarMenciones($('fr-m-cuerpo'));
+  }
+  function cerrarModal() { $('foro-overlay').classList.remove('open'); }
+  async function guardar() {
+    const titulo = $('fr-m-titulo').value.trim(), cuerpo = $('fr-m-cuerpo').value.trim(), id = $('fr-m-id').value;
+    const previo = id ? temas.find(x => x.id === id) : null;
+    const tipo = esAdmin() ? $('fr-m-tipo').value : (previo?.tipo || 'debate');
+    const nivel = tipo === 'comunicado' ? $('fr-m-nivel').value : null;
+    if(!titulo || !cuerpo) { msgModal('Completá título y contenido.', 'err'); return; }
+    const btn = $('fr-m-btn'), txt = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando…';
+    try {
+      let nuevoId = null;
+      if(id) {
+        const { error } = await sb.from(T.temas).update({ titulo, cuerpo, tipo, nivel, editado_at: new Date().toISOString() }).eq('id', id);
+        if(error) throw error;
+        registrar('editar', 'Editó tema: ' + titulo);
+      } else {
+        const { data, error } = await sb.from(T.temas).insert({
+          autor_id: yoId(), autor_nombre: yoNombre(), cargo: currentPerfil?.cargo || '', tipo, nivel, titulo, cuerpo,
+        }).select().single();
+        if(error) throw error;
+        nuevoId = data?.id || null;
+        registrar('crear', (tipo === 'comunicado' ? 'Comunicado: ' : 'Debate: ') + titulo);
+      }
+      msgModal(id ? 'Cambios guardados.' : 'Publicado.', 'ok');
+      await cargar();
+      setTimeout(() => { cerrarModal(); if(nuevoId) abrir(nuevoId); }, 600);
+    } catch(e) {
+      console.error('Foro: error guardando tema', e);
+      msgModal('No se pudo guardar. Intentá de nuevo.', 'err');
+    } finally { btn.disabled = false; btn.textContent = txt; }
+  }
+
+  // ── Respuestas ──
+  function citar(id) { cita = id; render(); const ta = $('fr-resp-text'); if(ta) { ta.focus(); ta.scrollIntoView({ behavior:'smooth', block:'center' }); } }
+  async function responder() {
+    const t = temas.find(x => x.id === activo), ta = $('fr-resp-text');
+    if(!t || !ta) return;
+    const texto = ta.value.trim();
+    if(!texto) { _err('Escribí una respuesta antes de enviar.'); ta.focus(); return; }
+    const btn = $('fr-resp-btn'); btn.disabled = true; btn.textContent = 'Enviando…';
+    const payload = { tema_id: t.id, texto, autor_id: yoId(), autor_nombre: yoNombre() };
+    if(cita) payload.respuesta_a = cita;
+    const { data, error } = await sb.from(T.resp).insert(payload).select().single();
+    if(error) {
+      console.error('Foro: error respondiendo', error);
+      btn.disabled = false; btn.textContent = 'Responder';
+      _err(/cerrado/i.test(error.message || '') ? 'El tema se cerró a nuevas respuestas.' : 'No se pudo enviar. Intentá de nuevo.');
+      return;
+    }
+    ta.value = ''; cita = null;
+    const r = mapResp(data);
+    (resp[t.id] = resp[t.id] || []).push(r);
+    t.cantResp = resp[t.id].length; t.ultimoAt = r.createdAt; t.ultimoAutor = r.autor;
+    temas.sort((a,b) => ts(b.ultimoAt) - ts(a.ultimoAt));
+    lectPrev = r.createdAt;
+    render(); registrarLectura(t);
+    const el = $('fr-post-' + r.id); if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+  function _err(m) { const e = $('fr-resp-err'); if(e) e.textContent = m; }
+  async function guardarEdicion(id) {
+    const ta = $('fr-edit-text'), texto = ta ? ta.value.trim() : '';
+    if(!texto) { ta && ta.focus(); return; }
+    const { error } = await sb.from(T.resp).update({ texto, editado_at: new Date().toISOString() }).eq('id', id);
+    if(error) { alert('No se pudo guardar la edición.'); console.error(error); return; }
+    editando = null; await cargar();
+  }
+  async function eliminarResp(id) {
+    if(!confirm('¿Eliminás esta respuesta?')) return;
+    if(!(await borrar(T.resp, id, 'la respuesta'))) { await cargar(); return; }
+    if(cita === id) cita = null;
+    await cargar();
+  }
+
+  // ── Tiempo real ──
+  function avisar(texto, temaId) {
+    const cont = $('foro-aviso');
+    if(!cont) return;
+    cont.innerHTML = `<span class="fr-aviso-dot"></span><span>${esc(texto)}</span><span class="fr-aviso-ver">Ver →</span>`;
+    cont.style.display = 'flex';
+    cont.onclick = () => { cont.style.display = 'none'; if(temaId) abrir(temaId); };
+  }
+  function suscribir() {
+    if(canal) { sb.removeChannel(canal); canal = null; }
+    canal = sb.channel('foro-pe')
+      .on('postgres_changes', { event:'*', schema:'public', table:T.temas }, p => cambio('tema', p))
+      .on('postgres_changes', { event:'*', schema:'public', table:T.resp },  p => cambio('resp', p))
+      .on('postgres_changes', { event:'INSERT', schema:'public', table:T.menc, filter:'mencionado_id=eq.' + yoId() }, p => { mencPendiente = p.new; cambio('menc', p); })
+      .subscribe();
+  }
+  function cambio(origen, p) {
+    const n = p.new || {};
+    if(origen !== 'menc' && p.eventType === 'INSERT' && n.autor_id && n.autor_id !== yoId()) {
+      if(origen === 'tema') avisar(n.tipo === 'comunicado' ? `${n.autor_nombre} publicó un comunicado: «${n.titulo}»` : `${n.autor_nombre} abrió el debate «${n.titulo}»`, n.id);
+      else if(activo !== n.tema_id) { const t = temas.find(x => x.id === n.tema_id); avisar(`${n.autor_nombre} respondió en «${t ? t.titulo : 'un tema'}»`, n.tema_id); }
+    }
+    clearTimeout(recargaT);
+    recargaT = setTimeout(async () => {
+      await cargar();
+      const t = activo && temas.find(x => x.id === activo);
+      const mirando = t && vistaVisible() && !document.hidden;
+      if(mirando) registrarLectura(t);
+      if(mencPendiente) {
+        const m = mencPendiente; mencPendiente = null;
+        if(mirando && t.id === m.tema_id) leerMencionesTema(t.id);   // ya lo estás viendo
+        else {
+          const tt = temas.find(x => x.id === m.tema_id);
+          const txt = `${m.autor_nombre || 'Alguien'} te mencionó en «${tt ? tt.titulo : 'un tema'}»`;
+          vistaVisible() ? avisar(txt, m.tema_id) : toast(txt, m.tema_id, m.respuesta_id);
+        }
+      }
+    }, 500);
+  }
+
+  // ══ API pública ══════════════════════════════════════════════════════
+  document.addEventListener('click', cerrarMenus);
+  return {
+    // enganches con el portal
+    async iniciar() { if(iniciado) return; iniciado = true; await cargar(); suscribir(); },
+    detener() {
+      if(canal) { try { sb.removeChannel(canal); } catch(e) {} canal = null; }
+      clearTimeout(recargaT);
+      temas = []; resp = {}; lecturas = {}; favoritos = new Set(); usuarios = []; menciones = []; mencPendiente = null;
+      const tt = $('fr-toast'); if(tt) tt.classList.remove('show');
+      activo = null; lectPrev = null; cita = null; editando = null; filtro = 'todos'; iniciado = false;
+      const c = $('foro-contenido'); if(c) c.innerHTML = '';
+      const a = $('foro-aviso'); if(a) a.style.display = 'none';
+      badge();
+    },
+    mostrar() { if(!iniciado) this.iniciar(); else render(); const a = $('foro-aviso'); if(a) a.style.display = 'none'; },
+    // acciones de la interfaz
+    irMencion, leerMenciones() { return marcarMencionesLeidas(menciones.map(m => m.id)).then(render); },
+    abrir, volver, favorito, fijar, cerrar, eliminar, editar, nuevo, guardar, cerrarModal, camposModal,
+    citar, responder, guardarEdicion, eliminarResp, _err,
+    menu(id) { const m = $('fr-menu-' + id), ab = m && !m.classList.contains('open'); cerrarMenus(); if(ab) m.classList.add('open'); },
+    filtrar(k) { filtro = k; render(); },
+    verCom() { verTodosCom = !verTodosCom; render(); },
+    quitarCita() { cita = null; render(); },
+    editarResp(id) { editando = id; render(); },
+    cancelarEdicion() { editando = null; render(); },
+    // para el buscador u otros módulos
+    get temas() { return temas.slice(); },
+  };
+})();
+</script>
+
 </body>
 </html>
