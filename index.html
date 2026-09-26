@@ -2372,6 +2372,7 @@
             <label class="seccion-check"><input type="checkbox" value="anuario" checked><label>📈 Anuario FCE-UNLP</label></label>
             <label class="seccion-check"><input type="checkbox" value="panelarea" checked><label>📋 Panel por Área</label></label>
             <label class="seccion-check"><input type="checkbox" value="seguimiento" checked><label>✅ Seguimiento PE</label></label>
+            <label class="seccion-check"><input type="checkbox" value="resumen" checked><label>📝 Resumen ejecutivo</label></label>
           </div>
         </div>
         <button class="admin-btn-crear" id="btn-crear-user" onclick="crearUsuario()">Crear usuario</button>
@@ -5448,93 +5449,13 @@ var PA_NAMES = {
   SAF:'Secretaría de Administración y Finanzas',
   UCI:'Unidad de Comunicación Institucional'
 };
+// Áreas del Panel (solo códigos y orden de aparición).
+// Los indicadores, valores y notas viven únicamente en Supabase (tabla pa_kpis),
+// detrás del login. No volver a cargar cifras acá: el HTML es visible para
+// cualquiera que tenga el link, aunque no inicie sesión.
 var PA_AREAS = [
-  {cod:'INV',nota:'Desarrollo propio HERA registrado ante DNDA. Investigadores cat. I-II crecieron 220% desde 2018 (de 25 a 55). Los 4 institutos acreditados por UNLP.',
-   kpisMini:[{val:'243',label:'Investigadores categorizados'},{val:'24',label:'Proyectos vigentes'}],
-   kpis:[
-    {label:'Investigadores categorizados (SICADI)',val:'243',unit:'',sub:'+62 nuevos desde 2018 (+34%)',tag:'up'},
-    {label:'Proyectos vigentes acreditados UNLP',val:'24',unit:'',sub:'A diciembre 2025',tag:'neu'},
-    {label:'Unidades de investigación acreditadas',val:'4',unit:'',sub:'IIA · IIE · IIEC · IIT',tag:'neu'},
-    {label:'Revistas científicas editadas',val:'5',unit:'',sub:'91 indexaciones/repositorios (+300% desde 2018)',tag:'up'},
-    {label:'Becas de investigación para alumnos 2022–2025',val:'35',unit:'',sub:'Con y sin estipendio',tag:'neu'},
-    {label:'Pasantías de investigación 2022–2025',val:'42',unit:'',sub:'Adm. · Economía · Turismo',tag:'neu'},
-    {label:'Subsidios para presentación en congresos',val:'45',unit:'',sub:'PFDI 2022–2025',tag:'neu'},
-    {label:'Posters científicos acumulados en Jornadas',val:'512',unit:'',sub:'10 ediciones 2017–2025 · ISSN 2545-806X',tag:'up'},
-    {label:'Perfiles activos en Google Scholar',val:'230',unit:'',sub:'Con filiación FCE-UNLP',tag:'neu'},
-    {label:'Suscriptores al boletín mensual',val:'2.400',unit:'',sub:'Desde 2018 · frecuencia mensual',tag:'neu'},
-   ],fecha:'Diciembre 2025'},
-  {cod:'SAA',nota:'34 cargos vacantes sin concurso programado. Requiere coordinación con CD.',
-   kpisMini:[{val:'1.284',label:'Docentes activos'},{val:'34',label:'Cargos vacantes'}],
-   kpis:[
-    {label:'Docentes activos',val:'1.284',unit:'',sub:'+18 vs. 2023',tag:'up'},
-    {label:'Cargos vacantes (sin interino)',val:'34',unit:'',sub:'Sin concurso previsto',tag:'warn'},
-    {label:'Materias por carrera (prom.)',val:'42',unit:'',sub:'Planes 2004 y 2023',tag:'neu'},
-    {label:'Alumnos por comisión (prom.)',val:'78',unit:'',sub:'Máx. recomendado: 80',tag:'warn'},
-    {label:'Tasa de aprobación 2024',val:'61',unit:'%',sub:'-3pp vs. 2023',tag:'down'},
-   ],fecha:'Mayo 2025'},
-  {cod:'SAF',nota:null,
-   kpisMini:[{val:'72%',label:'Ejec. presupuestaria'},{val:'186',label:'Nodocentes'}],
-   kpis:[
-    {label:'Ejecución presupuestaria',val:'72',unit:'%',sub:'A junio 2025',tag:'neu'},
-    {label:'Personal nodocente activo',val:'186',unit:'',sub:'142 planta · 44 contrato',tag:'neu'},
-    {label:'Proveedores activos',val:'93',unit:'',sub:'Registrados COMPR.AR',tag:'neu'},
-    {label:'Expedientes en trámite',val:'47',unit:'',sub:'-8 vs. mes anterior',tag:'up'},
-    {label:'Patrimonio inventariado',val:'4.820',unit:'bienes',sub:'Actualizado 2024',tag:'neu'},
-   ],fecha:'Junio 2025'},
-  {cod:'EXT',nota:null,
-   kpisMini:[{val:'17',label:'Proyectos activos'},{val:'3',label:'Ejes estratégicos'}],
-   kpis:[
-    {label:'Proyectos de extensión activos',val:'17',unit:'',sub:'Barrios Emprendedores · Coequipo · Construyendo Redes · De los Muros a la Acción · DINA · Fortaleciendo el Paseo · Obs. Clubes · GENER(ANDO) · Huellas Patrimoniales · Igualación · Igualando Futuro · ODS en Movimiento · Oportunidades · PULSO · Senderos Turísticos · Sustentabilidad · Tramas comunitarias',tag:'neu'},
-    {label:'Ejes estratégicos',val:'3',unit:'',sub:'Desarrollo local · Inclusión social · Género',tag:'neu'},
-    {label:'Convocatorias abiertas UNLP',val:'2',unit:'',sub:'Específica 2026 · Programas y Proyectos 2027',tag:'up'},
-    {label:'Recursos digitales propios',val:'4',unit:'',sub:'Mapa turístico · Ferias PowerBI · Biblioteca digital · Relevamiento OSC',tag:'neu'},
-   ],fecha:'Agosto 2026'},
-  {cod:'POS',nota:'Oferta de posgrado amplia y diversificada con 2 Doctorados, 7 Maestrías y 7 Especializaciones, más 7 Diplomaturas, 18 Programas y 2 Escuelas propias (EDN y EGS).',
-   kpisMini:[{val:'16',label:'Carreras (Doc+Mag+Esp)'},{val:'25',label:'Prog. y diplomaturas'}],
-   kpis:[
-    {label:'Doctorados',val:'2',unit:'',sub:'Administración · Economía',tag:'neu'},
-    {label:'Maestrías',val:'7',unit:'',sub:'MAP · ME · MBA · MC · MMI · MDM · MFP',tag:'neu'},
-    {label:'Especializaciones',val:'7',unit:'',sub:'EAF · ECOS · ELIC · ND · ESAL · ETRI · ESIN',tag:'neu'},
-    {label:'Diplomaturas de posgrado',val:'7',unit:'',sub:'DLA · OSC · RRHH · FA · DGP · IA · TA',tag:'neu'},
-    {label:'Programas',val:'18',unit:'',sub:'Formación profesional continua',tag:'neu'},
-    {label:'Escuelas propias',val:'2',unit:'',sub:'Escuela de Negocios (EDN) · Escuela de Gestión en Salud (EGS)',tag:'neu'},
-   ],fecha:'Agosto 2025'},
-  {cod:'BIE',nota:null,
-   kpisMini:[{val:'542',label:'Becas otorgadas'},{val:'1.180',label:'Consultas atendidas'}],
-   kpis:[
-    {label:'Becas otorgadas (vigentes)',val:'542',unit:'',sub:'UNLP + propias FCE',tag:'up'},
-    {label:'Beneficiarios de comedor',val:'1.820',unit:'rac/sem',sub:'Promedio semanal',tag:'neu'},
-    {label:'Consultas psicopedagógicas 2024',val:'1.180',unit:'',sub:'+230 vs. 2023',tag:'up'},
-    {label:'Alumnos en seguimiento activo',val:'89',unit:'',sub:'Situación de riesgo',tag:'warn'},
-    {label:'Actividades deportivas y culturales',val:'22',unit:'',sub:'Grupos activos 2025',tag:'neu'},
-   ],fecha:'Junio 2025'},
-  {cod:'CD',nota:'156 cargos aguardan sustanciación de concurso. Proceso de regularización en curso.',
-   kpisMini:[{val:'8',label:'Concursos abiertos'},{val:'156',label:'Cargos pendientes'}],
-   kpis:[
-    {label:'Concursos abiertos (en trámite)',val:'8',unit:'',sub:'Convocatoria 2025',tag:'neu'},
-    {label:'Cargos pendientes de concurso',val:'156',unit:'',sub:'Regularización en curso',tag:'warn'},
-    {label:'Concursos sustanciados 2024',val:'23',unit:'',sub:'-4 vs. 2023',tag:'down'},
-    {label:'Cargos regularizados 2022–2025',val:'84',unit:'',sub:'Acumulado de gestión',tag:'up'},
-    {label:'Jurados convocados 2025',val:'31',unit:'',sub:'Internos y externos',tag:'neu'},
-   ],fecha:'Junio 2025'},
-  {cod:'PCI',nota:null,
-   kpisMini:[{val:'121',label:'Acciones PE'},{val:'8',label:'Indicadores tablero'}],
-   kpis:[
-    {label:'Acciones PE 2026–2030 cargadas',val:'121',unit:'',sub:'9 áreas · 3 ejes',tag:'up'},
-    {label:'Indicadores tablero institucional',val:'8',unit:'',sub:'Grado · Fuente CESPI',tag:'neu'},
-    {label:'Encuestas docentes 2024',val:'2.840',unit:'',sub:'Sem. 1 y 2 · 2024',tag:'up'},
-    {label:'Informes de gestión emitidos',val:'4',unit:'',sub:'Acumulado 2024–2025',tag:'neu'},
-    {label:'Reportes automatizados activos',val:'3',unit:'',sub:'SIU-Guaraní · PIASAA',tag:'neu'},
-   ],fecha:'Junio 2025'},
-  {cod:'UCI',nota:'43 incidencias sin resolución hace más de 15 días.',
-   kpisMini:[{val:'18',label:'Sistemas activos'},{val:'43',label:'Incidencias abiertas'}],
-   kpis:[
-    {label:'Sistemas institucionales activos',val:'18',unit:'',sub:'SIU · Internos · Externos',tag:'neu'},
-    {label:'Usuarios conectados (prom. diario)',val:'2.340',unit:'',sub:'Aulas + admin + docentes',tag:'neu'},
-    {label:'Incidencias abiertas',val:'43',unit:'',sub:'+11 vs. mes anterior',tag:'warn'},
-    {label:'Equipos renovados 2024',val:'62',unit:'',sub:'Aulas y oficinas',tag:'up'},
-    {label:'Disponibilidad de red 2025',val:'99.1',unit:'%',sub:'Uptime acumulado',tag:'neu'},
-   ],fecha:'Mayo 2025'},
+  {cod:'INV'}, {cod:'SAA'}, {cod:'SAF'}, {cod:'EXT'}, {cod:'POS'},
+  {cod:'BIE'}, {cod:'CD'},  {cod:'PCI'}, {cod:'UCI'},
 ];
 var PA_TAGS = {up:{cls:'pa-tag-up',icon:'↑'},down:{cls:'pa-tag-down',icon:'↓'},neu:{cls:'pa-tag-neu',icon:'—'},warn:{cls:'pa-tag-warn',icon:'⚠'}};
 
@@ -5561,8 +5482,8 @@ function paGetKpisArea(a) {
               periodo:k.periodo||'', por:k.actualizado_por_nombre||'', fecha_dato:k.fecha_dato||''};
     });
   }
-  // Sin conexión a Supabase → respaldo fijo del HTML
-  return (a.kpis || []).map(function(k){ return Object.assign({en_fila:false}, k); });
+  // Sin conexión a Supabase: no hay datos de respaldo en el código (ver PA_AREAS)
+  return [];
 }
 
 // KPIs con dato cargado (label y valor reales)
@@ -6360,6 +6281,7 @@ async function buildPanelArea() {
     +'<div class="pa-sec-title">Indicadores por área</div>'
     +'<button class="pa-toggle" id="pa-toggle-btn" onclick="paToggleTodo()">⊕ Expandir todo</button>'
     +'</div>'
+    +(!_paKpisOk ? '<div style="background:#FFF8E7;border:1px solid #E5C97A;border-left:4px solid #C9963A;border-radius:6px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#5C4A1E;"><strong>No se pudieron cargar los indicadores.</strong> Revisá tu conexión y recargá la página. Si el problema sigue, avisá a la Secretaría de Planificación.</div>' : '')
     +'<div id="pa-cards">'+cardsHtml+'</div>'
     +'</div>';
   // Renderizar banda
@@ -8413,7 +8335,7 @@ function renderSeccionesEditor(uid, seccionesActuales) {
       ${TODAS_SECCIONES.map(s => `
         <label class="seccion-check">
           <input type="checkbox" value="${s}" ${todas || seccionesActuales?.includes(s) ? 'checked' : ''}>
-          <label>${s.charAt(0).toUpperCase()+s.slice(1)}</label>
+          <label>${({decano:'🎙️ Palabras del Decano', lineamientos:'📄 Lineamientos PE', mapa:'⊞ Mapa Estratégico', area:'☰ Por Secretaría', proceso:'◎ Proceso Metodológico', timeline:'📅 Cronograma', tablero:'📊 Tablero Institucional', anuario:'📈 Anuario FCE-UNLP', panelarea:'📋 Panel por Área', seguimiento:'✅ Seguimiento PE', resumen:'📝 Resumen ejecutivo'})[s] || (s.charAt(0).toUpperCase()+s.slice(1))}</label>
         </label>`).join('')}
     </div>
     <div style="display:flex;gap:.4rem;margin-top:.4rem;">
@@ -8495,7 +8417,13 @@ async function crearUsuario() {
   btn.disabled=true; btn.textContent='Creando…';
   msg.textContent=''; msg.className='admin-msg';
 
-  const { data, error } = await sb.auth.signUp({
+  // Cliente temporal SIN sesión persistente: con "Confirm email" desactivado,
+  // signUp inicia sesión con la cuenta nueva; si se usara `sb`, el navegador del
+  // admin quedaría logueado como el usuario recién creado.
+  const sbAlta = supabase.createClient(SUPA_URL, SUPA_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'pe-alta-temporal' }
+  });
+  const { data, error } = await sbAlta.auth.signUp({
     email, password: pass,
     options: { data: { nombre, rol, area_cod: unidad.area_cod, dependencia: unidad.dependencia, cargo } }
   });
@@ -8506,7 +8434,19 @@ async function crearUsuario() {
   }
 
   if(data.user){
-    await sb.from('perfiles').update({ nombre, rol, secciones, area_cod: unidad.area_cod, dependencia: unidad.dependencia, cargo }).eq('id', data.user.id);
+    // Lo hace el admin con SU sesión: asigna rol, área, secciones y habilita la cuenta
+    // (las cuentas nuevas nacen inactivas por seguridad; ver acceso-solo-activos.sql)
+    const { error: errPerfil } = await sb.from('perfiles')
+      .update({ nombre, rol, secciones, area_cod: unidad.area_cod, dependencia: unidad.dependencia, cargo, activo: true })
+      .eq('id', data.user.id);
+    if(errPerfil){
+      console.error('Error completando el perfil:', errPerfil);
+      msg.textContent='La cuenta se creó, pero no se pudo completar el perfil. Activala y asignale rol desde la lista de usuarios.';
+      msg.className='admin-msg err';
+      btn.disabled=false; btn.textContent='Crear usuario';
+      loadAdminUsers();
+      return;
+    }
   }
 
   msg.textContent='✅ Usuario creado correctamente.'; msg.className='admin-msg ok';
