@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal PE 2026–2030 · FCE UNLP · v20260918-0001</title>
+<title>Portal PE 2026–2030 · FCE UNLP · v20260929-0001</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -1873,7 +1873,7 @@
   .tb__hl span{color:var(--gold);font-weight:700;}
   .tb__htr{background:#060E1C;border-radius:3px;height:5px;overflow:hidden;}
   .tb__hf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),#E5B86A);}
-  .tb__ct{width:100%;border-collapse:collapse;font-size:.68rem;}
+  .tb__ct{width:100%;min-width:0;border-collapse:collapse;font-size:.68rem;}
   .tb__ct th{text-align:left;padding:.35rem .5rem;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#4A7A9B;border-bottom:1px solid #0F2A45;}
   .tb__ct th:not(:first-child){text-align:center;}
   .tb__ct td{padding:.4rem .5rem;border-bottom:1px solid rgba(15,42,69,.4);color:#6A9ABC;}
@@ -1903,8 +1903,9 @@
   .tb__lt{flex:1;background:#060E1C;border-radius:3px;height:7px;}
   .tb__lf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),#E5B86A);}
   .tb__lv{font-size:.63rem;font-weight:700;color:var(--gold);width:32px;text-align:right;flex-shrink:0;}
-  .tb__nt{font-size:.62rem;color:#1A3A5A;font-style:italic;border-left:2px solid #0F2A45;padding-left:.55rem;margin-top:.7rem;line-height:1.5;}
-  @media(max-width:700px){.tb__2c,.tb__3c,.tb__dg,.tb__pg{grid-template-columns:1fr;}.tb__kg{grid-template-columns:repeat(2,1fr);}.tb__hd,.tb__fi,.tb__bd{padding-left:1rem;padding-right:1rem;}}
+  .tb__nt{font-size:.66rem;color:#5E88A8;font-style:italic;border-left:2px solid #0F2A45;padding-left:.55rem;margin-top:.7rem;line-height:1.5;}
+  .tb__2c.tb__w1{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);}.tb__2c.tb__w2{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);}.tb__pn{min-width:0;overflow-x:auto;}
+  @media(max-width:700px){.tb__2c.tb__w1,.tb__2c.tb__w2{grid-template-columns:1fr;}.tb__2c,.tb__3c,.tb__dg,.tb__pg{grid-template-columns:1fr;}.tb__kg{grid-template-columns:repeat(2,1fr);}.tb__hd,.tb__fi,.tb__bd{padding-left:1rem;padding-right:1rem;}}
 
   /* ── hitos opción B — exacto al preview ── */
   .lt-hito{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.3rem .1rem;}
@@ -3180,8 +3181,8 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
         <div class="portada-card" style="--card-color:#1A5276" onclick="switchTab('tablero')">
           <div class="pc-icon">📊</div>
           <div class="pc-title">Tablero Institucional</div>
-          <div class="pc-desc">Indicadores clave de la FCE: aspirantes, egresados, retención y tendencias 2016–2024 por carrera. El tablero más importante para la gestión cotidiana.</div>
-          <div class="pc-meta">Datos 2023–2024 · Filtro por carrera <span class="pc-arrow">→</span></div>
+          <div class="pc-desc">Indicadores clave de la FCE por carrera: ingreso, estudiantes, egreso y duración, con tendencias 2016–2025. El tablero más importante para la gestión cotidiana.</div>
+          <div class="pc-meta">Datos 2016–2025 · Ingreso 2026 · Filtro por carrera <span class="pc-arrow">→</span></div>
         </div>
         <!-- 5. Anuario FCE-UNLP -->
         <div class="portada-card" style="--card-color:#1F618D" onclick="switchTab('anuario')">
@@ -3682,9 +3683,9 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
     <div>
       <div class="tb__ey">Facultad de Ciencias Económicas · UNLP</div>
       <div class="tb__h2">Tablero de <span>Control Institucional</span></div>
-      <div class="tb__ft">Fuentes: CESPI · SIU-Guaraní · SIU-Araucano · PIASAA-UNLP</div>
+      <div class="tb__ft">Fuentes: PIASAA-UNLP · SIU-Araucano · Anuario Estadístico UNLP (SAA)</div>
     </div>
-    <div class="tb__bg">Datos 2023–2024</div>
+    <div class="tb__bg">Datos 2016–2025 · Ingreso 2026</div>
   </div>
   <div class="tb__fi">
     <span class="tb__fl">Carrera</span>
@@ -3697,101 +3698,67 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
     <button class="tb__fb" onclick="tbF('TC',this)">Tec. Cooperativas</button>
   </div>
   <div class="tb__bd">
-    <div class="tb__sc"><div class="tb__st">Indicadores generales · FCE</div><div class="tb__kg" id="tb__kg"></div></div>
+    <div class="tb__sc"><div class="tb__st">Indicadores generales · FCE</div><div class="tb__kg" id="tb__kg"></div>
+      <div class="tb__nt">Alcance: cinco títulos de grado (CP, LA, LE, LT, TC). CDO (UA ECOINFO) se analiza aparte; sus datos del Anuario están en el Tablero Anuario. Tarjetas del año: Araucano / Anuario UNLP (misma fuente para 2025); series largas: archivos PIASAA por título. Ingresantes 2026: dato oficial PIASAA (Caracterización de ingresantes 2026) con el ciclo en curso; no se compara con años anteriores hasta el cierre del ciclo.</div></div>
     <div class="tb__sc">
-      <div class="tb__st">Aspirantes 2026 e Ingresantes 2023</div>
-      <div class="tb__2c">
+      <div class="tb__st">Ingreso · Ingresantes 2026 y evolución por cohorte</div>
+      <div class="tb__2c tb__w1">
         <div class="tb__pn">
-          <div class="tb__pt">Aspirantes 2026 <span>Total: 3.920</span></div>
-          <div class="tb__hw">
-            <div><div class="tb__hl">Lic. Administración <span>1.379 (35%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:35%"></div></div></div>
-            <div><div class="tb__hl">Contador Público <span>959 (24%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:24%"></div></div></div>
-            <div><div class="tb__hl">CDO <span>581 (15%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:15%"></div></div></div>
-            <div><div class="tb__hl">Lic. Economía <span>477 (12%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:12%"></div></div></div>
-            <div><div class="tb__hl">Lic. Turismo <span>473 (12%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:12%"></div></div></div>
-            <div><div class="tb__hl">Tec. Cooperativas <span>51 (1%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:1%"></div></div></div>
-          </div>
+          <div class="tb__pt">Ingresantes 2026 <span>Total: 3.344</span></div>
+          <div class="tb__hw"><div><div class="tb__hl">Lic. Administración <span>1.381 (41%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:41%"></div></div></div><div><div class="tb__hl">Contador Público <span>960 (29%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:29%"></div></div></div><div><div class="tb__hl">Lic. Economía <span>478 (14%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:14%"></div></div></div><div><div class="tb__hl">Lic. Turismo <span>474 (14%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:14%"></div></div></div><div><div class="tb__hl">Tec. Cooperativas <span>51 (2%)</span></div><div class="tb__htr"><div class="tb__hf" style="width:2%"></div></div></div></div>
+          <div class="tb__nt">Femenino 52,8% · incluye 30 casos "sin especificar". Sin CDO. Fuente: Caracterización de ingresantes 2026 (género).</div>
         </div>
         <div class="tb__pn">
-          <div class="tb__pt">Ingresantes 2023 · evolución histórica</div>
+          <div class="tb__pt">Ingresantes por cohorte · promedio anual <span>Serie de cohortes</span></div>
           <table class="tb__ct">
-            <tr><th>Carrera</th><th>2023</th><th>vs 2013</th><th>vs 2005</th></tr>
-            <tr><td>Contador Público</td><td class="hl">575</td><td>↓ 12%</td><td>↓ 59%</td></tr>
-            <tr><td>Lic. Administración</td><td class="hl">693</td><td>↑ 76%</td><td>↑ 14%</td></tr>
-            <tr><td>Lic. Economía</td><td class="hl">245</td><td>↑ 69%</td><td>↑ 48%</td></tr>
-            <tr><td>Lic. Turismo</td><td class="hl">285</td><td>↑ 14%</td><td>↑ 213%</td></tr>
-            <tr><td>Tec. Cooperativas</td><td class="hl">17</td><td>↓ 29%</td><td>↓ 50%</td></tr>
-            <tr><td><strong>Total FCE</strong></td><td class="hl"><strong>1.811</strong></td><td><strong>↑ 24%</strong></td><td><strong>↓ 21%</strong></td></tr>
+            <tr><th>Carrera</th><th>Prom. 2016–20</th><th>Prom. 2021–25</th><th>Variación</th></tr>
+            <tr><td>Contador Público</td><td>713</td><td>562</td><td class="hl">↓ 21,2%</td></tr><tr><td>Lic. Administración</td><td>532</td><td>750</td><td class="hl">↑ 41,1%</td></tr><tr><td>Lic. Economía</td><td>215</td><td>282</td><td class="hl">↑ 31,0%</td></tr><tr><td>Lic. Turismo</td><td>376</td><td>286</td><td class="hl">↓ 23,9%</td></tr><tr><td>Tec. Cooperativas</td><td>s/d</td><td>s/d</td><td>s/d</td></tr><tr><td><strong>Total FCE</strong></td><td><strong>1.868</strong></td><td><strong>1.902</strong></td><td class="hl"><strong>↑ 1,8%</strong></td></tr>
           </table>
+          <div class="tb__nt">Variación = promedio 2021–25 vs 2016–20. TC sin dato: su serie de cohortes no es consistente con Araucano ni con los egresos anuales. En 2016 CP concentraba 42,5% del ingreso y LA 27,4%; en la cohorte 2025, 26,9% y 42,8%. El total casi no cambia (↑ 1,8%): cambia la composición.</div>
+        </div>
+      </div>
+      <div class="tb__pn" style="margin-top:.9rem;"><div class="tb__pt">Ingresantes totales FCE por cohorte <span>2016–2025</span></div><div class="tb__bars" id="tb__bING"></div><div class="tb__bf"><span>2016</span><span>2025</span></div>
+        <div class="tb__nt">Serie por cohorte de ingreso (5 títulos); la cohorte 2025 suma 2.292, igual que Araucano. Por título la cohorte 2025 difiere de Araucano (CP 617 vs 643; LA 980 vs 902; LE 335 vs 365; LT 339 vs 329; TC 21 vs 53): criterio de asignación de título a confirmar con PIASAA. Anuario UNLP: 2.357 (2022), 1.575 (2023), 2.089 (2024); la diferencia de 2022 (371) está en consulta con SAA.</div></div>
+    </div>
+    <div class="tb__sc">
+      <div class="tb__st">Estudiantes 2025</div>
+      <div class="tb__2c tb__w2">
+        <div class="tb__pn" style="min-width:0;">
+          <div class="tb__pt">Matrícula por título</div>
+          <table class="tb__ct">
+            <tr><th>Carrera</th><th>Estudiantes</th><th>% mujeres</th><th>Reinscriptos</th><th>Rendimiento</th></tr>
+            <tr><td>Contador Público</td><td>2.865</td><td>59,3%</td><td>2.222</td><td class="hl">58,1%</td></tr><tr><td>Lic. Administración</td><td>3.094</td><td>54,0%</td><td>2.192</td><td class="hl">64,5%</td></tr><tr><td>Lic. Economía</td><td>1.224</td><td>31,2%</td><td>859</td><td class="hl">63,7%</td></tr><tr><td>Lic. Turismo</td><td>1.098</td><td>73,9%</td><td>769</td><td class="hl">52,8%</td></tr><tr><td>Tec. Cooperativas</td><td>168</td><td>71,4%</td><td>115</td><td class="hl">22,6%</td></tr><tr><td><strong>Total FCE</strong></td><td><strong>8.449</strong></td><td><strong>55,4%</strong></td><td><strong>6.157</strong></td><td class="hl"><strong>59,8%</strong></td></tr>
+          </table>
+          <div class="tb__nt">Rendimiento académico (Araucano) = reinscriptas/os con dos o más materias / reinscriptas/os. Estudiantes = reinscriptos + ingresantes (identidad verificada en los cinco títulos). Total FCE según Anuario: 7.614 (2023), 8.151 (2024) y 8.449 (2025); sin apertura por título antes de 2025.</div>
+        </div>
+        <div class="tb__pn" style="min-width:0;">
+          <div class="tb__pt">Peso de la FCE en la UNLP · 2025</div>
+          <table class="tb__ct" style="table-layout:fixed;">
+            <tr><th style="width:38%">Indicador</th><th>FCE</th><th>UNLP</th><th>Part.</th></tr>
+            <tr><td>Ingresantes totales</td><td>2.292</td><td>30.144</td><td class="hl">7,6%</td></tr><tr><td>Estudiantes</td><td>8.449</td><td>122.953</td><td class="hl">6,9%</td></tr><tr><td>Egresados</td><td>406</td><td>7.250</td><td class="hl">5,6%</td></tr>
+          </table>
+          <div class="tb__nt">Fuente: Indicadores Araucano 2025, iguales al Anuario UNLP 2025.</div>
         </div>
       </div>
     </div>
     <div class="tb__sc">
-      <div class="tb__st">Egresados por carrera · tendencia 2016–2024</div>
+      <div class="tb__st">Egresados por carrera · tendencia 2016–2025</div>
       <div class="tb__3c">
-        <div class="tb__pn"><div class="tb__pt">Contador Público <span>Prom. 5 años: 166</span></div><div class="tb__bars" id="tb__bCP"></div><div class="tb__bf"><span>2016</span><span>2024</span></div><div class="tb__nt">Total 10 años: 2.037 egresados</div></div>
-        <div class="tb__pn"><div class="tb__pt">Lic. Administración <span>Prom. 5 años: 85</span></div><div class="tb__bars" id="tb__bLA"></div><div class="tb__bf"><span>2016</span><span>2024</span></div><div class="tb__nt">Total 10 años: 754 egresados</div></div>
-        <div class="tb__pn"><div class="tb__pt">Lic. Economía <span>Prom. 5 años: 46</span></div><div class="tb__bars" id="tb__bLE"></div><div class="tb__bf"><span>2016</span><span>2024</span></div><div class="tb__nt">Total 10 años: 413 egresados</div></div>
+        <div class="tb__pn"><div class="tb__pt">Contador Público <span>Prom. 2021–25: 174</span></div><div class="tb__bars" id="tb__bCP"></div><div class="tb__bf"><span>2016</span><span>2025</span></div><div class="tb__nt">Total 10 años: 1.908 egresados</div></div><div class="tb__pn"><div class="tb__pt">Lic. Administración <span>Prom. 2021–25: 93</span></div><div class="tb__bars" id="tb__bLA"></div><div class="tb__bf"><span>2016</span><span>2025</span></div><div class="tb__nt">Total 10 años: 800 egresados</div></div><div class="tb__pn"><div class="tb__pt">Lic. Economía <span>Prom. 2021–25: 47</span></div><div class="tb__bars" id="tb__bLE"></div><div class="tb__bf"><span>2016</span><span>2025</span></div><div class="tb__nt">Total 10 años: 433 egresados</div></div><div class="tb__pn"><div class="tb__pt">Lic. Turismo <span>Prom. 2021–25: 44</span></div><div class="tb__bars" id="tb__bLT"></div><div class="tb__bf"><span>2016</span><span>2025</span></div><div class="tb__nt">Total 10 años: 403 egresados</div></div><div class="tb__pn"><div class="tb__pt">Tec. Cooperativas <span>Prom. 2021–25: 10</span></div><div class="tb__bars" id="tb__bTC"></div><div class="tb__bf"><span>2016</span><span>2025</span></div><div class="tb__nt">Total 10 años: 100 egresados</div></div><div class="tb__pn"><div class="tb__pt">Total FCE (5 títulos) <span>Prom. 2021–25: 368</span></div><div class="tb__bars" id="tb__bFCE"></div><div class="tb__bf"><span>2016</span><span>2025</span></div><div class="tb__nt">Total 10 años: 3.644 egresados</div></div>
       </div>
-      <div class="tb__nt">2020–2021: valores reducidos por impacto de pandemia. Fuente: PIASAA-UNLP / SIU-Guaraní.</div>
+      <div class="tb__pn" style="margin-top:.9rem;">
+        <div class="tb__pt">Variaciones de egresos</div>
+        <table class="tb__ct">
+          <tr><th>Carrera</th><th>2025</th><th>vs 2024</th><th>Prom. 2016–20</th><th>Prom. 2021–25</th><th>Variación</th><th>2025 vs máx. 2011–25</th></tr>
+          <tr><td>Contador Público</td><td class="hl">166</td><td>↓ 9,8%</td><td>207</td><td>174</td><td>↓ 16,0%</td><td>↓ 44,1% (2015)</td></tr><tr><td>Lic. Administración</td><td class="hl">115</td><td>↑ 2,7%</td><td>67</td><td>93</td><td>↑ 38,8%</td><td>= máx. (2025)</td></tr><tr><td>Lic. Economía</td><td class="hl">58</td><td>↑ 34,9%</td><td>40</td><td>47</td><td>↑ 16,5%</td><td>↓ 7,9% (2011)</td></tr><tr><td>Lic. Turismo</td><td class="hl">58</td><td>↑ 31,8%</td><td>37</td><td>44</td><td>↑ 19,0%</td><td>= máx. (2025)</td></tr><tr><td>Tec. Cooperativas</td><td class="hl">7</td><td>↓ 46,2%</td><td>10</td><td>10</td><td>↑ 4,1%</td><td>↓ 63,2% (2012)</td></tr><tr><td><strong>Total FCE</strong></td><td class="hl">404</td><td>↑ 2,0%</td><td>361</td><td>368</td><td>↑ 1,9%</td><td>↓ 15,8% (2012)</td></tr>
+        </table>
+      </div>
+      <div class="tb__nt">2020: valor reducido por pandemia. Egresos 2026 en curso, no incluidos. La serie PIASAA por año difiere en 1 o 2 del Anuario (2023: 383 vs 382; 2024: 396 vs 397; 2025: 404 vs 406), compatible con un corte de período distinto (el Anuario usa año académico abril–marzo). Máximo FCE: 480 egresados en 2012. Fuente: PIASAA-UNLP, Egresos por año.</div>
     </div>
     <div class="tb__sc">
-      <div class="tb__st">Duración de la carrera · 2015–2024</div>
-      <div class="tb__dg">
-        <div class="tb__dc"><div class="tb__dn">Contador Público</div><div class="tb__dm">8,4 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 10 años</div><div class="tb__dr">Rango: 2–16 años</div></div>
-        <div class="tb__dc"><div class="tb__dn">Lic. Administración</div><div class="tb__dm">7,0 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 8,1 años</div><div class="tb__dr">Rango: 4–11 años</div></div>
-        <div class="tb__dc"><div class="tb__dn">Lic. Economía</div><div class="tb__dm">6,0 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 7 años</div><div class="tb__dr">Rango: 3–9 años</div></div>
-        <div class="tb__dc"><div class="tb__dn">Lic. Turismo</div><div class="tb__dm">7,4 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 7,9 años</div><div class="tb__dr">Rango: 4–11 años</div></div>
-        <div class="tb__dc"><div class="tb__dn">Tec. Cooperativas</div><div class="tb__dm">3,9 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 6,3 años</div><div class="tb__dr">Rango: 1–10 años</div></div>
-      </div>
-    </div>
-    <div class="tb__sc">
-      <div class="tb__st">Perfil del egreso · FCE 2024</div>
-      <div class="tb__2c">
-        <div class="tb__pg">
-          <div class="tb__pi"><div style="font-size:1rem;margin-bottom:.25rem;">🎓</div><div class="tb__pv">394</div><div class="tb__pl">Egresados totales 2024</div></div>
-          <div class="tb__pi"><div style="font-size:1rem;margin-bottom:.25rem;">👩</div><div class="tb__pv">62%</div><div class="tb__pl">Mujeres graduadas</div></div>
-          <div class="tb__pi"><div style="font-size:1rem;margin-bottom:.25rem;">📅</div><div class="tb__pv">28</div><div class="tb__pl">Edad promedio egreso</div></div>
-          <div class="tb__pi"><div style="font-size:1rem;margin-bottom:.25rem;">🏠</div><div class="tb__pv">52%</div><div class="tb__pl">CP: clima educativo alto</div></div>
-          <div class="tb__pi"><div style="font-size:1rem;margin-bottom:.25rem;">🎓</div><div class="tb__pv">66%</div><div class="tb__pl">LA: exp. universitaria en hogar</div></div>
-          <div class="tb__pi"><div style="font-size:1rem;margin-bottom:.25rem;">📊</div><div class="tb__pv">47%</div><div class="tb__pl">CDO: ya graduados al ingresar</div></div>
-        </div>
-        <div class="tb__pn">
-          <div class="tb__pt">Situación laboral al graduarse</div>
-          <div class="tb__lb">
-            <div class="tb__lr"><div class="tb__ll">CP</div><div class="tb__lt"><div class="tb__lf" style="width:88%"></div></div><div class="tb__lv">88%</div></div>
-            <div class="tb__lr"><div class="tb__ll">Lic. Economía</div><div class="tb__lt"><div class="tb__lf" style="width:60%"></div></div><div class="tb__lv">60%</div></div>
-            <div class="tb__lr"><div class="tb__ll">Lic. Adm.</div><div class="tb__lt"><div class="tb__lf" style="width:57%"></div></div><div class="tb__lv">57%</div></div>
-          </div>
-          <div class="tb__nt">% que ya trabajaba al obtener su título.</div>
-        </div>
-      </div>
-    </div>
-    <div class="tb__sc">
-      <div class="tb__st">Retención y rendimiento académico</div>
-      <div class="tb__2c">
-        <div class="tb__pn">
-          <div class="tb__pt">Retención 1er año 2024 <span>ingresantes 2023→2024</span></div>
-          <div class="tb__hw" style="margin-top:.3rem;">
-            <div><div class="tb__hl">FCE General <span>86%</span></div><div class="tb__htr"><div class="tb__hf" style="width:86%"></div></div></div>
-            <div><div class="tb__hl">Contador Público <span>100%</span></div><div class="tb__htr"><div class="tb__hf" style="width:100%"></div></div></div>
-            <div><div class="tb__hl">Lic. Administración <span>87%</span></div><div class="tb__htr"><div class="tb__hf" style="width:87%"></div></div></div>
-            <div><div class="tb__hl">Lic. Economía <span>77%</span></div><div class="tb__htr"><div class="tb__hf" style="width:77%"></div></div></div>
-            <div><div class="tb__hl">Tec. Cooperativas <span>53%</span></div><div class="tb__htr"><div class="tb__hf" style="width:53%"></div></div></div>
-          </div>
-        </div>
-        <div class="tb__pn">
-          <div class="tb__pt">Aprobación por departamento 2022–2025</div>
-          <table class="tb__ct" style="margin-top:.3rem;">
-            <tr><th>Departamento</th><th>Cursadas</th><th>Finales</th></tr>
-            <tr><td>Cs. Administrativas</td><td class="hl">59%</td><td>78%</td></tr>
-            <tr><td>Contabilidad</td><td class="hl">55%</td><td>60%</td></tr>
-            <tr><td>Cs. Complementarias</td><td class="hl">49%</td><td>55%</td></tr>
-            <tr><td>Economía</td><td class="hl">46%</td><td>69%</td></tr>
-            <tr><td>Turismo</td><td class="hl">45%</td><td>71%</td></tr>
-          </table>
-        </div>
-      </div>
+      <div class="tb__st">Duración de la carrera · egresos 2016–2025</div>
+      <div class="tb__dg"><div class="tb__dc"><div class="tb__dn">Contador Público</div><div class="tb__dm">8,5 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 10,0 años</div><div class="tb__dr">Q1–Q3: 6,5–11,8 · Rango: 3–16</div></div><div class="tb__dc"><div class="tb__dn">Lic. Administración</div><div class="tb__dm">7,0 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 7,9 años</div><div class="tb__dr">Q1–Q3: 5,9–9,0 · Rango: 4–11</div></div><div class="tb__dc"><div class="tb__dn">Lic. Economía</div><div class="tb__dm">6,0 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 7,0 años</div><div class="tb__dr">Q1–Q3: 4,9–7,3 · Rango: 3–9</div></div><div class="tb__dc"><div class="tb__dn">Lic. Turismo</div><div class="tb__dm">7,4 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 8,1 años</div><div class="tb__dr">Q1–Q3: 6,3–9,4 · Rango: 4–12</div></div><div class="tb__dc"><div class="tb__dn">Tec. Cooperativas</div><div class="tb__dm">4,0 <span>años mediana</span></div><div class="tb__da">Tiempo medio: 6,0 años</div><div class="tb__dr">Q1–Q3: 2,6–6,4 · Rango: 1–9</div></div></div>
+      <div class="tb__nt">Años entre ingreso y egreso de quienes egresaron en el período. Tiempo medio ponderado FCE: 8,9 años (n = 3.644); la mediana de la Facultad no puede derivarse de los datos por título. Los tiempos medios de CP, LE y TC figuran en la fuente en años enteros.</div>
     </div>
   </div>
 </div><!-- tableroView -->
@@ -7185,10 +7152,11 @@ function buildTimeline() {
 })();
 
 // ── TABLERO ───────────────────────────────────────────────────────────────
-var TBE={CP:[{y:2016,v:261},{y:2017,v:239},{y:2018,v:210},{y:2019,v:202},{y:2020,v:125},{y:2021,v:156},{y:2022,v:175},{y:2023,v:188},{y:2024,v:184}],LA:[{y:2016,v:86},{y:2017,v:56},{y:2018,v:63},{y:2019,v:52},{y:2020,v:78},{y:2021,v:67},{y:2022,v:73},{y:2023,v:98},{y:2024,v:111}],LE:[{y:2016,v:35},{y:2017,v:36},{y:2018,v:36},{y:2019,v:38},{y:2020,v:55},{y:2021,v:45},{y:2022,v:42},{y:2023,v:45},{y:2024,v:43}]};
-var TBK={todas:[{l:'Aspirantes 2026',v:'3.920',s:'Ciclo 2026',t:'up',tt:'↑ 20% vs 2013'},{l:'Ingresantes 2023',v:'1.811',s:'Nuevos estudiantes',t:'up',tt:'↑ 24% vs 2013'},{l:'Egresados 2023',v:'359',s:'Titulados en el año',t:'dn',tt:'↓ 21% vs 2013'},{l:'Egresados 2024',v:'394',s:'Titulados en el año',t:'up',tt:'↑ 9.7% vs 2023',g:1},{l:'Retención 1er año',v:'86%',s:'Ingresantes 2023→2024',t:'up',tt:'Entre las más altas UNLP'},{l:'Edad promedio egreso',v:'28',s:'Años al graduarse',t:'nt',tt:'FCE 2024'},{l:'Mujeres graduadas',v:'62%',s:'Del total egresados',t:'nt',tt:'FCE 2024',g:1},{l:'Egresados 10 años',v:'3.682',s:'Total 2015–2024',t:'nt',tt:'Todas las carreras'}],CP:[{l:'Aspirantes 2026',v:'959',s:'24% del total FCE',t:'dn',tt:'↓ 18% vs 2013'},{l:'Ingresantes 2023',v:'575',s:'32% del total FCE',t:'dn',tt:'↓ 12% vs 2013'},{l:'Egresados 2023',v:'207',s:'58% del total FCE',t:'dn',tt:'↓ 26% vs 2013'},{l:'Egresados 2024',v:'184',s:'Último dato',t:'nt',tt:'',g:1},{l:'Duración mediana',v:'8,4',s:'años 2015–2024',t:'nt',tt:'Tiempo medio: 10 años'},{l:'Trabajan al egresar',v:'88%',s:'Mayor tasa FCE',t:'up',tt:'↑ Alta empleabilidad'},{l:'Egresados 10 años',v:'2.037',s:'Total 2015–2024',t:'nt',tt:''},{l:'Retención 1er año',v:'100%',s:'Ingresantes 2023→2024',t:'up',tt:'↑ Más alta de FCE',g:1}],LA:[{l:'Aspirantes 2026',v:'1.379',s:'35% del total FCE',t:'up',tt:'↑ 68% vs 2013',g:1},{l:'Ingresantes 2023',v:'693',s:'38% del total FCE',t:'up',tt:'↑ 76% vs 2013'},{l:'Egresados 2023',v:'51',s:'14% del total FCE',t:'dn',tt:'↓ 43% vs 2013'},{l:'Egresados 2024',v:'111',s:'Último dato',t:'up',tt:'↑ 118% vs 2023',g:1},{l:'Duración mediana',v:'7,0',s:'años 2015–2024',t:'nt',tt:'Tiempo medio: 8,1 años'},{l:'Trabajan al egresar',v:'57%',s:'Al titularse',t:'nt',tt:''},{l:'Egresados 10 años',v:'754',s:'Total 2015–2024',t:'nt',tt:''},{l:'Retención 1er año',v:'87%',s:'Ingresantes 2023→2024',t:'up',tt:'↑ Alta retención'}],LE:[{l:'Aspirantes 2026',v:'477',s:'12% del total FCE',t:'up',tt:'↑ 69% vs 2013'},{l:'Ingresantes 2023',v:'245',s:'14% del total FCE',t:'up',tt:'↑ 69% vs 2013'},{l:'Egresados 2023',v:'40',s:'11% del total FCE',t:'dn',tt:'↓ 18% vs 2013'},{l:'Egresados 2024',v:'43',s:'Último dato',t:'up',tt:'↑ 7.5% vs 2023',g:1},{l:'Duración mediana',v:'6,0',s:'años 2015–2024',t:'up',tt:'↑ Más corta FCE'},{l:'Trabajan al egresar',v:'60%',s:'Al titularse',t:'nt',tt:''},{l:'Egresados 10 años',v:'413',s:'Total 2015–2024',t:'nt',tt:''},{l:'Retención 1er año',v:'77%',s:'Ingresantes 2023→2024',t:'nt',tt:''}],LT:[{l:'Aspirantes 2026',v:'473',s:'12% del total FCE',t:'up',tt:'↑ 23% vs 2013'},{l:'Ingresantes 2023',v:'285',s:'16% del total FCE',t:'up',tt:'↑ 14% vs 2013'},{l:'Egresados 2023',v:'53',s:'15% del total FCE',t:'up',tt:'↑ 130% vs 2013',g:1},{l:'Egresados 2024',v:'—',s:'Sin dato',t:'nt',tt:''},{l:'Duración mediana',v:'7,4',s:'años 2015–2024',t:'nt',tt:'Tiempo medio: 7,9 años'},{l:'Trabajan al egresar',v:'—',s:'Sin dato',t:'nt',tt:''},{l:'Egresados 10 años',v:'371',s:'Total 2015–2024',t:'nt',tt:''},{l:'Retención 1er año',v:'—',s:'Sin dato',t:'nt',tt:''}],CDO:[{l:'Aspirantes 2026',v:'581',s:'15% del total FCE',t:'nt',tt:'Carrera nueva',g:1},{l:'Ingresantes 2023',v:'—',s:'Sin dato',t:'nt',tt:''},{l:'Egresados',v:'—',s:'Carrera en desarrollo',t:'nt',tt:''},{l:'Ya graduados al ingresar',v:'47%',s:'De otra carrera',t:'nt',tt:'Perfil distintivo',g:1},{l:'Duración mediana',v:'—',s:'Sin datos',t:'nt',tt:''},{l:'Trabajan al egresar',v:'—',s:'Sin dato',t:'nt',tt:''},{l:'Egresados 10 años',v:'—',s:'Carrera nueva',t:'nt',tt:''},{l:'Retención 1er año',v:'—',s:'Sin dato',t:'nt',tt:''}],TC:[{l:'Aspirantes 2026',v:'51',s:'1% del total FCE',t:'dn',tt:'↓ 11% vs 2013'},{l:'Ingresantes 2023',v:'17',s:'1% del total FCE',t:'dn',tt:'↓ 29% vs 2013'},{l:'Egresados 2023',v:'8',s:'2% del total FCE',t:'dn',tt:'↓ 43% vs 2013'},{l:'Egresados 2024',v:'—',s:'Sin dato',t:'nt',tt:''},{l:'Duración mediana',v:'3,9',s:'años 2015–2024',t:'up',tt:'↑ La más corta FCE',g:1},{l:'Trabajan al egresar',v:'—',s:'Sin dato',t:'nt',tt:''},{l:'Egresados 10 años',v:'107',s:'Total 2015–2024',t:'nt',tt:''},{l:'Retención 1er año',v:'53%',s:'Ingresantes 2023→2024',t:'dn',tt:'↓ La más baja FCE'}]};
+var TBE={"CP":[{"y":2016,"v":261},{"y":2017,"v":239},{"y":2018,"v":210},{"y":2019,"v":202},{"y":2020,"v":125},{"y":2021,"v":156},{"y":2022,"v":175},{"y":2023,"v":190},{"y":2024,"v":184},{"y":2025,"v":166}],"LA":[{"y":2016,"v":86},{"y":2017,"v":56},{"y":2018,"v":63},{"y":2019,"v":52},{"y":2020,"v":78},{"y":2021,"v":67},{"y":2022,"v":73},{"y":2023,"v":98},{"y":2024,"v":112},{"y":2025,"v":115}],"LE":[{"y":2016,"v":35},{"y":2017,"v":36},{"y":2018,"v":36},{"y":2019,"v":38},{"y":2020,"v":55},{"y":2021,"v":45},{"y":2022,"v":42},{"y":2023,"v":45},{"y":2024,"v":43},{"y":2025,"v":58}],"LT":[{"y":2016,"v":26},{"y":2017,"v":46},{"y":2018,"v":43},{"y":2019,"v":27},{"y":2020,"v":42},{"y":2021,"v":41},{"y":2022,"v":42},{"y":2023,"v":34},{"y":2024,"v":44},{"y":2025,"v":58}],"TC":[{"y":2016,"v":14},{"y":2017,"v":13},{"y":2018,"v":4},{"y":2019,"v":7},{"y":2020,"v":11},{"y":2021,"v":9},{"y":2022,"v":6},{"y":2023,"v":16},{"y":2024,"v":13},{"y":2025,"v":7}],"FCE":[{"y":2016,"v":422},{"y":2017,"v":390},{"y":2018,"v":356},{"y":2019,"v":326},{"y":2020,"v":311},{"y":2021,"v":318},{"y":2022,"v":338},{"y":2023,"v":383},{"y":2024,"v":396},{"y":2025,"v":404}]};
+var TBI=[{"y":2016,"v":1712},{"y":2017,"v":1425},{"y":2018,"v":1936},{"y":2019,"v":2099},{"y":2020,"v":2169},{"y":2021,"v":1622},{"y":2022,"v":1986},{"y":2023,"v":1577},{"y":2024,"v":2035},{"y":2025,"v":2292}];
+var TBK={"CP":[{"l":"Ingresantes 2026","v":"960","s":"Oficial PIASAA · ciclo en curso · 29% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"643","s":"Araucano / Anuario","t":"up","tt":"↑ 15,4% vs 2024"},{"l":"Estudiantes 2025","v":"2.865","s":"Araucano / Anuario · 34% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"166","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"174","s":"Promedio anual 2021–25","t":"dn","tt":"↓ 16,0% vs 2016–20"},{"l":"Duración mediana","v":"8,5","s":"años · tiempo medio 10,0","t":"nt","tt":""},{"l":"Rendimiento","v":"58,1%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"59,3%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LA":[{"l":"Ingresantes 2026","v":"1.381","s":"Oficial PIASAA · ciclo en curso · 41% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"902","s":"Araucano / Anuario","t":"up","tt":"↑ 13,9% vs 2024"},{"l":"Estudiantes 2025","v":"3.094","s":"Araucano / Anuario · 37% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"116","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"93","s":"Promedio anual 2021–25","t":"up","tt":"↑ 38,8% vs 2016–20"},{"l":"Duración mediana","v":"7,0","s":"años · tiempo medio 7,9","t":"nt","tt":""},{"l":"Rendimiento","v":"64,5%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"54,0%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LE":[{"l":"Ingresantes 2026","v":"478","s":"Oficial PIASAA · ciclo en curso · 14% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"365","s":"Araucano / Anuario","t":"dn","tt":"↓ 0,8% vs 2024"},{"l":"Estudiantes 2025","v":"1.224","s":"Araucano / Anuario · 14% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"58","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"47","s":"Promedio anual 2021–25","t":"up","tt":"↑ 16,5% vs 2016–20"},{"l":"Duración mediana","v":"6,0","s":"años · tiempo medio 7,0","t":"nt","tt":""},{"l":"Rendimiento","v":"63,7%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"31,2%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LT":[{"l":"Ingresantes 2026","v":"474","s":"Oficial PIASAA · ciclo en curso · 14% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"329","s":"Araucano / Anuario","t":"nt","tt":""},{"l":"Estudiantes 2025","v":"1.098","s":"Araucano / Anuario · 13% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"58","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"44","s":"Promedio anual 2021–25","t":"up","tt":"↑ 19,0% vs 2016–20"},{"l":"Duración mediana","v":"7,4","s":"años · tiempo medio 8,1","t":"nt","tt":""},{"l":"Rendimiento","v":"52,8%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"73,9%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"TC":[{"l":"Ingresantes 2026","v":"51","s":"Oficial PIASAA · ciclo en curso · 2% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"53","s":"Araucano / Anuario","t":"nt","tt":""},{"l":"Estudiantes 2025","v":"168","s":"Araucano / Anuario · 2% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"8","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"10","s":"Promedio anual 2021–25","t":"up","tt":"↑ 4,1% vs 2016–20"},{"l":"Duración mediana","v":"4,0","s":"años · tiempo medio 6,0","t":"nt","tt":""},{"l":"Rendimiento","v":"22,6%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"71,4%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"todas":[{"l":"Ingresantes 2026","v":"3.344","s":"Oficial PIASAA · ciclo en curso","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"2.292","s":"Araucano / Anuario · 1.988 por primera vez","t":"up","tt":"↑ 9,7% vs 2024"},{"l":"Estudiantes 2025","v":"8.449","s":"Araucano / Anuario","t":"up","tt":"↑ 3,7% vs 2024"},{"l":"Egresados 2025","v":"406","s":"Araucano / Anuario","t":"up","tt":"↑ 2,3% vs 2024","g":1},{"l":"Egresados prom.","v":"368","s":"Promedio anual 2021–25","t":"up","tt":"↑ 1,9% vs 2016–20"},{"l":"Duración media","v":"8,9","s":"años · egresos 2016–25","t":"nt","tt":""},{"l":"Rendimiento","v":"59,8%","s":"Reinscriptos con 2 o más materias","t":"up","tt":"↑ 3,6 pp vs 2024"},{"l":"Mujeres","v":"55,4%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"CDO":[{"l":"CDO","v":"—","s":"Análisis aparte","t":"nt","tt":"Lic. en Ciencia de Datos en Organizaciones (UA ECOINFO): ver Tablero Anuario"}]};
 
-function buildTablero(){tbRK('todas');tbBB('tb__bCP',TBE.CP);tbBB('tb__bLA',TBE.LA);tbBB('tb__bLE',TBE.LE);}
+function buildTablero(){tbRK('todas');['CP','LA','LE','LT','TC','FCE'].forEach(function(k){tbBB('tb__b'+k,TBE[k]);});tbBB('tb__bING',TBI);}
 
 function tbRK(k){
   var g=document.getElementById('tb__kg');if(!g)return;
