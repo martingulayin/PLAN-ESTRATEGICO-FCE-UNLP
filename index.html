@@ -1233,16 +1233,16 @@
   /* Vista grilla */
   .cal-grid-wrap{display:none;}
   .cal-grid-wrap.active{display:block;}
-  .cal-days-head{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;}
-  .cal-day-name{font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6B7280;text-align:center;padding:.3rem 0;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
-  .cal-cell{min-height:72px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:4px;padding:.3rem .35rem;cursor:default;transition:background .15s;position:relative;}
+  .cal-days-head{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;margin-bottom:4px;}
+  .cal-day-name{min-width:0;font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6B7280;text-align:center;padding:.3rem 0;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;}
+  .cal-cell{min-width:0;overflow:hidden;box-sizing:border-box;min-height:72px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:4px;padding:.3rem .35rem;cursor:default;transition:background .15s;position:relative;}
   .cal-cell:hover{background:#FDFCF9;}
   .cal-cell.other-month{opacity:.35;}
   .cal-cell.today{border-color:rgba(201,150,58,.5);background:rgba(201,150,58,.06);}
   .cal-cell-num{font-size:.72rem;color:#6B7280;font-weight:500;margin-bottom:.2rem;}
   .cal-cell.today .cal-cell-num{color:#C9963A;font-weight:700;}
-  .cal-event-pill{font-size:.58rem;font-weight:600;border-radius:3px;padding:.1rem .35rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:opacity .15s;}
+  .cal-event-pill{display:block;max-width:100%;box-sizing:border-box;font-size:.58rem;font-weight:600;border-radius:3px;padding:.1rem .35rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:opacity .15s;}
   .cal-event-pill:hover{opacity:.8;}
   .cal-more{font-size:.55rem;color:#6B7280;margin-top:1px;}
 
@@ -1256,8 +1256,8 @@
   .cal-list-day{font-size:1.2rem;font-weight:900;color:#1A2744;line-height:1;}
   .cal-list-mon{font-size:.58rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6B7280;margin-top:.1rem;}
   .cal-list-info{flex:1;min-width:0;}
-  .cal-list-titulo{font-size:.85rem;color:#1A2744;font-weight:600;margin-bottom:.2rem;}
-  .cal-list-desc{font-size:.72rem;color:#374151;line-height:1.4;}
+  .cal-list-titulo{overflow-wrap:anywhere;font-size:.85rem;color:#1A2744;font-weight:600;margin-bottom:.2rem;}
+  .cal-list-desc{overflow-wrap:anywhere;font-size:.72rem;color:#374151;line-height:1.4;}
   .cal-list-meta{display:flex;align-items:center;gap:.4rem;margin-top:.3rem;}
   .cal-tipo-badge{font-size:.55rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:.12rem .4rem;border-radius:3px;}
   .cal-dias-badge{font-size:.6rem;color:#374151;}
@@ -1273,7 +1273,7 @@
   /* Alerta próximos eventos */
   .cal-alert{display:flex;align-items:center;gap:.7rem;background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.2);border-radius:6px;padding:.6rem .9rem;margin-bottom:.8rem;font-size:.75rem;color:#9A2020;}
   .cal-alert-icon{font-size:1rem;flex-shrink:0;}
-  .cal-alert-text{flex:1;line-height:1.4;}
+  .cal-alert-text{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.4;}
 
   /* Modal nuevo evento */
   #evento-overlay{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1.5rem;}
@@ -8656,7 +8656,7 @@ function renderGrilla() {
       <div class="cal-cell-num">${d}</div>
       ${evs.slice(0,max).map(ev => {
         const cfg = TIPO_CONFIG[ev.tipo] || TIPO_CONFIG.otro;
-        return `<div class="cal-event-pill tipo-${ev.tipo}" style="background:${cfg.bg};color:${cfg.color};" onclick="openDetalleEvento('${ev.id}')" title="${ev.titulo}">${cfg.emoji} ${ev.titulo}</div>`;
+        return `<div class="cal-event-pill tipo-${ev.tipo}" style="background:${cfg.bg};color:${cfg.color};" onclick="openDetalleEvento('${escJs(ev.id)}')" title="${esc(ev.titulo)}">${cfg.emoji} ${esc(ev.titulo)}</div>`;
       }).join('')}
       ${evs.length > max ? `<div class="cal-more">+${evs.length-max} más</div>` : ''}
     </div>`;
@@ -8685,14 +8685,14 @@ function renderLista() {
     const fecha = new Date(ev.fecha + 'T00:00:00');
     const diffDias = Math.round((fecha - hoy) / 86400000);
     const diasLabel = diffDias === 0 ? '📍 Hoy' : diffDias === 1 ? 'Mañana' : `En ${diffDias} días`;
-    return `<div class="cal-list-item" onclick="openDetalleEvento('${ev.id}')" style="cursor:pointer;">
+    return `<div class="cal-list-item" onclick="openDetalleEvento('${escJs(ev.id)}')" style="cursor:pointer;">
       <div class="cal-list-date">
         <div class="cal-list-day">${fecha.getDate()}</div>
         <div class="cal-list-mon">${MESES_ES[fecha.getMonth()].substring(0,3).toUpperCase()}</div>
       </div>
       <div class="cal-list-info">
-        <div class="cal-list-titulo">${cfg.emoji} ${ev.titulo}</div>
-        ${ev.descripcion ? `<div class="cal-list-desc">${ev.descripcion}</div>` : ''}
+        <div class="cal-list-titulo">${cfg.emoji} ${esc(ev.titulo)}</div>
+        ${ev.descripcion ? `<div class="cal-list-desc">${esc(ev.descripcion)}</div>` : ''}
         <div class="cal-list-meta">
           <span class="cal-tipo-badge tipo-${ev.tipo}" style="background:${cfg.bg};color:${cfg.color};">${cfg.label}</span>
           <span class="cal-dias-badge">${diasLabel}</span>
@@ -8717,7 +8717,7 @@ function checkAlertasProximos() {
     const f = new Date(ev.fecha + 'T00:00:00');
     const diff = Math.round((f - hoy) / 86400000);
     const cuando = diff === 0 ? 'hoy' : diff === 1 ? 'mañana' : `en ${diff} días`;
-    return `<div class="cal-alert"><span class="cal-alert-icon">🔔</span><span class="cal-alert-text"><strong>${ev.titulo}</strong> — ${cuando} · ${cfg.emoji} ${cfg.label}</span></div>`;
+    return `<div class="cal-alert"><span class="cal-alert-icon">🔔</span><span class="cal-alert-text"><strong>${esc(ev.titulo)}</strong> — ${cuando} · ${cfg.emoji} ${cfg.label}</span></div>`;
   }).join('');
 }
 
