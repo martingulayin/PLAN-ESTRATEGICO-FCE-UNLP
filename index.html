@@ -8040,7 +8040,12 @@ let docsUsuarios = [];
 async function docsVisCargarUsuarios() {
   const box = document.getElementById('docs-vis-lista');
   if (!box) return;
-  const { data, error } = await sb.from('perfiles').select('id, nombre, cargo, activo');
+  // 1º función segura del SQL (docs_usuarios); si no existe, lectura directa de perfiles
+  let { data, error } = await sb.rpc('docs_usuarios');
+  if (error || !data) {
+    if (error) console.warn('Docs: docs_usuarios() no disponible —', error.message);
+    ({ data, error } = await sb.from('perfiles').select('id, nombre, cargo, activo'));
+  }
   if (error || !data) { docsUsuarios = []; box.innerHTML = '<div style="font-size:.75rem;color:#F1948A;">No se pudo cargar la lista de usuarios.</div>'; return; }
   docsUsuarios = data.filter(u => u.activo !== false && u.id !== currentUser?.id)
                      .sort((a,b) => (a.nombre||'').localeCompare(b.nombre||'', 'es'));
