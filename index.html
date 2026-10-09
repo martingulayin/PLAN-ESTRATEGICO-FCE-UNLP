@@ -505,6 +505,13 @@
 .docs-modal-close{background:none;border:none;color:#718096;font-size:1.2rem;cursor:pointer;line-height:1;}
 .docs-modal-close:hover{color:#fff;}
 .docs-modal-body{padding:1.2rem 1.6rem;overflow-y:auto;flex:1;}
+.docs-vis{margin-bottom:.8rem;padding:.7rem .9rem;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:rgba(255,255,255,.02);}
+.docs-vis-title{font-size:.72rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.docs-vis-opt{display:block;font-size:.82rem;color:#CBD5E0;padding:.15rem 0;cursor:pointer;}
+.docs-vis-opt input{margin-right:.4rem;accent-color:#C9963A;}
+.docs-vis-lista{max-height:150px;overflow:auto;margin:.4rem 0 .2rem 1.2rem;padding:.4rem .6rem;border:1px solid rgba(255,255,255,.06);border-radius:6px;}
+.docs-vis-hint{font-size:.68rem;color:#4A5568;margin-top:.4rem;}
+.doc-vis-badge{color:#C9963A;margin-left:.3rem;}
 .docs-upload-zone{
   border:2px dashed rgba(201,150,58,.3);border-radius:8px;
   padding:1.5rem;text-align:center;cursor:pointer;
@@ -2244,6 +2251,14 @@
       <button class="docs-modal-close" onclick="closeDocs()">✕</button>
     </div>
     <div class="docs-modal-body">
+      <div class="docs-vis" id="docs-vis">
+        <div class="docs-vis-title">¿Quién puede ver el documento que vas a cargar?</div>
+        <label class="docs-vis-opt"><input type="radio" name="docs-vis" value="todos" checked onchange="docsVisCambio()"> Todos los usuarios</label>
+        <label class="docs-vis-opt"><input type="radio" name="docs-vis" value="admins" onchange="docsVisCambio()"> Solo administradores</label>
+        <label class="docs-vis-opt"><input type="radio" name="docs-vis" value="especificas" onchange="docsVisCambio()"> Personas específicas</label>
+        <div class="docs-vis-lista" id="docs-vis-lista" style="display:none;"></div>
+        <div class="docs-vis-hint">Vos siempre ves lo que cargás. Elegí la visibilidad antes de seleccionar el archivo.</div>
+      </div>
       <div class="docs-upload-zone" id="docs-drop-zone" onclick="document.getElementById('docs-file-input').click()">
         <div class="docs-upload-icon">📤</div>
         <div class="docs-upload-text"><strong>Clic para seleccionar</strong> o arrastrá un archivo aquí</div>
@@ -8018,7 +8033,37 @@ function validarArchivo(file) {
   return null;
 }
 
-function openDocs() { document.getElementById('docs-overlay').classList.add('open'); loadDocs(); }
+function openDocs() { document.getElementById('docs-overlay').classList.add('open'); docsVisCargarUsuarios(); loadDocs(); }
+
+// ── Visibilidad de documentos ──
+let docsUsuarios = [];
+async function docsVisCargarUsuarios() {
+  const box = document.getElementById('docs-vis-lista');
+  if (!box) return;
+  const { data, error } = await sb.from('perfiles').select('id, nombre, cargo, activo');
+  if (error || !data) { docsUsuarios = []; box.innerHTML = '<div style="font-size:.75rem;color:#F1948A;">No se pudo cargar la lista de usuarios.</div>'; return; }
+  docsUsuarios = data.filter(u => u.activo !== false && u.id !== currentUser?.id)
+                     .sort((a,b) => (a.nombre||'').localeCompare(b.nombre||'', 'es'));
+  box.innerHTML = docsUsuarios.length ? docsUsuarios.map(u =>
+    `<label class="docs-vis-opt"><input type="checkbox" class="docs-vis-chk" value="${esc(u.id)}"> ${esc(u.nombre || 'Sin nombre')}${u.cargo?' · <span style="color:#64748B;">'+esc(u.cargo)+'</span>':''}</label>`
+  ).join('') : '<div style="font-size:.75rem;color:#64748B;">No hay otros usuarios.</div>';
+}
+function docsVisCambio() {
+  const v = document.querySelector('input[name="docs-vis"]:checked')?.value;
+  document.getElementById('docs-vis-lista').style.display = v === 'especificas' ? 'block' : 'none';
+}
+function docsVisActual() {
+  const v = document.querySelector('input[name="docs-vis"]:checked')?.value || 'todos';
+  const ids = v === 'especificas' ? [...document.querySelectorAll('.docs-vis-chk:checked')].map(c => c.value) : [];
+  return { visibilidad: v, visible_para: ids };
+}
+function docsPuedeVer(meta, esAdmin) {
+  if (!meta || !meta.visibilidad || meta.visibilidad === 'todos') return true;
+  if (meta.usuario_id === currentUser?.id) return true;
+  if (meta.visibilidad === 'admins') return esAdmin;
+  if (meta.visibilidad === 'especificas') return Array.isArray(meta.visible_para) && meta.visible_para.includes(currentUser?.id);
+  return false;
+}
 function closeDocs() { document.getElementById('docs-overlay').classList.remove('open'); }
 
 function fileIcon(name) {
@@ -8043,7 +8088,10 @@ async function loadDocs() {
   const docsMap = {};
   if (docsRes.data) docsRes.data.forEach(d => { docsMap[d.nombre_storage] = d; });
   const esAdmin = currentPerfil?.rol === 'admin';
-  list.innerHTML = archivos.map(f => {
+  const esCarpeta = f => f.id === null || f.id === undefined;
+  const visibles = archivos.filter(f => esCarpeta(f) ? esAdmin : (docsMap[f.name] ? docsPuedeVer(docsMap[f.name], esAdmin) : esAdmin));
+  if (visibles.length === 0) { list.innerHTML = '<div class="docs-empty">No hay documentos disponibles para vos.</div>'; return; }
+  list.innerHTML = visibles.map(f => {
     const meta = docsMap[f.name] || {};
     const nombreOriginal = meta.nombre_original || f.name.replace(/^\d+_/, '');
     const subidoPor = meta.usuario_nombre || meta.usuario_email || '';
@@ -8063,7 +8111,7 @@ async function loadDocs() {
       <span class="doc-icon">${fileIcon(f.name)}</span>
       <div class="doc-info">
         <div class="doc-name" title="${esc(nombreOriginal)}">${esc(nombreOriginal)}</div>
-        <div class="doc-meta">${formatBytes(f.metadata?.size||0)} · ${formatDate(f.created_at)}${subidoPor?' · '+esc(subidoPor):''}</div>
+        <div class="doc-meta">${formatBytes(f.metadata?.size||0)} · ${formatDate(f.created_at)}${subidoPor?' · '+esc(subidoPor):''}${meta.visibilidad==='admins'?'<span class="doc-vis-badge">🔒 Solo administradores</span>':(meta.visibilidad==='especificas'?'<span class="doc-vis-badge">🔒 '+((meta.visible_para||[]).length)+' persona(s)</span>':'')}</div>
       </div>
       <button class="doc-dl" onclick="downloadDoc('${escJs(f.name)}','${escJs(nombreOriginal)}')">↓ Descargar</button>
       ${puedeEliminar?`<button class="doc-del" onclick="deleteDoc('${escJs(f.name)}','${escJs(nombreOriginal)}')" title="Eliminar">🗑</button>`:''}
@@ -8075,6 +8123,11 @@ async function uploadFile(file) {
   if (!file) return;
   const errV = validarArchivo(file);
   if (errV) { setUploadStatus('❌ ' + errV, '#F1948A'); return; }
+  const vis = docsVisActual();
+  if (vis.visibilidad === 'especificas' && vis.visible_para.length === 0) {
+    setUploadStatus('❌ Elegí al menos una persona que pueda ver el documento.', '#F1948A');
+    document.getElementById('docs-file-input').value = ''; return;
+  }
   const btnUpload = document.getElementById('docs-upload-btn');
   const progress = document.getElementById('docs-progress');
   const bar = document.getElementById('docs-progress-bar');
@@ -8100,7 +8153,8 @@ async function uploadFile(file) {
   const { error: dbError } = await sb.from('documentos').insert({
     nombre_storage: safeName, nombre_original: file.name,
     usuario_id: currentUser.id, usuario_email: currentUser.email,
-    usuario_nombre: currentPerfil?.nombre || currentUser.email
+    usuario_nombre: currentPerfil?.nombre || currentUser.email,
+    visibilidad: vis.visibilidad, visible_para: vis.visible_para
   });
   if (dbError) {
     await sb.storage.from('documentos').remove([safeName]).catch(()=>{});
