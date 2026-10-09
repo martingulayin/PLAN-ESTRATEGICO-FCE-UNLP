@@ -8048,6 +8048,17 @@ async function loadDocs() {
     const nombreOriginal = meta.nombre_original || f.name.replace(/^\d+_/, '');
     const subidoPor = meta.usuario_nombre || meta.usuario_email || '';
     const puedeEliminar = meta.usuario_id === currentUser?.id || esAdmin;
+    if (f.id === null || f.id === undefined) {
+      // Carpeta del bucket (no es un archivo): solo admin, elimina su contenido
+      return `<div class="doc-item">
+      <span class="doc-icon">📁</span>
+      <div class="doc-info">
+        <div class="doc-name">${esc(f.name)}</div>
+        <div class="doc-meta">Carpeta</div>
+      </div>
+      ${esAdmin?`<button class="doc-del" onclick="deleteFolder('${escJs(f.name)}')" title="Eliminar carpeta">🗑</button>`:''}
+    </div>`;
+    }
     return `<div class="doc-item">
       <span class="doc-icon">${fileIcon(f.name)}</span>
       <div class="doc-info">
@@ -8113,6 +8124,30 @@ async function downloadDoc(name, nombreOriginal) {
   if (error || !data) { alert('No se pudo generar el enlace de descarga. Intentá nuevamente.'); return; }
   await logAct('descargar', 'documentos', nombreOriginal || name);
   const a = document.createElement('a'); a.href = data.signedUrl; a.download = nombreOriginal || name; a.click();
+}
+
+async function deleteFolder(prefix) {
+  const files = [];
+  async function walk(path) {
+    const { data, error } = await sb.storage.from('documentos').list(path, { limit: 1000 });
+    if (error) throw error;
+    for (const it of (data || [])) {
+      const full = path + '/' + it.name;
+      if (it.id === null || it.id === undefined) await walk(full);
+      else files.push(full);
+    }
+  }
+  try { await walk(prefix); } catch (e) { alert('No se pudo leer la carpeta. Intentá nuevamente.'); return; }
+  const msg = files.length
+    ? '¿Eliminar la carpeta "' + prefix + '" y los ' + files.length + ' archivo(s) que contiene? Esta acción no se puede deshacer.'
+    : '¿Eliminar la carpeta vacía "' + prefix + '"?';
+  if (!confirm(msg)) return;
+  if (files.length) {
+    const { error } = await sb.storage.from('documentos').remove(files);
+    if (error) { alert('No se pudo eliminar la carpeta. Verificá tus permisos e intentá nuevamente.'); return; }
+  }
+  await logAct('eliminar', 'documentos', 'Carpeta: ' + prefix);
+  loadDocs();
 }
 
 async function deleteDoc(name, nombreOriginal) {
