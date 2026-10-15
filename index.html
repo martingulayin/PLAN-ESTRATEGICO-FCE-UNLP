@@ -310,6 +310,8 @@
 }
 .hist-item:last-child{border-bottom:none;}
 .hist-item:hover{background:rgba(201,150,58,.04);}
+.hist-item-click{cursor:pointer;}
+.hist-item-click:hover{background:rgba(201,150,58,.10);}
 .hist-dot-wrap{display:flex;flex-direction:column;align-items:center;padding-top:.3rem;flex-shrink:0;}
 .hist-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
 .hist-line{width:2px;flex:1;min-height:20px;background:rgba(0,0,0,.08);margin-top:3px;}
@@ -2600,6 +2602,7 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
               <textarea id="av-contenido" rows="3" placeholder="Describí el aviso…" maxlength="800"></textarea>
             </div>
             <button class="gestion-btn" id="btn-crear-aviso" onclick="crearAviso()">Publicar aviso</button>
+            <button class="gestion-btn" id="btn-cancelar-aviso" onclick="cancelarEdicionAviso()" style="display:none;background:#718096;margin-left:.5rem;">Cancelar edición</button>
             <div class="gestion-msg" id="av-msg"></div>
           </div>
           <div class="gestion-section-title">Avisos publicados</div>
@@ -2650,6 +2653,7 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
             <div style="font-size:.7rem;color:#4A7A9B;margin-top:.3rem;">JPG, PNG o WebP · máx 3MB · aparecerá de fondo en el modal festivo</div>
           </div>
           <button class="gestion-btn-primary" onclick="hitoGuardar()" id="hito-guardar-btn">✨ Publicar hito</button>
+          <button class="gestion-btn-primary" onclick="hitoCancelarEdicion()" id="hito-cancelar-btn" style="display:none;background:#718096;margin-top:.5rem;">Cancelar edición</button>
           <div id="hito-form-msg" style="font-size:.78rem;margin-top:.5rem;"></div>
         </div>
 
@@ -9195,6 +9199,39 @@ function switchGestionTab(tab, el) {
   else { loadHistorial(); }
 }
 
+var _avisoEditId = null;
+var _avisosAdminCache = [];
+
+function editarAviso(id) {
+  var a = _avisosAdminCache.find(function(x){ return String(x.id) === String(id); });
+  if (!a) return;
+  _avisoEditId = a.id;
+  document.getElementById('av-titulo').value = a.titulo || '';
+  document.getElementById('av-contenido').value = a.contenido || '';
+  document.getElementById('av-nivel').value = a.nivel || 'informativo';
+  var est = document.getElementById('av-estado');
+  if (est) est.value = (a.estado === 'borrador') ? 'borrador' : 'publicado';
+  var v = document.getElementById('av-vencimiento');
+  if (v) v.value = a.fecha_vencimiento ? String(a.fecha_vencimiento).substring(0,10) : '';
+  document.getElementById('btn-crear-aviso').textContent = 'Guardar cambios';
+  document.getElementById('btn-cancelar-aviso').style.display = '';
+  var m = document.getElementById('av-msg'); m.textContent = '✏️ Editando aviso…'; m.className = 'gestion-msg';
+  document.getElementById('av-titulo').scrollIntoView({ behavior:'smooth', block:'center' });
+  document.getElementById('av-titulo').focus();
+}
+
+function cancelarEdicionAviso() {
+  _avisoEditId = null;
+  document.getElementById('av-titulo').value = '';
+  document.getElementById('av-contenido').value = '';
+  document.getElementById('av-nivel').value = 'informativo';
+  if (document.getElementById('av-estado')) document.getElementById('av-estado').value = 'publicado';
+  if (document.getElementById('av-vencimiento')) document.getElementById('av-vencimiento').value = '';
+  document.getElementById('btn-crear-aviso').textContent = 'Publicar aviso';
+  document.getElementById('btn-cancelar-aviso').style.display = 'none';
+  var m = document.getElementById('av-msg'); m.textContent = ''; m.className = 'gestion-msg';
+}
+
 async function crearAviso() {
   const titulo    = document.getElementById('av-titulo').value.trim();
   const contenido = document.getElementById('av-contenido').value.trim();
@@ -9208,13 +9245,28 @@ async function crearAviso() {
   if (!contenido) { msg.textContent = 'El contenido es obligatorio.'; msg.className = 'gestion-msg err'; return; }
   if (titulo.length > 120)    { msg.textContent = 'El título no puede superar 120 caracteres.';    msg.className = 'gestion-msg err'; return; }
   if (contenido.length > 800) { msg.textContent = 'El contenido no puede superar 800 caracteres.'; msg.className = 'gestion-msg err'; return; }
-  if (venc) {
+  if (venc && !_avisoEditId) {
     const hoy = new Date(); hoy.setHours(0,0,0,0);
     if (new Date(venc + 'T00:00:00') < hoy) { msg.textContent = 'La fecha de vencimiento no puede ser anterior a hoy.'; msg.className = 'gestion-msg err'; return; }
   }
 
-  btn.disabled = true; btn.textContent = 'Publicando…';
+  btn.disabled = true; btn.textContent = _avisoEditId ? 'Guardando…' : 'Publicando…';
   msg.textContent = ''; msg.className = 'gestion-msg';
+
+  if (_avisoEditId) {
+    const { error: errU } = await sb.from('avisos').update({
+      titulo, contenido, nivel, estado,
+      activo: estado === 'publicado',
+      fecha_vencimiento: venc
+    }).eq('id', _avisoEditId);
+    if (errU) { msg.textContent = 'No se pudo guardar los cambios. Intentá nuevamente.'; msg.className = 'gestion-msg err'; btn.disabled = false; btn.textContent = 'Guardar cambios'; return; }
+    await logAct('editar', 'avisos', 'Editó aviso: ' + titulo + ' (id: ' + _avisoEditId + ')');
+    cancelarEdicionAviso();
+    document.getElementById('av-msg').textContent = '✅ Aviso actualizado.'; document.getElementById('av-msg').className = 'gestion-msg ok';
+    btn.disabled = false;
+    loadAvisosAdmin(); initBanner();
+    return;
+  }
 
   const { error } = await sb.from('avisos').insert({
     titulo, contenido, nivel, estado,
@@ -9245,6 +9297,7 @@ async function loadAvisosAdmin() {
   if (error || !data || data.length === 0) { list.innerHTML = '<div class="hist-empty">No hay avisos aún.</div>'; return; }
   const estadoLabel = { publicado:'Publicado', borrador:'Borrador', archivado:'Archivado' };
   const estadoColor = { publicado:'#48BB78', borrador:'#CBD5E0', archivado:'#718096' };
+  _avisosAdminCache = data;
   list.innerHTML = data.map(a => {
     const vigente = avisoVigente(a);
     const vencLabel = a.fecha_vencimiento ? formatVencimiento(a.fecha_vencimiento) : '';
@@ -9255,6 +9308,7 @@ async function loadAvisosAdmin() {
         <div class="aviso-item-meta">${esc(nivelLabels[a.nivel])} · <span style="color:${estadoColor[a.estado]||'#CBD5E0'};font-weight:600;">${estadoLabel[a.estado]||a.estado}</span>${!vigente&&a.estado==='publicado'?' · <span style="color:#F1948A;font-size:.6rem;">VENCIDO</span>':''}${vencLabel} · ${formatDate(a.created_at)}</div>
       </div>
       ${a.estado!=='archivado'?`<button class="aviso-toggle-btn ${vigente?'activo':'inactivo'}" onclick="toggleAviso('${escJs(a.id)}','${escJs(a.estado)}')">${vigente?'Activo':'Inactivo'}</button>`:''}
+      <button class="aviso-del-btn" onclick="editarAviso('${escJs(a.id)}')" title="Editar">✏️</button>
       <button class="aviso-del-btn" onclick="archivarAviso('${escJs(a.id)}','${escJs(a.estado)}')" title="${a.estado==='archivado'?'Eliminar':'Archivar'}">${a.estado==='archivado'?'🗑':'📦'}</button>
     </div>`;
   }).join('');
@@ -9442,10 +9496,9 @@ function hitoMostrar(idx) {
     +descHtml
     +(fechaStr?'<div class="hito-fecha">📅 '+fechaStr+'</div>':'')
     +'<div style="display:flex;gap:.8rem;justify-content:center;margin-top:1.2rem;">'
-    +(_hitosActivos.length > 1 && idx < _hitosActivos.length - 1
-        ? '<button class="hito-btn-cerrar" style="background:rgba(201,150,58,.15);color:#C9963A;box-shadow:none;" onclick="hitoNavegar('+(_hitoIdx+1)+')">Siguiente 🎉</button>'
-        : '')
-    +'<button class="hito-btn-cerrar" onclick="hitoCerrar()">¡Excelente! 🎊</button>'
+    +(_hitoModoVer
+        ? '<button class="hito-btn-cerrar" onclick="hitoCerrar()">Cerrar</button>'
+        : '<button class="hito-btn-cerrar" onclick="hitoExcelente()">¡Excelente! 🎊</button>')
     +'</div>'
     +'</div>';
   document.getElementById('hito-overlay').classList.add('open');
@@ -9460,9 +9513,33 @@ function hitoNavegar(idx) {
   hitoMostrar(idx);
 }
 
+function hitoExcelente() {
+  if (_hitosActivos && _hitoIdx < _hitosActivos.length - 1) { hitoNavegar(_hitoIdx + 1); }
+  else { hitoCerrar(); }
+}
+
+var _hitoModoVer = false;
+var _hitosHistCache = [];
+
+function hitoVerTarjeta(id) {
+  var h = _hitosHistCache.find(function(x){ return String(x.id) === String(id); });
+  if (!h) return;
+  _hitoModoVer = true;
+  _hitosActivos = [h];
+  _hitoIdx = 0;
+  hitoMostrar(0);
+}
+
 function hitoCerrar() {
   if (_hitoAnimFrame) { cancelAnimationFrame(_hitoAnimFrame); _hitoAnimFrame = null; }
   document.getElementById('hito-overlay').classList.remove('open');
+  if (_hitoModoVer) {
+    _hitoModoVer = false;
+    // si el historial sigue abierto, mantiene el bloqueo de scroll
+    var ho = document.getElementById('historial-overlay');
+    document.body.style.overflow = (ho && ho.classList.contains('open')) ? 'hidden' : '';
+    return;
+  }
   document.body.style.overflow = '';
   var sesKey = 'hitos_vistos_' + (currentUser ? currentUser.id : 'anon');
   sessionStorage.setItem(sesKey, '1');
@@ -9488,6 +9565,7 @@ async function abrirHistorialHitos() {
       body.innerHTML = '<div class="hist-empty">Todavía no hay hitos registrados.</div>';
       return;
     }
+    _hitosHistCache = data;
     var PA_COLORS_LOCAL = PA_COLORS || {};
     var PA_NAMES_LOCAL  = PA_NAMES  || {};
     var html = data.map(function(h, i) {
@@ -9496,7 +9574,7 @@ async function abrirHistorialHitos() {
       var fecha = h.created_at
         ? new Date(h.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' })
         : '';
-      return '<div class="hist-item">'
+      return '<div class="hist-item hist-item-click" onclick="hitoVerTarjeta(\''+escJs(h.id)+'\')" role="button" tabindex="0" title="Ver tarjeta del logro">'
         +'<div class="hist-dot-wrap">'
           +'<div class="hist-dot" style="background:'+color+';box-shadow:0 0 0 3px '+color+'30;"></div>'
           +(i < data.length-1 ? '<div class="hist-line"></div>' : '')
@@ -9507,6 +9585,8 @@ async function abrirHistorialHitos() {
           +(h.responsable ? '<div class="hist-resp">👤 '+esc(h.responsable)+'</div>' : '')
           +(fecha ? '<div class="hist-fecha">📅 '+fecha+'</div>' : '')
         +'</div>'
+        +(h.foto_url ? '<img src="'+encodeURI(h.foto_url)+'" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;align-self:center;">' : '')
+        +'<div style="align-self:center;color:#C9963A;font-size:.75rem;font-weight:700;white-space:nowrap;">Ver ›</div>'
         +'</div>';
     }).join('');
     body.innerHTML = html;
@@ -9566,6 +9646,38 @@ function hitoLanzarConfeti() {
   draw();
 }
 
+var _hitoEditId = null;
+var _hitosAdminCache = [];
+
+function hitoEditar(id) {
+  var h = _hitosAdminCache.find(function(x){ return String(x.id) === String(id); });
+  if (!h) return;
+  _hitoEditId = h.id;
+  document.getElementById('hito-area').value = h.area_cod || '';
+  document.getElementById('hito-responsable').value = h.responsable || '';
+  document.getElementById('hito-titulo').value = h.titulo || '';
+  document.getElementById('hito-descripcion').value = h.descripcion || '';
+  var f = document.getElementById('hito-foto'); if (f) f.value = '';
+  document.getElementById('hito-guardar-btn').textContent = '💾 Guardar cambios';
+  document.getElementById('hito-cancelar-btn').style.display = '';
+  var m = document.getElementById('hito-form-msg');
+  m.textContent = '✏️ Editando logro' + (h.foto_url ? ' (si no elegís foto nueva, se conserva la actual)' : '') + '…'; m.className = 'gestion-msg';
+  document.getElementById('hito-titulo').scrollIntoView({ behavior:'smooth', block:'center' });
+  document.getElementById('hito-titulo').focus();
+}
+
+function hitoCancelarEdicion() {
+  _hitoEditId = null;
+  document.getElementById('hito-titulo').value = '';
+  document.getElementById('hito-descripcion').value = '';
+  document.getElementById('hito-responsable').value = '';
+  document.getElementById('hito-area').value = '';
+  var f = document.getElementById('hito-foto'); if (f) f.value = '';
+  document.getElementById('hito-guardar-btn').textContent = '✨ Publicar hito';
+  document.getElementById('hito-cancelar-btn').style.display = 'none';
+  var m = document.getElementById('hito-form-msg'); m.textContent = ''; m.className = 'gestion-msg';
+}
+
 async function hitoGuardar() {
   var area = document.getElementById('hito-area').value;
   var responsable = document.getElementById('hito-responsable').value.trim();
@@ -9587,23 +9699,28 @@ async function hitoGuardar() {
     var { data: urlData } = sb.storage.from('publico').getPublicUrl(fname);
     foto_url = urlData ? urlData.publicUrl : null;
   }
-  var { error } = await sb.from('hitos').insert({
-    area_cod: area, responsable: responsable || null,
-    titulo, descripcion: descripcion || null,
-    foto_url, activo: true,
-    created_by: currentUser ? currentUser.id : null
-  });
+  var editando = !!_hitoEditId;
+  var error;
+  if (editando) {
+    var upd = { area_cod: area, responsable: responsable || null, titulo, descripcion: descripcion || null };
+    if (foto_url) upd.foto_url = foto_url;
+    ({ error } = await sb.from('hitos').update(upd).eq('id', _hitoEditId));
+  } else {
+    ({ error } = await sb.from('hitos').insert({
+      area_cod: area, responsable: responsable || null,
+      titulo, descripcion: descripcion || null,
+      foto_url, activo: true,
+      created_by: currentUser ? currentUser.id : null
+    }));
+  }
   if (error) { msg.textContent = 'Error: ' + error.message; msg.className = 'gestion-msg err'; }
   else {
-    msg.textContent = '✅ Hito guardado y activo.'; msg.className = 'gestion-msg ok';
-    await logAct('crear', 'hitos', 'Creó hito: ' + titulo);
-    document.getElementById('hito-titulo').value = '';
-    document.getElementById('hito-descripcion').value = '';
-    document.getElementById('hito-responsable').value = '';
-    if (fileInput) fileInput.value = '';
+    await logAct(editando ? 'editar' : 'crear', 'hitos', (editando ? 'Editó hito: ' : 'Creó hito: ') + titulo);
+    hitoCancelarEdicion();
+    msg.textContent = editando ? '✅ Logro actualizado.' : '✅ Hito guardado y activo.'; msg.className = 'gestion-msg ok';
     hitoAdminCargar();
   }
-  btn.disabled = false; btn.textContent = '✨ Publicar hito';
+  btn.disabled = false; btn.textContent = _hitoEditId ? '💾 Guardar cambios' : '✨ Publicar hito';
 }
 
 async function hitoAdminCargar() {
@@ -9612,6 +9729,7 @@ async function hitoAdminCargar() {
   lista.innerHTML = '<div class="hist-empty">Cargando…</div>';
   var { data, error } = await sb.from('hitos').select('*').order('created_at', { ascending: false });
   if (error || !data || data.length === 0) { lista.innerHTML = '<div class="hist-empty">No hay hitos cargados aún.</div>'; return; }
+  _hitosAdminCache = data;
   lista.innerHTML = data.map(function(h) {
     var areaNombre = PA_NAMES[h.area_cod] || h.area_cod || '—';
     var fecha = h.created_at ? new Date(h.created_at).toLocaleDateString('es-AR') : '';
@@ -9623,6 +9741,7 @@ async function hitoAdminCargar() {
       +'<div class="aviso-item-meta">'+esc(areaNombre)+(h.responsable?' · '+esc(h.responsable):'')+' · '+fecha+'</div>'
       +'</div>'
       +'<button class="aviso-toggle-btn '+(h.activo?'activo':'inactivo')+'" onclick="hitoToggle(\''+escJs(h.id)+'\','+h.activo+')">'+(h.activo?'Activo':'Inactivo')+'</button>'
+      +'<button class="aviso-del-btn" onclick="hitoEditar(\''+escJs(h.id)+'\')" title="Editar">✏️</button>'
       +'<button class="aviso-del-btn" onclick="hitoEliminar(\''+escJs(h.id)+'\')" title="Eliminar">🗑</button>'
       +'</div>';
   }).join('');
