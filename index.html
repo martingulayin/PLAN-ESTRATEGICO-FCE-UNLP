@@ -7148,12 +7148,35 @@ function buildTimeline() {
 // DATOS DEL TABLERO INSTITUCIONAL — ÚNICO LUGAR PARA EDITAR
 // Todo lo que muestra el tablero (y el informe PDF) sale de este bloque:
 //   TBD = tablas, textos, notas y fuentes · TBK = tarjetas (por carrera) · TBE = egresos por año · TBI = ingresantes por cohorte
+// meta.logo: opcional, imagen PNG/JPG en formato data URL (data:image/png;base64,...) para la carátula del PDF.
 // En las tablas, una celda que empieza con ^ se resalta (dorado). La fila que empieza con "Total" sale en negrita.
 // ══════════════════════════════════════════════════════════════════════════
 var TBD={
  "meta": {
   "fuentes": "PIASAA-UNLP · SIU-Araucano · Anuario Estadístico UNLP (SAA)",
-  "badge": "Datos 2016–2025 · Ingreso 2026"
+  "badge": "Datos 2016–2025 · Ingreso 2026",
+  "logo": ""
+ },
+ "autoridades": {
+  "periodo": "2026–2030",
+  "fuente": "Sitio institucional de la FCE-UNLP (econo.unlp.edu.ar/facultad/autoridades-3020)",
+  "grupos": [
+   {"t": "Conducción", "f": [
+    ["Decano", "Mg. Martín Aníbal López Armengol"],
+    ["Vicedecana", "Esp. Marina Dolores Gómez Scavino"]]},
+   {"t": "Secretarías", "f": [
+    ["Secretario de Asuntos Académicos", "Cr. Hugo Armando Collacciani"],
+    ["Secretario de Posgrado", "Mg. Aníbal Alberto Cueto"],
+    ["Secretaria de Investigación y Vinculación Tecnológica", "Mg. Gabriela Fernanda Mollo Brisco"],
+    ["Secretaria de Extensión Universitaria", "Lic. Carla Maroscia"],
+    ["Secretario de Bienestar Universitario", "Mg. Rodrigo Nicolás Ventura"],
+    ["Secretario de Administración y Finanzas", "Esp. Ramiro Taborda"],
+    ["Secretario del Consejo Directivo", "Cr. Martín Raúl Massón"],
+    ["Secretaria de Planificación y Control Institucional", "Mg. María Victoria Dowbley"]]},
+   {"t": "Prosecretarías", "f": [
+    ["Prosecretaria de Vinculación Tecnológica", "Dra. María Florencia Hutter"],
+    ["Prosecretario de Inserción Laboral", "Cr. Matías Ezequiel Arroyo"]]}
+  ]
  },
  "notas": {
   "alcance": "Alcance: cinco títulos de grado (CP, LA, LE, LT, TC). CDO (Lic. en Ciencia de Datos en Organizaciones, UA ECOINFO) se muestra en su filtro y en su propia sección, fuera de los totales FCE. Tarjetas del año: Araucano / Anuario UNLP (misma fuente para 2025); series largas: archivos PIASAA por título. Ingresantes 2026: dato oficial PIASAA (Caracterización de ingresantes 2026) con el ciclo en curso; no se compara con años anteriores hasta el cierre del ciclo.",
@@ -7624,7 +7647,7 @@ function tbF(k,btn){
 // ── INFORME PDF DEL TABLERO ───────────────────────────────────────────────
 // Se genera al momento de descargar, leyendo los mismos datos que muestra el tablero
 // (bloque de datos TBD / TBK / TBE / TBI). Si se modifican esos datos, el PDF sale actualizado.
-function tbPdfClean(s){return String(s==null?'':s).replace(/↑\s*/g,'+').replace(/↓\s*/g,'-').replace(/ /g,' ').replace(/\s+/g,' ').trim();}
+function tbPdfClean(s){return String(s==null?'':s).replace(/(20\d\d)–(\d\d)(?!\d)/g,'$1–20$2').replace(/↑\s*/g,'+').replace(/↓\s*/g,'-').replace(/ /g,' ').replace(/\s+/g,' ').trim();}
 function tbPdfNum(s){var n=parseInt(String(s).replace(/\./g,'').replace(/[^\d]/g,''),10);return isNaN(n)?0:n;}
 function tbPdfD(d){return{head:d.head.map(tbPdfClean),body:d.rows.map(function(r){return r.map(function(c){return tbPdfClean(String(c).replace(/^\^/,''));});})};}
 function tbPdfK(key,label){var a=(TBK[key]||[]);for(var i=0;i<a.length;i++){if(a[i].l===label)return a[i];}return{l:label,v:'s/d',s:'',tt:''};}
@@ -7647,7 +7670,7 @@ function tbDescargarPDF(){
       doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
       doc.text('Facultad de Ciencias Económicas · UNLP',M,8);
       doc.setTextColor(GOLD[0],GOLD[1],GOLD[2]);
-      doc.text('Plan Estratégico 2026–2030 · Tablero de Control Institucional',W-M,8,{align:'right'});
+      doc.text('Plan Estratégico 2026–2030 · La Facultad en Cifras',W-M,8,{align:'right'});
     }
     function sec(y,t){
       doc.setFillColor(GOLD[0],GOLD[1],GOLD[2]);doc.rect(M,y,1.6,5.5,'F');
@@ -7703,16 +7726,53 @@ function tbDescargarPDF(){
       return y;
     }
 
-    // ═══ PÁGINA 1 · RESUMEN EJECUTIVO ═══
-    band();
-    doc.setFont('helvetica','bold');doc.setFontSize(19);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
-    doc.text('Informe del Tablero de Control Institucional',M,27);
-    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
-    doc.text('Facultad de Ciencias Económicas · Universidad Nacional de La Plata',M,33);
-    doc.text((badge?badge+' · ':'')+'Generado el '+fecha,M,38);
-    doc.setDrawColor(GOLD[0],GOLD[1],GOLD[2]);doc.setLineWidth(.6);doc.line(M,41,M+40,41);
+    var y,pg={};
 
-    var y=sec(48,'Resumen ejecutivo · indicadores generales FCE');
+    // ═══ CARÁTULA ═══
+    doc.setFillColor(NAVY[0],NAVY[1],NAVY[2]);doc.rect(0,0,W,297,'F');
+    doc.setFillColor(GOLD[0],GOLD[1],GOLD[2]);doc.rect(0,0,W,3,'F');doc.rect(0,294,W,3,'F');
+    var logo=TBD.meta&&TBD.meta.logo;
+    if(logo){try{doc.addImage(logo,/^data:image\/png/i.test(logo)?'PNG':'JPEG',M,22,24,24);}catch(e){console.warn('logo',e);}}
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(GOLD[0],GOLD[1],GOLD[2]);
+    doc.text('UNIVERSIDAD NACIONAL DE LA PLATA',logo?M+30:M,30,{charSpace:0.8});
+    doc.setFontSize(14);doc.setTextColor(255,255,255);
+    doc.text('FACULTAD DE CIENCIAS ECONÓMICAS',logo?M+30:M,38);
+    doc.setDrawColor(GOLD[0],GOLD[1],GOLD[2]);doc.setLineWidth(.6);doc.line(M,logo?52:46,M+40,logo?52:46);
+
+    doc.setFont('helvetica','bold');doc.setFontSize(34);doc.setTextColor(255,255,255);
+    doc.text(['La Facultad','en Cifras'],M,120,{lineHeightFactor:1.25});
+    doc.setFillColor(GOLD[0],GOLD[1],GOLD[2]);doc.rect(M,148,1.4,16,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(14);doc.setTextColor(229,184,106);
+    doc.text('Plan Estratégico 2026–2030',M+6,155);
+    doc.setFont('helvetica','bold');doc.text('Gobernanza Inteligente',M+6,163);
+
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(255,255,255);
+    doc.text('Período: 2026',M,268);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(190,200,212);
+    doc.text('Fuentes: Datos Oficiales UNLP',M,274);
+
+    // ═══ AUTORIDADES ═══
+    doc.addPage();band();pg.autoridades=doc.internal.getNumberOfPages();
+    var AU=TBD.autoridades;
+    y=sec(22,'Autoridades · Período '+AU.periodo);
+    AU.grupos.forEach(function(g){
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(GOLD[0],GOLD[1],GOLD[2]);
+      doc.text(g.t.toUpperCase(),M,y+2,{charSpace:0.6});
+      doc.autoTable({startY:y+4,body:g.f,theme:'plain',margin:{left:M,right:M},
+        styles:{font:'helvetica',fontSize:9.5,cellPadding:{top:2.4,bottom:2.4,left:1,right:1},textColor:NAVY,valign:'middle'},
+        columnStyles:{0:{cellWidth:92,textColor:GRAY},1:{fontStyle:'bold'}},
+        didDrawCell:function(d){
+          if(d.section==='body'){doc.setDrawColor(222,226,233);doc.setLineWidth(.2);doc.line(d.cell.x,d.cell.y+d.cell.height,d.cell.x+d.cell.width,d.cell.y+d.cell.height);}
+        }});
+      y=doc.lastAutoTable.finalY+8;
+    });
+
+    // ═══ ÍNDICE (se completa al final, cuando se conocen las páginas) ═══
+    doc.addPage();band();pg.indice=doc.internal.getNumberOfPages();
+
+    // ═══ RESUMEN EJECUTIVO ═══
+    doc.addPage();band();pg.resumen=doc.internal.getNumberOfPages();
+    y=sec(22,'Resumen ejecutivo · indicadores generales FCE');
     var kk=TBK.todas,cw=(CW-3*4)/4,ch=27;
     kk.forEach(function(k,i){
       var cx=M+(i%4)*(cw+4),cy=y+Math.floor(i/4)*(ch+4);
@@ -7740,10 +7800,10 @@ function tbDescargarPDF(){
         R=tbPdfK('todas','Rendimiento'),G=tbPdfK('todas','Egresados 2025'),GP=tbPdfK('todas','Egresados prom.'),D=tbPdfK('todas','Duración media');
     var msgs=[
       'Ingreso: '+I25.v+' ingresantes en 2025 ('+tbPdfClean(I25.tt)+'). Ingresantes 2026: '+I26.v+' (ciclo en curso, sin comparar con años anteriores hasta su cierre).',
-      'Composición del ingreso: el promedio anual 2021–25 fue de '+(cohTot?cohTot[2]+' frente a '+cohTot[1]+' en 2016–20 ('+cohTot[3]+')':'s/d')+'; por carrera: '+cohCar.join('; ')+'.',
+      'Composición del ingreso: el promedio anual 2021–2025 fue de '+(cohTot?cohTot[2]+' frente a '+cohTot[1]+' en 2016–2020 ('+cohTot[3]+')':'s/d')+'; por carrera: '+cohCar.join('; ')+'.',
       'Matrícula: '+E25.v+' estudiantes en 2025 ('+tbPdfClean(E25.tt)+'), con un rendimiento académico de '+R.v+' ('+tbPdfClean(R.tt)+').',
-      'Egresos: '+G.v+' egresados en 2025 ('+tbPdfClean(G.tt)+'); promedio anual 2021–25: '+GP.v+' ('+tbPdfClean(GP.tt)+').',
-      'Duración: el tiempo medio de egreso ponderado de la FCE es de '+D.v+' años (egresos 2016–25).'
+      'Egresos: '+G.v+' egresados en 2025 ('+tbPdfClean(G.tt)+'); promedio anual 2021–2025: '+GP.v+' ('+tbPdfClean(GP.tt)+').',
+      'Duración: el tiempo medio de egreso ponderado de la FCE es de '+D.v+' años (egresos 2016–2025).'
     ];
     doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
     msgs.forEach(function(m){
@@ -7753,7 +7813,7 @@ function tbDescargarPDF(){
     });
 
     // ═══ PÁGINA 2 · INGRESO ═══
-    doc.addPage();band();
+    doc.addPage();band();pg.ingreso=doc.internal.getNumberOfPages();
     y=sec(22,'Ingreso');
     var tot26='Total: '+tbPdfClean(TBD.ing26.total);
     y=sub(y,'Ingresantes 2026 por carrera'+(tot26?' · '+tot26:'')+' · ciclo en curso');
@@ -7766,10 +7826,10 @@ function tbDescargarPDF(){
     y=sub(y,'Ingresantes totales FCE por cohorte · 2016–2025');
     bars(M,y+1,CW,58,TBI,NAVY,7);
     y+=62;
-    y=note(y,'Cohorte de ingreso de los cinco títulos de grado (CP, LA, LE, LT y TC). Variación = promedio 2021–25 vs 2016–20.');
+    y=note(y,'Cohorte de ingreso de los cinco títulos de grado (CP, LA, LE, LT y TC). Variación = promedio 2021–2025 vs 2016–2020.');
 
     // ═══ PÁGINA 3 · ESTUDIANTES ═══
-    doc.addPage();band();
+    doc.addPage();band();pg.estudiantes=doc.internal.getNumberOfPages();
     y=sec(22,'Estudiantes 2025');
     var mat=tbPdfD(TBD.matricula);
     y=sub(y,'Matrícula por título');
@@ -7785,7 +7845,7 @@ function tbDescargarPDF(){
     y=note(y+1,'Rendimiento académico = reinscriptos con dos o más materias aprobadas / reinscriptos. Estudiantes = reinscriptos + ingresantes.');
 
     // ═══ PÁGINA 4 · EGRESOS ═══
-    doc.addPage();band();
+    doc.addPage();band();pg.egresos=doc.internal.getNumberOfPages();
     y=sec(22,'Egresados por carrera · tendencia 2016–2025');
     var cfg=[['CP','Contador Público',[26,82,118]],['LA','Lic. Administración',[22,120,100]],['LE','Lic. Economía',[142,68,173]],
              ['LT','Lic. Turismo',[200,110,40]],['TC','Tec. Cooperativas',[100,110,120]],['FCE','Total FCE (5 títulos)',GOLD]];
@@ -7798,7 +7858,7 @@ function tbDescargarPDF(){
       var pr=tbPdfK(key,'Egresados prom.').v;
       doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);doc.text(c[1],gx,gy+3);
       doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
-      doc.text('Prom. 2021–25: '+pr,gx,gy+7);
+      doc.text('Prom. 2021–2025: '+pr,gx,gy+7);
       bars(gx,gy+8,gw,gh-8,ser.map(function(d){return{y:String(d.y).slice(2),v:d.v};}),c[2],5.8);
     });
     y+=2*(gh+8)+2;
@@ -7806,43 +7866,53 @@ function tbDescargarPDF(){
     var egRows=[['CP','Contador Público'],['LA','Lic. Administración'],['LE','Lic. Economía'],['LT','Lic. Turismo'],['TC','Tec. Cooperativas'],['todas','Total FCE']].map(function(c){
       return[c[1],tbPdfK(c[0],'Egresados 2025').v,tbPdfK(c[0],'Egresados prom.').v,tbPdfClean(tbPdfK(c[0],'Egresados prom.').tt)];
     });
-    y=table(y,['Carrera','Egresados 2025','Promedio anual 2021–25','Variación del promedio'],egRows,{cols:{0:{halign:'left'}}});
+    y=table(y,['Carrera','Egresados 2025','Promedio anual 2021–2025','Variación del promedio'],egRows,{cols:{0:{halign:'left'}}});
     y=note(y+1,'2020: valor reducido por pandemia. Egresos 2026 en curso, no incluidos.');
 
     // ═══ PÁGINA 5 · DURACIÓN Y NOTAS ═══
-    doc.addPage();band();
+    doc.addPage();band();pg.duracion=doc.internal.getNumberOfPages();
     y=sec(22,'Duración de la carrera · egresos 2016–2025');
     var dur=TBD.duracion.map(function(d){return[tbPdfClean(d.n),tbPdfClean(d.m),tbPdfClean(d.a).replace(/^Tiempo medio:\s*/,''),tbPdfClean(d.r).replace(/^Q1–Q3:\s*/,'').replace(/\s*·\s*Rango:\s*/,'  |  ')];});
     y=table(y,['Carrera','Mediana (años)','Tiempo medio','Q1–Q3  |  Rango (años)'],dur,{cols:{0:{halign:'left'}}});
     y=note(y+1,tbPdfClean(TBD.notas.duracion));
-    y+=6;
-    y=sec(y,'Fuentes y notas metodológicas');
-    var notas=[
-      'Fuentes: '+(fuentes||'PIASAA-UNLP · SIU-Araucano · Anuario Estadístico UNLP (SAA)')+'.',
-      'Alcance: cinco títulos de grado (Contador Público, Lic. en Administración, Lic. en Economía, Lic. en Turismo y Tecnicatura en Cooperativas).',
-      'Ingresantes 2026: dato oficial PIASAA (Caracterización de ingresantes 2026) con el ciclo en curso; no se compara con años anteriores hasta el cierre del ciclo.',
-      'Indicadores del año 2025: SIU-Araucano / Anuario Estadístico UNLP. Series de 2016 a 2025: archivos PIASAA por título.',
-      'Rendimiento académico = reinscriptos con dos o más materias aprobadas / reinscriptos. Estudiantes = reinscriptos + ingresantes.',
-      'Duración de la carrera: años entre ingreso y egreso de quienes egresaron entre 2016 y 2025.'
+
+    // Índice (con enlaces a cada sección)
+    doc.setPage(pg.indice);
+    y=sec(22,'Índice');
+    var items=[
+      ['Autoridades','Período '+AU.periodo,pg.autoridades],
+      ['Resumen ejecutivo','Indicadores generales y lectura de los datos',pg.resumen],
+      ['Ingreso','Ingresantes 2026, cohortes y evolución 2016–2025',pg.ingreso],
+      ['Estudiantes 2025','Matrícula por título y peso de la FCE en la UNLP',pg.estudiantes],
+      ['Egresados por carrera','Tendencia 2016–2025 y variación del promedio anual',pg.egresos],
+      ['Duración de la carrera','Mediana, tiempo medio y rango por carrera',pg.duracion]
     ];
-    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
-    notas.forEach(function(m){
-      var ls=doc.splitTextToSize(m,CW-5);
-      doc.setFillColor(GOLD[0],GOLD[1],GOLD[2]);doc.circle(M+1.2,y-.9,.6,'F');
-      doc.text(ls,M+4,y);y+=ls.length*3.8+1.8;
+    y+=4;
+    items.forEach(function(it,i){
+      var num=String(i+1)+'.';
+      doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(GOLD[0],GOLD[1],GOLD[2]);doc.text(num,M,y);
+      doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);doc.text(it[0],M+9,y);
+      var tw=doc.getTextWidth(it[0]),pw=doc.getTextWidth(String(it[2]));
+      doc.setFont('helvetica','normal');doc.setFontSize(12);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
+      var x0=M+9+tw+2,x1=W-M-pw-2,dw=doc.getTextWidth('. ');
+      if(x1>x0){doc.text(new Array(Math.max(0,Math.floor((x1-x0)/dw))+1).join('. '),x0,y);}
+      doc.setFont('helvetica','bold');doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);doc.text(String(it[2]),W-M,y,{align:'right'});
+      doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);doc.text(it[1],M+9,y+5);
+      doc.link(M,y-5,CW,11,{pageNumber:it[2]});
+      y+=17;
     });
 
-    // Pie de página
+    // Pie de página (la carátula no lleva)
     var N=doc.internal.getNumberOfPages();
-    for(var p=1;p<=N;p++){
+    for(var p=2;p<=N;p++){
       doc.setPage(p);
       doc.setDrawColor(215,220,228);doc.setLineWidth(.2);doc.line(M,284,W-M,284);
       doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
-      doc.text('Fuentes: '+(fuentes||'PIASAA-UNLP · SIU-Araucano · Anuario UNLP'),M,288);
+      doc.text('La Facultad en Cifras · Plan Estratégico 2026–2030',M,288);
       doc.text('Generado el '+fecha+' · Página '+p+' de '+N,W-M,288,{align:'right'});
     }
     var d=new Date(),pad=function(n){return(n<10?'0':'')+n;};
-    doc.save('Informe_Tablero_Institucional_FCE_'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'.pdf');
+    doc.save('La_Facultad_en_Cifras_'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'.pdf');
   }catch(e){
     console.error('tbDescargarPDF:',e);
     alert('No se pudo generar el PDF. Detalle: '+(e&&e.message?e.message:e));
