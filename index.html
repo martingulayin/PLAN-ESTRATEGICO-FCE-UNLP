@@ -7148,6 +7148,8 @@ function buildTimeline() {
 // DATOS DEL TABLERO INSTITUCIONAL — ÚNICO LUGAR PARA EDITAR
 // Todo lo que muestra el tablero (y el informe PDF) sale de este bloque:
 //   TBD = tablas, textos, notas y fuentes · TBK = tarjetas (por carrera) · TBE = egresos por año · TBI = ingresantes por cohorte
+// TBK: el campo b = valor de comparación (base) que se muestra entre paréntesis en el informe PDF.
+// TBD.duracion: ent = 1 si la fuente informa la media en años enteros.
 // meta.logo: opcional, imagen PNG/JPG en formato data URL (data:image/png;base64,...) para la carátula del PDF.
 // En las tablas, una celda que empieza con ^ se resalta (dorado). La fila que empieza con "Total" sale en negrita.
 // ══════════════════════════════════════════════════════════════════════════
@@ -7417,6 +7419,7 @@ var TBD={
  "duracion": [
   {
    "n": "Contador Público",
+   "ent": 1,
    "m": "8,5",
    "a": "Tiempo medio: 10,0 años",
    "r": "Q1–Q3: 6,5–11,8 · Rango: 3–16"
@@ -7429,6 +7432,7 @@ var TBD={
   },
   {
    "n": "Lic. Economía",
+   "ent": 1,
    "m": "6,0",
    "a": "Tiempo medio: 7,0 años",
    "r": "Q1–Q3: 4,9–7,3 · Rango: 3–9"
@@ -7441,6 +7445,7 @@ var TBD={
   },
   {
    "n": "Tec. Cooperativas",
+   "ent": 1,
    "m": "4,0",
    "a": "Tiempo medio: 6,0 años",
    "r": "Q1–Q3: 2,6–6,4 · Rango: 1–9"
@@ -7564,7 +7569,7 @@ var TBD={
 };
 var TBE={"CP":[{"y":2016,"v":261},{"y":2017,"v":239},{"y":2018,"v":210},{"y":2019,"v":202},{"y":2020,"v":125},{"y":2021,"v":156},{"y":2022,"v":175},{"y":2023,"v":190},{"y":2024,"v":184},{"y":2025,"v":166}],"LA":[{"y":2016,"v":86},{"y":2017,"v":56},{"y":2018,"v":63},{"y":2019,"v":52},{"y":2020,"v":78},{"y":2021,"v":67},{"y":2022,"v":73},{"y":2023,"v":98},{"y":2024,"v":112},{"y":2025,"v":115}],"LE":[{"y":2016,"v":35},{"y":2017,"v":36},{"y":2018,"v":36},{"y":2019,"v":38},{"y":2020,"v":55},{"y":2021,"v":45},{"y":2022,"v":42},{"y":2023,"v":45},{"y":2024,"v":43},{"y":2025,"v":58}],"LT":[{"y":2016,"v":26},{"y":2017,"v":46},{"y":2018,"v":43},{"y":2019,"v":27},{"y":2020,"v":42},{"y":2021,"v":41},{"y":2022,"v":42},{"y":2023,"v":34},{"y":2024,"v":44},{"y":2025,"v":58}],"TC":[{"y":2016,"v":14},{"y":2017,"v":13},{"y":2018,"v":4},{"y":2019,"v":7},{"y":2020,"v":11},{"y":2021,"v":9},{"y":2022,"v":6},{"y":2023,"v":16},{"y":2024,"v":13},{"y":2025,"v":7}],"FCE":[{"y":2016,"v":422},{"y":2017,"v":390},{"y":2018,"v":356},{"y":2019,"v":326},{"y":2020,"v":311},{"y":2021,"v":318},{"y":2022,"v":338},{"y":2023,"v":383},{"y":2024,"v":396},{"y":2025,"v":404}]};
 var TBI=[{"y":2016,"v":1712},{"y":2017,"v":1425},{"y":2018,"v":1936},{"y":2019,"v":2099},{"y":2020,"v":2169},{"y":2021,"v":1622},{"y":2022,"v":1986},{"y":2023,"v":1577},{"y":2024,"v":2035},{"y":2025,"v":2292}];
-var TBK={"CP":[{"l":"Ingresantes 2026","v":"960","s":"Oficial PIASAA · ciclo en curso · 29% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"643","s":"Araucano / Anuario","t":"up","tt":"↑ 15,4% vs 2024"},{"l":"Estudiantes 2025","v":"2.865","s":"Araucano / Anuario · 34% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"166","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"174","s":"Promedio anual 2021–25","t":"dn","tt":"↓ 16,0% vs 2016–20"},{"l":"Duración mediana","v":"8,5","s":"años · tiempo medio 10,0","t":"nt","tt":""},{"l":"Rendimiento","v":"58,1%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"59,3%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LA":[{"l":"Ingresantes 2026","v":"1.381","s":"Oficial PIASAA · ciclo en curso · 41% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"902","s":"Araucano / Anuario","t":"up","tt":"↑ 13,9% vs 2024"},{"l":"Estudiantes 2025","v":"3.094","s":"Araucano / Anuario · 37% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"116","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"93","s":"Promedio anual 2021–25","t":"up","tt":"↑ 38,8% vs 2016–20"},{"l":"Duración mediana","v":"7,0","s":"años · tiempo medio 7,9","t":"nt","tt":""},{"l":"Rendimiento","v":"64,5%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"54,0%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LE":[{"l":"Ingresantes 2026","v":"478","s":"Oficial PIASAA · ciclo en curso · 14% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"365","s":"Araucano / Anuario","t":"dn","tt":"↓ 0,8% vs 2024"},{"l":"Estudiantes 2025","v":"1.224","s":"Araucano / Anuario · 14% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"58","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"47","s":"Promedio anual 2021–25","t":"up","tt":"↑ 16,5% vs 2016–20"},{"l":"Duración mediana","v":"6,0","s":"años · tiempo medio 7,0","t":"nt","tt":""},{"l":"Rendimiento","v":"63,7%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"31,2%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LT":[{"l":"Ingresantes 2026","v":"474","s":"Oficial PIASAA · ciclo en curso · 14% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"329","s":"Araucano / Anuario","t":"nt","tt":""},{"l":"Estudiantes 2025","v":"1.098","s":"Araucano / Anuario · 13% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"58","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"44","s":"Promedio anual 2021–25","t":"up","tt":"↑ 19,0% vs 2016–20"},{"l":"Duración mediana","v":"7,4","s":"años · tiempo medio 8,1","t":"nt","tt":""},{"l":"Rendimiento","v":"52,8%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"73,9%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"TC":[{"l":"Ingresantes 2026","v":"51","s":"Oficial PIASAA · ciclo en curso · 2% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"53","s":"Araucano / Anuario","t":"nt","tt":""},{"l":"Estudiantes 2025","v":"168","s":"Araucano / Anuario · 2% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"8","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"10","s":"Promedio anual 2021–25","t":"up","tt":"↑ 4,1% vs 2016–20"},{"l":"Duración mediana","v":"4,0","s":"años · tiempo medio 6,0","t":"nt","tt":""},{"l":"Rendimiento","v":"22,6%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"71,4%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"todas":[{"l":"Ingresantes 2026","v":"3.344","s":"Oficial PIASAA · ciclo en curso","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"2.292","s":"Araucano / Anuario · 1.988 por primera vez","t":"up","tt":"↑ 9,7% vs 2024"},{"l":"Estudiantes 2025","v":"8.449","s":"Araucano / Anuario","t":"up","tt":"↑ 3,7% vs 2024"},{"l":"Egresados 2025","v":"406","s":"Araucano / Anuario","t":"up","tt":"↑ 2,3% vs 2024","g":1},{"l":"Egresados prom.","v":"368","s":"Promedio anual 2021–25","t":"up","tt":"↑ 1,9% vs 2016–20"},{"l":"Duración media","v":"8,9","s":"años · egresos 2016–25","t":"nt","tt":""},{"l":"Rendimiento","v":"59,8%","s":"Reinscriptos con 2 o más materias","t":"up","tt":"↑ 3,6 pp vs 2024"},{"l":"Mujeres","v":"55,4%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"CDO":[{"l":"Ingresantes 2026","v":"581","s":"Oficial PIASAA · ciclo en curso","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"429","s":"Araucano · 392 por primera vez","t":"dn","tt":"↓ 26,2% vs 2024"},{"l":"Estudiantes 2025","v":"711","s":"Araucano","t":"up","tt":"↑ 22,4% vs 2024"},{"l":"Permanencia 1er año","v":"48,5%","s":"282 de 581 ingresantes 2024","t":"nt","tt":"","g":1},{"l":"Rendimiento","v":"54,6%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":"UNLP 2025: 55,9%"},{"l":"Mujeres ingresantes","v":"26,6%","s":"2024: 43,0%","t":"nt","tt":""},{"l":"Edad mediana ingresantes","v":"21","s":"años · 2024: 28","t":"nt","tt":""},{"l":"Egresados","v":"0","s":"Carrera iniciada en 2024","t":"nt","tt":""}]};
+var TBK={"CP":[{"l":"Ingresantes 2026","v":"960","s":"Oficial PIASAA · ciclo en curso · 29% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"643","s":"Araucano / Anuario","t":"up","tt":"↑ 15,4% vs 2024"},{"l":"Estudiantes 2025","v":"2.865","s":"Araucano / Anuario · 34% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"166","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"174","s":"Promedio anual 2021–25","t":"dn","tt":"↓ 16,0% vs 2016–20"},{"l":"Duración mediana","v":"8,5","s":"años · tiempo medio 10,0","t":"nt","tt":""},{"l":"Rendimiento","v":"58,1%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"59,3%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LA":[{"l":"Ingresantes 2026","v":"1.381","s":"Oficial PIASAA · ciclo en curso · 41% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"902","s":"Araucano / Anuario","t":"up","tt":"↑ 13,9% vs 2024"},{"l":"Estudiantes 2025","v":"3.094","s":"Araucano / Anuario · 37% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"116","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"93","s":"Promedio anual 2021–25","t":"up","tt":"↑ 38,8% vs 2016–20"},{"l":"Duración mediana","v":"7,0","s":"años · tiempo medio 7,9","t":"nt","tt":""},{"l":"Rendimiento","v":"64,5%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"54,0%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LE":[{"l":"Ingresantes 2026","v":"478","s":"Oficial PIASAA · ciclo en curso · 14% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"365","s":"Araucano / Anuario","t":"dn","tt":"↓ 0,8% vs 2024"},{"l":"Estudiantes 2025","v":"1.224","s":"Araucano / Anuario · 14% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"58","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"47","s":"Promedio anual 2021–25","t":"up","tt":"↑ 16,5% vs 2016–20"},{"l":"Duración mediana","v":"6,0","s":"años · tiempo medio 7,0","t":"nt","tt":""},{"l":"Rendimiento","v":"63,7%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"31,2%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"LT":[{"l":"Ingresantes 2026","v":"474","s":"Oficial PIASAA · ciclo en curso · 14% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"329","s":"Araucano / Anuario","t":"nt","tt":""},{"l":"Estudiantes 2025","v":"1.098","s":"Araucano / Anuario · 13% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"58","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"44","s":"Promedio anual 2021–25","t":"up","tt":"↑ 19,0% vs 2016–20"},{"l":"Duración mediana","v":"7,4","s":"años · tiempo medio 8,1","t":"nt","tt":""},{"l":"Rendimiento","v":"52,8%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"73,9%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"TC":[{"l":"Ingresantes 2026","v":"51","s":"Oficial PIASAA · ciclo en curso · 2% del total","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"53","s":"Araucano / Anuario","t":"nt","tt":""},{"l":"Estudiantes 2025","v":"168","s":"Araucano / Anuario · 2% del total","t":"nt","tt":""},{"l":"Egresados 2025","v":"8","s":"Araucano / Anuario","t":"nt","tt":"","g":1},{"l":"Egresados prom.","v":"10","s":"Promedio anual 2021–25","t":"up","tt":"↑ 4,1% vs 2016–20"},{"l":"Duración mediana","v":"4,0","s":"años · tiempo medio 6,0","t":"nt","tt":""},{"l":"Rendimiento","v":"22,6%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":""},{"l":"Mujeres","v":"71,4%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"todas":[{"l":"Ingresantes 2026","v":"3.344","s":"Oficial PIASAA · ciclo en curso","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"2.292","s":"Araucano / Anuario · 1.988 por primera vez","t":"up","tt":"↑ 9,7% vs 2024"},{"l":"Estudiantes 2025","v":"8.449","s":"Araucano / Anuario","t":"up","tt":"↑ 3,7% vs 2024","b":"8.151"},{"l":"Egresados 2025","v":"406","s":"Araucano / Anuario","t":"up","tt":"↑ 2,3% vs 2024","g":1},{"l":"Egresados prom.","v":"368","s":"Promedio anual 2021–25","t":"up","tt":"↑ 1,9% vs 2016–20"},{"l":"Duración media","v":"8,9","s":"años · egresos 2016–25","t":"nt","tt":""},{"l":"Rendimiento","v":"59,8%","s":"Reinscriptos con 2 o más materias","t":"up","tt":"↑ 3,6 pp vs 2024","b":"56,2%"},{"l":"Mujeres","v":"55,4%","s":"% del total de estudiantes 2025","t":"nt","tt":""}],"CDO":[{"l":"Ingresantes 2026","v":"581","s":"Oficial PIASAA · ciclo en curso","t":"nt","tt":"Sin comparar hasta cierre del ciclo","g":1},{"l":"Ingresantes 2025","v":"429","s":"Araucano · 392 por primera vez","t":"dn","tt":"↓ 26,2% vs 2024"},{"l":"Estudiantes 2025","v":"711","s":"Araucano","t":"up","tt":"↑ 22,4% vs 2024"},{"l":"Permanencia 1er año","v":"48,5%","s":"282 de 581 ingresantes 2024","t":"nt","tt":"","g":1},{"l":"Rendimiento","v":"54,6%","s":"Reinscriptos con 2 o más materias","t":"nt","tt":"UNLP 2025: 55,9%"},{"l":"Mujeres ingresantes","v":"26,6%","s":"2024: 43,0%","t":"nt","tt":""},{"l":"Edad mediana ingresantes","v":"21","s":"años · 2024: 28","t":"nt","tt":""},{"l":"Egresados","v":"0","s":"Carrera iniciada en 2024","t":"nt","tt":""}]};
 
 
 // ── Render del tablero a partir de los datos ──────────────────────────────
@@ -7650,6 +7655,10 @@ function tbF(k,btn){
 function tbPdfClean(s){return String(s==null?'':s).replace(/(20\d\d)–(\d\d)(?!\d)/g,'$1–20$2').replace(/↑\s*/g,'+').replace(/↓\s*/g,'-').replace(/ /g,' ').replace(/\s+/g,' ').trim();}
 function tbPdfNum(s){var n=parseInt(String(s).replace(/\./g,'').replace(/[^\d]/g,''),10);return isNaN(n)?0:n;}
 function tbPdfD(d){return{head:d.head.map(tbPdfClean),body:d.rows.map(function(r){return r.map(function(c){return tbPdfClean(String(c).replace(/^\^/,''));});})};}
+function tbFmt1(n){return n.toFixed(1).replace('.',',');}
+function tbFmtN(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function tbPct(a,b){if(!b)return 's/d';var v=(a/b-1)*100;return(v>=0?'+':'-')+Math.abs(v).toFixed(1).replace('.',',')+'%';}
+function tbAvg(key,y0,y1){var a=(TBE[key]||[]).filter(function(d){return d.y>=y0&&d.y<=y1;});return a.length?a.reduce(function(t,d){return t+d.v;},0)/a.length:0;}
 function tbPdfK(key,label){var a=(TBK[key]||[]);for(var i=0;i<a.length;i++){if(a[i].l===label)return a[i];}return{l:label,v:'s/d',s:'',tt:''};}
 
 function tbDescargarPDF(){
@@ -7782,11 +7791,15 @@ function tbDescargarPDF(){
       doc.text(tbPdfClean(k.l).toUpperCase(),cx+3,cy+5);
       doc.setFontSize(17);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);doc.text(tbPdfClean(k.v),cx+3,cy+13);
       doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
-      doc.text(doc.splitTextToSize(tbPdfClean(k.s),cw-5).slice(0,2),cx+3,cy+17);
+      var ks=tbPdfClean(k.s);if(/materias$/.test(ks))ks+=' aprobadas';
+      doc.text(doc.splitTextToSize(ks,cw-5).slice(0,2),cx+3,cy+17);
       if(k.tt){
         doc.setFont('helvetica','bold');doc.setFontSize(6.8);
         var c=k.t==='up'?[30,132,73]:k.t==='dn'?[192,57,43]:GRAY;doc.setTextColor(c[0],c[1],c[2]);
-        doc.text(tbPdfClean(k.tt),cx+3,cy+24);
+        var ttx=tbPdfClean(k.tt);
+        if(k.b)ttx+=' ('+tbPdfClean(k.b)+')';
+        if(k.l==='Egresados prom.')ttx+=' ('+tbFmt1(tbAvg('FCE',2016,2020))+')';
+        doc.text(ttx,cx+3,cy+24);
       }
     });
     y+=2*(ch+4)+4;
@@ -7795,15 +7808,16 @@ function tbDescargarPDF(){
     y=sec(y,'Lectura de los datos');
     var coh=tbPdfD(TBD.cohortes);
     var cohTot=coh.body.filter(function(r){return /^Total/.test(r[0]);})[0];
-    var cohCar=coh.body.filter(function(r){return !/^Total/.test(r[0])&&/%/.test(r[3]);}).map(function(r){return r[0]+' '+r[3];});
+    var cohCar=coh.body.filter(function(r){return !/^Total/.test(r[0])&&/%/.test(r[3]);}).map(function(r){return r[0]+' de '+r[1]+' a '+r[2]+' ('+r[3]+')';});
+    var cohSd=coh.body.filter(function(r){return !/^Total/.test(r[0])&&!/%/.test(r[3]);}).map(function(r){return r[0];});
     var I25=tbPdfK('todas','Ingresantes 2025'),I26=tbPdfK('todas','Ingresantes 2026'),E25=tbPdfK('todas','Estudiantes 2025'),
         R=tbPdfK('todas','Rendimiento'),G=tbPdfK('todas','Egresados 2025'),GP=tbPdfK('todas','Egresados prom.'),D=tbPdfK('todas','Duración media');
     var msgs=[
       'Ingreso: '+I25.v+' ingresantes en 2025 ('+tbPdfClean(I25.tt)+'). Ingresantes 2026: '+I26.v+' (ciclo en curso, sin comparar con años anteriores hasta su cierre).',
-      'Composición del ingreso: el promedio anual 2021–2025 fue de '+(cohTot?cohTot[2]+' frente a '+cohTot[1]+' en 2016–2020 ('+cohTot[3]+')':'s/d')+'; por carrera: '+cohCar.join('; ')+'.',
-      'Matrícula: '+E25.v+' estudiantes en 2025 ('+tbPdfClean(E25.tt)+'), con un rendimiento académico de '+R.v+' ('+tbPdfClean(R.tt)+').',
-      'Egresos: '+G.v+' egresados en 2025 ('+tbPdfClean(G.tt)+'); promedio anual 2021–2025: '+GP.v+' ('+tbPdfClean(GP.tt)+').',
-      'Duración: el tiempo medio de egreso ponderado de la FCE es de '+D.v+' años (egresos 2016–2025).'
+      'Composición del ingreso: el promedio anual de ingresantes por cohorte pasó de '+(cohTot?cohTot[1]+' (2016–2020) a '+cohTot[2]+' (2021–2025), '+cohTot[3]:'s/d')+'. El total se mantiene estable pero cambia la composición: '+cohCar.join('; ')+(cohSd.length?' ('+cohSd.join(', ')+': sin dato)':'')+'.',
+      'Matrícula: '+E25.v+' estudiantes en 2025 ('+tbPdfClean(E25.tt).replace(/ vs 2024$/,'')+' respecto de '+tbPdfClean(E25.b)+' en 2024), con un rendimiento académico de '+R.v+' ('+tbPdfClean(R.tt).replace(/ vs 2024$/,'')+' respecto de '+tbPdfClean(R.b)+' en 2024).',
+      'Egresos: '+G.v+' egresados en 2025 ('+tbPdfClean(G.tt)+'). El promedio anual pasó de '+tbFmt1(tbAvg('FCE',2016,2020))+' (2016–2020) a '+tbFmt1(tbAvg('FCE',2021,2025))+' (2021–2025), '+tbPct(tbAvg('FCE',2021,2025),tbAvg('FCE',2016,2020))+'.',
+      'Duración: el tiempo medio de egreso ponderado de la FCE es de '+D.v+' años (egresos 2016–2025). La mediana de la Facultad no puede derivarse de los datos por título; para conocer la mediana de cada carrera, ver la sección «Duración de la carrera».'
     ];
     doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
     msgs.forEach(function(m){
@@ -7816,32 +7830,34 @@ function tbDescargarPDF(){
     doc.addPage();band();pg.ingreso=doc.internal.getNumberOfPages();
     y=sec(22,'Ingreso');
     var tot26='Total: '+tbPdfClean(TBD.ing26.total);
-    y=sub(y,'Ingresantes 2026 por carrera'+(tot26?' · '+tot26:'')+' · ciclo en curso');
+    y=sub(y,'Ingresantes 2026 por carrera · dato preliminar, ciclo en curso'+(tot26?' · '+tot26:''));
     var hw=TBD.ing26.items.map(function(i){return{l:tbPdfClean(i.l),t:tbPdfClean(i.v),w:i.w||0};});
     var mxw=Math.max.apply(null,hw.map(function(h){return h.w;}))||1;
     y=hbars(y+1,hw.map(function(h){return{l:h.l,t:h.t,frac:h.w/mxw};}),42,90,GOLD)+3;
-    y=sub(y,'Ingresantes por cohorte · promedio anual');
-    y=table(y,coh.head,coh.body,{cols:{0:{halign:'left'}}});
-    y+=3;
+    y=sub(y,'Ingresantes por cohorte · promedio anual por período');
+    y=table(y,['Carrera','Promedio anual 2016–2020','Promedio anual 2021–2025','Variación entre períodos'],coh.body,{cols:{0:{halign:'left'}}});
+    if(cohSd.length)y=note(y+1,cohSd.join(', ')+': sin dato (serie de cohortes en revisión). Variación entre períodos = cambio porcentual del promedio anual 2021–2025 respecto del promedio anual 2016–2020.');
+    y+=2;
     y=sub(y,'Ingresantes totales FCE por cohorte · 2016–2025');
     bars(M,y+1,CW,58,TBI,NAVY,7);
     y+=62;
-    y=note(y,'Cohorte de ingreso de los cinco títulos de grado (CP, LA, LE, LT y TC). Variación = promedio 2021–2025 vs 2016–2020.');
+    y=note(y,'Ingresantes por cohorte de ingreso, cinco títulos de grado (CP, LA, LE, LT y TC). La serie por cohorte no es directamente comparable con el total anual de ingresantes informado en el resumen ejecutivo, que sigue el criterio de Araucano.');
 
     // ═══ PÁGINA 3 · ESTUDIANTES ═══
     doc.addPage();band();pg.estudiantes=doc.internal.getNumberOfPages();
     y=sec(22,'Estudiantes 2025');
     var mat=tbPdfD(TBD.matricula);
     y=sub(y,'Matrícula por título');
-    y=table(y,mat.head,mat.body,{cols:{0:{halign:'left'}}});
+    y=table(y,['Carrera','Estudiantes','% mujeres','Reinscriptos','Rendimiento académico'],mat.body,{cols:{0:{halign:'left'}}});
     y+=3;
-    y=sub(y,'Distribución de estudiantes por título');
+    y=sub(y,'Participación de cada título en la matrícula total');
     var mrows=mat.body.filter(function(r){return !/^Total/.test(r[0]);});
+    var mtot=mrows.reduce(function(a,r){return a+tbPdfNum(r[1]);},0)||1;
     var mmax=Math.max.apply(null,mrows.map(function(r){return tbPdfNum(r[1]);}))||1;
-    y=hbars(y+1,mrows.map(function(r){return{l:r[0],t:r[1]+' · '+r[2]+' mujeres',frac:tbPdfNum(r[1])/mmax};}),42,70,NAVY)+3;
+    y=hbars(y+1,mrows.map(function(r){var n=tbPdfNum(r[1]);return{l:r[0],t:tbFmt1(n/mtot*100)+'% · '+r[1]+' estudiantes',frac:n/mmax};}),42,70,NAVY)+3;
     var peso=tbPdfD(TBD.peso);
     y=sub(y,'Peso de la FCE en la UNLP · 2025');
-    y=table(y,peso.head,peso.body,{cols:{0:{halign:'left'}}});
+    y=table(y,['Indicador','FCE','UNLP','Participación FCE'],peso.body,{cols:{0:{halign:'left'}}});
     y=note(y+1,'Rendimiento académico = reinscriptos con dos o más materias aprobadas / reinscriptos. Estudiantes = reinscriptos + ingresantes.');
 
     // ═══ PÁGINA 4 · EGRESOS ═══
@@ -7855,26 +7871,44 @@ function tbDescargarPDF(){
       var key=c[0]==='FCE'?'todas':c[0];
       var ser=TBE[c[0]].map(function(d){return{y:d.y,v:d.v};});
       var e25=tbPdfNum(tbPdfK(key,'Egresados 2025').v);if(e25&&ser.length)ser[ser.length-1].v=e25; // 2025 según Araucano / Anuario
-      var pr=tbPdfK(key,'Egresados prom.').v;
       doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);doc.text(c[1],gx,gy+3);
-      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
-      doc.text('Prom. 2021–2025: '+pr,gx,gy+7);
+      doc.setFont('helvetica','normal');doc.setFontSize(6.6);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
+      doc.text('Prom. anual 2016–2020: '+tbFmt1(tbAvg(c[0],2016,2020))+' · 2021–2025: '+tbFmt1(tbAvg(c[0],2021,2025)),gx,gy+7);
       bars(gx,gy+8,gw,gh-8,ser.map(function(d){return{y:String(d.y).slice(2),v:d.v};}),c[2],5.8);
     });
     y+=2*(gh+8)+2;
-    y=sub(y,'Egresos 2025 y variación del promedio anual');
-    var egRows=[['CP','Contador Público'],['LA','Lic. Administración'],['LE','Lic. Economía'],['LT','Lic. Turismo'],['TC','Tec. Cooperativas'],['todas','Total FCE']].map(function(c){
-      return[c[1],tbPdfK(c[0],'Egresados 2025').v,tbPdfK(c[0],'Egresados prom.').v,tbPdfClean(tbPdfK(c[0],'Egresados prom.').tt)];
+    y=sub(y,'Egresos 2025 y evolución del promedio anual por período');
+    var egRows=[['CP','CP','Contador Público'],['LA','LA','Lic. Administración'],['LE','LE','Lic. Economía'],['LT','LT','Lic. Turismo'],['TC','TC','Tec. Cooperativas'],['todas','FCE','Total FCE']].map(function(c){
+      var a1=tbAvg(c[1],2016,2020),a2=tbAvg(c[1],2021,2025);
+      return[c[2],tbPdfK(c[0],'Egresados 2025').v,tbFmt1(a1),tbFmt1(a2),tbPct(a2,a1)];
     });
-    y=table(y,['Carrera','Egresados 2025','Promedio anual 2021–2025','Variación del promedio'],egRows,{cols:{0:{halign:'left'}}});
-    y=note(y+1,'2020: valor reducido por pandemia. Egresos 2026 en curso, no incluidos.');
+    y=table(y,['Carrera','Egresados 2025','Promedio anual 2016–2020','Promedio anual 2021–2025','Variación entre períodos'],egRows,{cols:{0:{halign:'left'}}});
+    y=note(y+1,'Variación entre períodos = cambio porcentual del promedio anual de egresados 2021–2025 respecto del promedio anual 2016–2020. Promedios con un decimal para que la variación pueda reproducirse desde la tabla. Cada gráfico usa su propia escala vertical. 2020: valor reducido por pandemia. Egresos 2026 en curso, no incluidos.');
 
     // ═══ PÁGINA 5 · DURACIÓN Y NOTAS ═══
     doc.addPage();band();pg.duracion=doc.internal.getNumberOfPages();
     y=sec(22,'Duración de la carrera · egresos 2016–2025');
-    var dur=TBD.duracion.map(function(d){return[tbPdfClean(d.n),tbPdfClean(d.m),tbPdfClean(d.a).replace(/^Tiempo medio:\s*/,''),tbPdfClean(d.r).replace(/^Q1–Q3:\s*/,'').replace(/\s*·\s*Rango:\s*/,'  |  ')];});
-    y=table(y,['Carrera','Mediana (años)','Tiempo medio','Q1–Q3  |  Rango (años)'],dur,{cols:{0:{halign:'left'}}});
-    y=note(y+1,tbPdfClean(TBD.notas.duracion));
+    var dkey={'Contador Público':'CP','Lic. Administración':'LA','Lic. Economía':'LE','Lic. Turismo':'LT','Tec. Cooperativas':'TC'};
+    var asim=0,hayEnt=false;
+    var dur=TBD.duracion.map(function(d){
+      var med=tbPdfClean(d.m),mean=(tbPdfClean(d.a).match(/[\d]+(,\d+)?/)||['s/d'])[0];
+      var q=tbPdfClean(d.r).match(/Q1–Q3:\s*([\d,]+)–([\d,]+)\s*·\s*Rango:\s*([\d,]+)–([\d,]+)/)||[];
+      var n=(TBE[dkey[d.n]]||[]).reduce(function(a,x){return a+x.v;},0);
+      if(parseFloat(mean.replace(',','.'))>parseFloat(med.replace(',','.')))asim++;
+      if(d.ent){hayEnt=true;mean=String(Math.round(parseFloat(mean.replace(',','.'))))+'*';}
+      return[tbPdfClean(d.n),n?tbFmtN(n):'s/d',med,mean,q[1]||'s/d',q[2]||'s/d',q[3]||'s/d',q[4]||'s/d'];
+    });
+    var nTot=(TBE.FCE||[]).reduce(function(a,x){return a+x.v;},0);
+    var mins=dur.map(function(r){return parseFloat(String(r[6]).replace(',','.'));}).filter(function(v){return !isNaN(v);});
+    var maxs=dur.map(function(r){return parseFloat(String(r[7]).replace(',','.'));}).filter(function(v){return !isNaN(v);});
+    dur.push(['Total FCE',tbFmtN(nTot),'s/d',tbPdfClean(tbPdfK('todas','Duración media').v),'s/d','s/d',mins.length?String(Math.min.apply(null,mins)).replace('.',','):'s/d',maxs.length?String(Math.max.apply(null,maxs)).replace('.',','):'s/d']);
+    y=sub(y,'Años transcurridos entre el ingreso y el egreso');
+    y=table(y,['Carrera','Egresados (n)','Mediana','Media','Q1','Q3','Mín.','Máx.'],dur,{cols:{0:{halign:'left'}},fs:8.3});
+    var dnotas=['Valores en años. Considera a quienes egresaron entre 2016 y 2025; no refleja la duración de quienes aún cursan ni de quienes abandonaron.',
+      'Total FCE: media ponderada por egresados de cada título. La mediana y los cuartiles de la Facultad no pueden derivarse de los datos por título.'];
+    if(hayEnt)dnotas.push('* La fuente informa la media en años enteros.');
+    if(asim===dur.length-1)dnotas.push('En todas las carreras la media supera a la mediana: la distribución es asimétrica a la derecha, con una cola de egresos tardíos que eleva el promedio. Por eso la mediana es la medida más representativa de la duración típica.');
+    y=note(y+1,dnotas.join(' '));
 
     // Índice (con enlaces a cada sección)
     doc.setPage(pg.indice);
@@ -7884,8 +7918,8 @@ function tbDescargarPDF(){
       ['Resumen ejecutivo','Indicadores generales y lectura de los datos',pg.resumen],
       ['Ingreso','Ingresantes 2026, cohortes y evolución 2016–2025',pg.ingreso],
       ['Estudiantes 2025','Matrícula por título y peso de la FCE en la UNLP',pg.estudiantes],
-      ['Egresados por carrera','Tendencia 2016–2025 y variación del promedio anual',pg.egresos],
-      ['Duración de la carrera','Mediana, tiempo medio y rango por carrera',pg.duracion]
+      ['Egresados por carrera','Tendencia 2016–2025 y promedio anual por período',pg.egresos],
+      ['Duración de la carrera','Mediana, media, cuartiles y rango por carrera',pg.duracion]
     ];
     y+=4;
     items.forEach(function(it,i){
