@@ -2872,6 +2872,10 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
 
 <!-- sub-barra contextual (solo visible en tab Mapa) -->
 <div id="mapaControls" style="display:none;">
+  <div class="mv-switch" role="tablist" aria-label="Vista del mapa estratégico">
+    <button class="mv-btn active" id="mvMatriz" role="tab" aria-selected="true" onclick="mapaVista('matriz')">▦ Objetivos × Secretarías</button>
+    <button class="mv-btn" id="mvTemas" role="tab" aria-selected="false" onclick="mapaVista('temas')">◉ Temas transversales</button>
+  </div>
   <div class="legend-wrap">
     <div class="legend-title">Áreas / Secretarías — clic para destacar columna</div>
     <div class="legend-grid" id="legendGrid"></div>
@@ -3288,6 +3292,9 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
   </div>
 </div>
 
+
+<!-- VISTA TEMAS TRANSVERSALES (dentro de Mapa estratégico) -->
+<div id="temasView" style="display:none;"></div>
 
 <!-- VISTA POR ÁREA -->
 <div class="area-view" id="areaView">
@@ -4198,7 +4205,7 @@ function initAnuarioTab(){
 
 <script>
 const AREAS = ['BIE','CD','EXT','INV','PCI','POS','SAA','SAF','UCI'];
-const AREA_COLORS = {BIE:'#1A5276',CD:'#7B241C',EXT:'#145A32',INV:'#4A235A',PCI:'#784212',POS:'#1F618D',SAA:'#0B6E4F',SAF:'#1A5276',UCI:'#922B21'};
+const AREA_COLORS = {BIE:'#2E86C1',CD:'#7B241C',EXT:'#145A32',INV:'#4A235A',PCI:'#784212',POS:'#1F618D',SAA:'#0B6E4F',SAF:'#1A5276',UCI:'#922B21'};
 const AREA_NAMES = {
   BIE:'Secretaría de Bienestar Universitario y PIL',
   CD:'Secretaría de Consejo Directivo',
@@ -5265,7 +5272,7 @@ function buildNoticias() {
 function switchTab(tab) {
   if (window._paDrawer && typeof paCerrarDrawer === 'function') paCerrarDrawer();
   // Ocultar todas las secciones
-  const secciones = ['portadaView','decanoView','lineamientosHubView','lineamientosView','mapaSection','areaView','procesoView','timelineView','seguimientoView','tableroView','anuariofceView','panelAreaView','noticiasView','resumenView','mensajesView'];
+  const secciones = ['portadaView','decanoView','lineamientosHubView','lineamientosView','mapaSection','temasView','areaView','procesoView','timelineView','seguimientoView','tableroView','anuariofceView','panelAreaView','noticiasView','resumenView','mensajesView'];
   secciones.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -5317,6 +5324,7 @@ function switchTab(tab) {
     if (notes) notes.style.display = 'flex';
     document.getElementById('tabMapa').classList.add('active');
     closePanel();
+    mapaVista('matriz');
 
   } else if (tab === 'area') {
     const v = document.getElementById('areaView');
@@ -5388,7 +5396,7 @@ function switchTab(tab) {
 // ── PANEL POR ÁREA ────────────────────────────────────────────────────────
 var PA_COLORS = {
   DEC:'#C9963A',VDC:'#8B6914',
-  BIE:'#1A5276',CD:'#7B241C',EXT:'#145A32',
+  BIE:'#2E86C1',CD:'#7B241C',EXT:'#145A32',
   INV:'#4A235A',PCI:'#784212',POS:'#1F618D',
   SAA:'#0B6E4F',SAF:'#1A5276',UCI:'#922B21'
 };
@@ -11246,5 +11254,276 @@ window.Foro = (function () {
 })();
 </script>
 
+
+<style>
+  .mv-switch{display:flex;gap:.4rem;padding:.8rem 2.5rem .2rem;background:var(--cream, #F5F2EC);flex-wrap:wrap;}
+  .mv-btn{font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;padding:.5rem 1rem;border-radius:999px;border:1px solid #DDD6C8;background:#fff;color:#33475B;cursor:pointer;transition:all .15s;}
+  .mv-btn:hover{border-color:#C9963A;color:#0D1B2A;}
+  .mv-btn.active{background:#0D1B2A;border-color:#0D1B2A;color:#E8B455;}
+  #temasView{font-family:'Inter',sans-serif;color:#0D1B2A;background:#F5F2EC;padding:1.2rem 2.5rem 3rem;}
+  .tt-intro{font-size:.85rem;color:#4A5A6C;max-width:900px;margin-bottom:1rem;line-height:1.5;}
+  .tt-co{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.75rem;margin-bottom:1.3rem;}
+  .tt-co div{background:#fff;border:1px solid #EDE9E1;border-left:4px solid #C9963A;border-radius:10px;padding:.8rem .95rem;}
+  .tt-co b{display:block;font-size:1.3rem;font-weight:900;}
+  .tt-co span{font-size:.78rem;color:#33475B;line-height:1.45;}
+  .tt-st{font-size:1.05rem;font-weight:700;border-left:3px solid #C9963A;padding-left:.6rem;}
+  .tt-note{font-size:.75rem;color:#6B7A8D;margin:.2rem 0 .8rem .8rem;}
+  .tt-card{background:#fff;border:1px solid #EDE9E1;border-radius:12px;box-shadow:0 1px 4px rgba(13,27,42,.06);padding:.9rem 1.1rem;overflow-x:auto;}
+  .tt-tb{width:100%;min-width:960px;border-collapse:separate;border-spacing:0 5px;}
+  .tt-tb th{font-size:.68rem;color:#6B7A8D;font-weight:700;padding:0 2px 2px;}
+  .tt-tb th.cd span{display:inline-block;color:#fff;border-radius:5px;padding:.18rem .4rem;font-size:.66rem;letter-spacing:.04em;}
+  .tt-tb td{background:#FBFAF7;padding:.4rem .2rem;vertical-align:middle;}
+  .tt-tb td:first-child{border-radius:8px 0 0 8px;padding-left:.75rem;}
+  .tt-tb td:last-child{border-radius:0 8px 8px 0;padding-right:.75rem;}
+  .tt-tb tr.tt-row{cursor:pointer;}
+  .tt-tb tr.tt-row:hover td{background:#FFF9EC;}
+  .tt-tb tr.tt-row.sel td{background:#FFF3DC;}
+  .tt-tb tr.tt-row:focus-visible td{outline:2px solid #C9963A;outline-offset:-2px;}
+  .tt-n{font-size:.82rem;font-weight:600;width:310px;}
+  .tt-n small{color:#9A6E1A;font-weight:700;margin-left:.3rem;}
+  .tt-sl{width:52px;text-align:center;}
+  .tt-sl span{display:inline-flex;align-items:center;justify-content:center;height:22px;min-width:38px;border-radius:11px;color:#fff;font-size:.7rem;font-weight:800;}
+  .tt-sl i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#E3DDD0;}
+  .tt-tot{width:150px;}
+  .tt-bar{height:7px;background:#EFE9DD;border-radius:4px;overflow:hidden;}
+  .tt-bar div{height:100%;background:#C9963A;border-radius:4px;}
+  .tt-lb{font-size:.72rem;color:#33475B;margin-top:.25rem;}
+  .tt-lb b{font-size:.82rem;color:#0D1B2A;}
+  .tt-tb tr.tt-g td{background:none;padding:.7rem 0 0 .15rem;font-size:.65rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#9A6E1A;}
+  .tt-det td{background:none !important;padding:0 !important;}
+  .tt-det-in{background:#FFF6E3;border-radius:10px;padding:.75rem 1rem;margin:0 0 .3rem;}
+  .tt-det-in h4{font-size:.82rem;margin-bottom:.35rem;}
+  .tt-det-in ul{list-style:none;margin:0;padding:0;max-height:340px;overflow-y:auto;}
+  .tt-det-in li{font-size:.76rem;padding:.35rem 0;border-bottom:1px dashed #EADBB8;display:flex;gap:.55rem;line-height:1.4;}
+  .tt-det-in li b{flex-shrink:0;width:86px;}
+  .tt-chip{display:inline-block;color:#fff;font-weight:800;font-size:.64rem;letter-spacing:.05em;padding:.15rem .35rem;border-radius:4px;margin-right:.2rem;}
+  .tt-foot{font-size:.7rem;color:#6B7A8D;margin-top:.7rem;line-height:1.5;}
+  @media(max-width:700px){#temasView{padding:1rem 1rem 2.5rem;}.mv-switch{padding:.7rem 1rem .2rem;}}
+</style>
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// TEMAS TRANSVERSALES — clasificación de las acciones del Plan por tema
+// Para corregir la clasificación, editar TT_ASIGNACION (código de acción → temas).
+// Los textos de las acciones se leen de ACCIONES, así que siempre están actualizados.
+// ══════════════════════════════════════════════════════════════════════════
+var TT_TEMAS = {
+  SI:'Sistemas de información, datos y tableros', DIG:'Modernización y digitalización de procesos',
+  INF:'Infraestructura, equipamiento y conectividad', IA:'Inteligencia artificial',
+  INT:'Internacionalización y movilidad', COM:'Comunicación y posicionamiento institucional',
+  TRA:'Acompañamiento de trayectorias estudiantiles', VIN:'Vinculación con el territorio y el sector productivo',
+  CAP:'Fortalecimiento y capacitación de equipos', NOR:'Normativa, reglamentos y procedimientos',
+  OFE:'Oferta académica y planes de estudio', ART:'Articulación y coordinación entre áreas',
+  SOC:'Bienestar, compromiso social e inclusión', CIE:'Investigación y producción científica'
+};
+var TT_DIGITAL = ['SI','DIG','IA','INF']; // temas que componen "transformación digital"
+var TT_ASIGNACION = {
+  'BIE-1.1.1':['SOC'],
+  'BIE-1.1.2':['SOC','ART'],
+  'BIE-1.1.3':['TRA'],
+  'BIE-1.1.4':['SOC'],
+  'BIE-2.1.1':['ART','OFE'],
+  'BIE-2.2.1':['TRA'],
+  'BIE-2.2.2':['TRA'],
+  'BIE-2.3.1':['CAP','TRA'],
+  'BIE-3.1.1':['DIG'],
+  'BIE-3.3.1':['ART','TRA'],
+  'BIE-3.3.2':['ART','TRA'],
+  'BIE-3.3.3':['TRA'],
+  'BIE-3.3.4':['TRA'],
+  'BIE-3.3.5':['TRA'],
+  'BIE-3.3.6':['TRA'],
+  'PIL-3.3.1':['VIN','DIG'],
+  'PIL-3.3.2':['VIN','ART'],
+  'PIL-3.3.3':['VIN'],
+  'PIL-3.3.4':['VIN'],
+  'CD-3.1.1':['DIG'],
+  'CD-3.3.1':['INF'],
+  'CD-3.4.1':['NOR'],
+  'EXT-1.1.1':['VIN','SOC'],
+  'EXT-1.1.2':['VIN','SOC'],
+  'EXT-1.1.3':['SOC'],
+  'EXT-1.1.4':['SOC'],
+  'EXT-1.1.5':['SOC'],
+  'EXT-1.1.6':['SOC'],
+  'EXT-1.1.7':['OFE','ART'],
+  'EXT-1.1.8':['VIN','SOC'],
+  'EXT-1.1.9':['VIN'],
+  'EXT-1.1.10':['COM'],
+  'EXT-1.1.11':['ART'],
+  'INV-1.2.1':['VIN'],
+  'INV-1.2.2':['VIN'],
+  'INV-1.2.3':['VIN'],
+  'INV-1.2.4':['COM','CIE'],
+  'INV-1.3.1':['INT'],
+  'INV-1.3.2':['INT','CIE'],
+  'INV-2.1.1':['ART','CIE'],
+  'INV-2.2.1':['TRA','CIE'],
+  'INV-2.4.1':['CIE'],
+  'INV-2.5.1':['CIE','VIN'],
+  'INV-2.5.2':['CIE'],
+  'INV-3.1.1':['NOR','CIE'],
+  'INV-3.2.1':['SI','CIE'],
+  'INV-3.4.1':['ART','CIE'],
+  'INV-3.4.2':['SI','ART'],
+  'PCI-3.2.1':['SI'],
+  'PCI-3.2.2':['SI'],
+  'PCI-3.2.3':['SI'],
+  'PCI-3.2.4':['SI'],
+  'PCI-3.2.5':['SI'],
+  'PCI-3.2.6':['SI','COM'],
+  'POS-1.3.1':['INT'],
+  'POS-1.3.2':['INT','OFE'],
+  'POS-1.3.3':['INT','COM'],
+  'POS-2.4.1':['OFE'],
+  'POS-2.4.2':['OFE'],
+  'POS-2.4.3':['OFE'],
+  'POS-2.5.1':['CIE'],
+  'POS-3.1.1':['DIG'],
+  'POS-3.1.2':['INF'],
+  'POS-3.2.1':['SI'],
+  'POS-3.2.2':['SI'],
+  'POS-3.3.1':['TRA','DIG'],
+  'POS-3.4.1':['ART'],
+  'SAA-1.3.1':['INT','DIG'],
+  'SAA-1.3.2':['INT'],
+  'SAA-1.3.3':['INT'],
+  'SAA-1.3.4':['INT'],
+  'SAA-1.3.5':['INT'],
+  'SAA-2.1.1':['OFE'],
+  'SAA-2.1.2':['OFE'],
+  'SAA-2.1.3':['NOR','OFE'],
+  'SAA-2.1.4':['OFE'],
+  'SAA-2.2.1':['TRA'],
+  'SAA-2.2.2':['SI','OFE'],
+  'SAA-2.2.3':['TRA','SI'],
+  'SAA-2.2.4':['TRA'],
+  'SAA-2.3.1':['NOR'],
+  'SAA-2.3.2':['NOR'],
+  'SAA-2.3.3':['NOR'],
+  'SAA-2.3.4':['NOR'],
+  'SAA-2.3.5':['IA'],
+  'SAA-2.5.1':['ART','CIE'],
+  'SAA-2.5.2':['ART','CIE'],
+  'SAA-3.1.1':['SI'],
+  'SAA-3.1.2':['IA','DIG'],
+  'SAA-3.1.3':['DIG'],
+  'SAA-3.2.1':['SI'],
+  'SAA-3.2.2':['SI'],
+  'SAA-3.3.1':['TRA'],
+  'SAF-3.1.1':['INF'],
+  'SAF-3.1.2':['DIG'],
+  'SAF-3.1.3':['DIG'],
+  'SAF-3.1.4':['DIG'],
+  'SAF-3.1.5':['NOR'],
+  'SAF-3.1.6':['CAP','IA'],
+  'SAF-3.2.1':['SI','DIG'],
+  'SAF-3.2.2':['INF'],
+  'SAF-3.2.3':['SI'],
+  'SAF-3.2.4':['SI'],
+  'SAF-3.2.5':['DIG'],
+  'SAF-3.2.6':['NOR','DIG'],
+  'SAF-3.2.7':['INF'],
+  'SAF-3.4.1':['SOC','ART'],
+  'SAF-3.4.2':['ART'],
+  'SAF-3.5.1':['INF'],
+  'SAF-3.5.2':['INF'],
+  'UCI-1.1.1':['COM'],
+  'UCI-1.1.2':['COM'],
+  'UCI-1.1.3':['COM','DIG'],
+  'UCI-1.1.4':['COM'],
+  'UCI-1.2.1':['COM','SI'],
+  'UCI-2.3.1':['CAP','COM'],
+  'UCI-2.5.1':['COM','CIE'],
+  'UCI-3.1.1':['CAP'],
+  'UCI-3.3.1':['IA','COM'],
+  'UCI-3.4.1':['COM'],
+  'UCI-3.4.2':['COM','INF']
+};
+var _ttSel = null;
+
+function mapaVista(v) {
+  var temas = (v === 'temas');
+  var mc = document.getElementById('mapaControls');
+  if (mc) ['.legend-wrap','.controls-bar','.hint-bar'].forEach(function(q){ var e = mc.querySelector(q); if (e) e.style.display = temas ? 'none' : ''; });
+  var ms = document.getElementById('mapaSection'); if (ms) ms.style.display = temas ? 'none' : 'flex';
+  var notes = document.querySelector('#mapaSection .notes');
+  var tv = document.getElementById('temasView'); if (tv) tv.style.display = temas ? 'block' : 'none';
+  var b1 = document.getElementById('mvMatriz'), b2 = document.getElementById('mvTemas');
+  if (b1 && b2) { b1.classList.toggle('active', !temas); b2.classList.toggle('active', temas); b1.setAttribute('aria-selected', !temas); b2.setAttribute('aria-selected', temas); }
+  if (temas) { if (typeof closePanel === 'function') closePanel(); ttRender(); }
+}
+
+function ttDatos() {
+  var acc = [];
+  Object.keys(ACCIONES).forEach(function(key){
+    var area = key.split('|')[0];
+    (ACCIONES[key] || []).forEach(function(a){ acc.push({cod:a.cod, area:area, texto:a.accion || '', temas:TT_ASIGNACION[a.cod] || []}); });
+  });
+  var M = {}, S = {}, N = {};
+  Object.keys(TT_TEMAS).forEach(function(t){ M[t] = {}; S[t] = {}; N[t] = 0; });
+  acc.forEach(function(a){ a.temas.forEach(function(t){ if (!M[t]) return; M[t][a.area] = (M[t][a.area] || 0) + 1; S[t][a.area] = 1; N[t]++; }); });
+  var nS = function(t){ return Object.keys(S[t]).length; };
+  var filas = Object.keys(TT_TEMAS).sort(function(x, y){ return nS(y) - nS(x) || N[y] - N[x]; });
+  var areas = Object.keys(AREA_COLORS).sort(function(x, y){
+    var cx = acc.filter(function(a){ return a.area === x; }).length, cy = acc.filter(function(a){ return a.area === y; }).length;
+    return cy - cx;
+  });
+  return {acc:acc, M:M, N:N, nS:nS, filas:filas, areas:areas};
+}
+
+function ttRender() {
+  var root = document.getElementById('temasView'); if (!root) return;
+  var D = ttDatos(), tot = D.acc.length, nA = D.areas.length;
+  var sinClasif = D.acc.filter(function(a){ return !a.temas.length; }).length;
+  var maxS = D.nS(D.filas[0]);
+  var top = D.filas.filter(function(t){ return D.nS(t) === maxS; });
+  var dig = D.acc.filter(function(a){ return a.temas.some(function(t){ return TT_DIGITAL.indexOf(t) >= 0; }); });
+  var digAreas = {}; dig.forEach(function(a){ digAreas[a.area] = 1; });
+  var esc = function(x){ return String(x == null ? '' : x).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+  var listaTop = top.map(function(t){ return TT_TEMAS[t].toLowerCase(); });
+  var txtTop = listaTop.length > 1 ? listaTop.slice(0, -1).join(', ') + ' y ' + listaTop[listaTop.length - 1] : listaTop[0];
+  var h = '<div class="tt-intro">Las secretarías formularon sus acciones por separado, sin conocer las de las demás. Esta vista agrupa las '+tot+' acciones por tema y muestra en qué coincidieron.</div>'
+    + '<div class="tt-co">'
+    + '<div><b>'+top.length+' tema'+(top.length > 1 ? 's' : '')+'</b><span>'+(top.length > 1 ? 'aparecen' : 'aparece')+' en '+maxS+' de las '+nA+' secretarías: '+esc(txtTop)+'.</span></div>'
+    + '<div><b>'+D.N[top[0]]+' acciones</b><span>proponen '+esc(TT_TEMAS[top[0]].toLowerCase())+': es el tema compartido con más acciones.</span></div>'
+    + '<div><b>'+Math.round(dig.length / tot * 100)+'%</b><span>de las acciones ('+dig.length+') son de transformación digital (sistemas de información, digitalización, infraestructura tecnológica e IA), presentes en '+Object.keys(digAreas).length+' de las '+nA+' secretarías.</span></div>'
+    + '</div>'
+    + '<div class="tt-st">Los factores comunes del Plan</div>'
+    + '<div class="tt-note">Cada secretaría ocupa siempre la misma columna; el número indica cuántas de sus acciones abordan el tema. Tocá un tema para ver sus acciones.</div>'
+    + '<div class="tt-card"><table class="tt-tb"><tr><th></th>'
+    + D.areas.map(function(a){ return '<th class="cd" title="'+esc(AREA_NAMES[a] || a)+'"><span style="background:'+AREA_COLORS[a]+'">'+a+'</span></th>'; }).join('')
+    + '<th style="text-align:left">Secretarías</th></tr>';
+  var grupos = [['Muy compartidos · 5 o más secretarías', function(n){ return n >= 5; }], ['Compartidos · 4 secretarías', function(n){ return n === 4; }], ['Más específicos · 3 secretarías o menos', function(n){ return n <= 3; }]];
+  grupos.forEach(function(g){
+    var fs = D.filas.filter(function(t){ return g[1](D.nS(t)); });
+    if (!fs.length) return;
+    h += '<tr class="tt-g"><td colspan="'+(nA + 2)+'">'+g[0]+'</td></tr>';
+    fs.forEach(function(t){
+      var n = D.nS(t), sel = (_ttSel === t);
+      h += '<tr class="tt-row'+(sel ? ' sel' : '')+'" tabindex="0" onclick="ttToggle(\''+t+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();ttToggle(\''+t+'\');}" aria-expanded="'+sel+'">'
+        + '<td class="tt-n">'+esc(TT_TEMAS[t])+'<small>'+(sel ? '▲' : '▼')+'</small></td>'
+        + D.areas.map(function(a){ var v = D.M[t][a]; return '<td class="tt-sl">'+(v ? '<span style="background:'+AREA_COLORS[a]+'" title="'+esc(AREA_NAMES[a] || a)+': '+v+' accion'+(v > 1 ? 'es' : '')+'">'+v+'</span>' : '<i aria-hidden="true"></i>')+'</td>'; }).join('')
+        + '<td class="tt-tot"><div class="tt-bar"><div style="width:'+(n / nA * 100)+'%"></div></div><div class="tt-lb"><b>'+n+'</b> de '+nA+' · '+D.N[t]+' acciones</div></td></tr>';
+      if (sel) {
+        var lista = D.acc.filter(function(a){ return a.temas.indexOf(t) >= 0; });
+        h += '<tr class="tt-det"><td colspan="'+(nA + 2)+'"><div class="tt-det-in"><h4>'+esc(TT_TEMAS[t])+' · '+lista.length+' acciones en '+n+' secretarías</h4><ul>'
+          + lista.map(function(a){ return '<li><b><span class="tt-chip" style="background:'+(AREA_COLORS[a.area] || '#333')+'">'+a.area+'</span>'+esc(String(a.cod).split('-').slice(1).join('-'))+'</b><span>'+esc(a.texto)+'</span></li>'; }).join('')
+          + '</ul></div></td></tr>';
+      }
+    });
+  });
+  h += '</table></div>'
+    + '<div class="tt-foot">Clasificación temática elaborada a partir del texto de cada acción; una acción puede abordar hasta dos temas. Por eso la suma de acciones por tema supera el total de '+tot+'.'
+    + (sinClasif ? ' Hay '+sinClasif+' acciones sin clasificar.' : '') + '</div>';
+  root.innerHTML = h;
+}
+
+function ttToggle(t) {
+  _ttSel = (_ttSel === t) ? null : t;
+  ttRender();
+  var r = document.querySelector('#temasView tr.tt-row.sel');
+  if (r) r.focus({preventScroll:true});
+}
+</script>
 </body>
 </html>
