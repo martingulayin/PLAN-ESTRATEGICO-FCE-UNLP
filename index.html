@@ -7896,27 +7896,40 @@ function tbDescargarPDF(){
     // ═══ RESUMEN EJECUTIVO ═══
     doc.addPage();band();pg.resumen=doc.internal.getNumberOfPages();
     y=sec(22,'Resumen ejecutivo · indicadores generales FCE');
-    var kk=TBK.todas,cw=(CW-3*4)/4,ch=27;
-    kk.forEach(function(k,i){
-      var cx=M+(i%4)*(cw+4),cy=y+Math.floor(i/4)*(ch+4);
+    // Tarjetas agrupadas por período (mismo criterio que en pantalla). Rendimiento y Egresados prom. no se muestran como tarjeta.
+    var kk=TBK.todas,cw=(CW-3*4)/4,ch=30;
+    var KGR=[
+      {t:'2026 · ciclo en curso, datos parciales',l:['Ingresantes 2026','Sin exp. univ. completa','Escuela secundaria pública','Egresados 2026']},
+      {t:'2025 · año cerrado',l:['Ingresantes 2025','Estudiantes 2025','Mujeres','Egresados 2025','Egresados sin exp. univ. completa']},
+      {t:'Trayectoria · series históricas',l:['Duración media']}
+    ];
+    function kcard(k,cx,cy){
       doc.setFillColor(LIGHT[0],LIGHT[1],LIGHT[2]);doc.roundedRect(cx,cy,cw,ch,1.5,1.5,'F');
       if(k.g){doc.setFillColor(GOLD[0],GOLD[1],GOLD[2]);doc.rect(cx,cy+2,.9,ch-4,'F');}
       doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
-      doc.text(tbPdfClean(k.l).toUpperCase(),cx+3,cy+5);
-      doc.setFontSize(17);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);doc.text(tbPdfClean(k.v),cx+3,cy+13);
+      doc.text(doc.splitTextToSize(tbPdfClean(k.l).toUpperCase(),cw-5).slice(0,2),cx+3,cy+4.6);
+      doc.setFontSize(17);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);doc.text(tbPdfClean(k.v),cx+3,cy+14.5);
       doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(GRAY[0],GRAY[1],GRAY[2]);
       var ks=tbPdfClean(k.s);if(/materias$/.test(ks))ks+=' aprobadas';
-      doc.text(doc.splitTextToSize(ks,cw-5).slice(0,2),cx+3,cy+17);
+      doc.text(doc.splitTextToSize(ks,cw-5).slice(0,2),cx+3,cy+18.5);
       if(k.tt){
         doc.setFont('helvetica','bold');doc.setFontSize(6.8);
         var c=k.t==='up'?[30,132,73]:k.t==='dn'?[192,57,43]:GRAY;doc.setTextColor(c[0],c[1],c[2]);
         var ttx=tbPdfClean(k.tt);
         if(k.b)ttx+=' ('+tbPdfClean(k.b)+')';
-        if(k.l==='Egresados prom.')ttx+=' ('+tbFmt1(tbAvg('FCE',2016,2020))+')';
-        doc.text(ttx,cx+3,cy+24);
+        doc.text(doc.splitTextToSize(ttx,cw-5).slice(0,2),cx+3,cy+25);
       }
+    }
+    KGR.forEach(function(gr){
+      var cs=kk.filter(function(k){return gr.l.indexOf(k.l)>=0;});
+      if(!cs.length)return;
+      doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(GOLD[0],GOLD[1],GOLD[2]);doc.text(gr.t.toUpperCase(),M,y+3);
+      doc.setDrawColor(222,226,233);doc.setLineWidth(.2);doc.line(M,y+4.6,M+CW,y+4.6);
+      y+=7;
+      cs.forEach(function(k,i){kcard(k,M+(i%4)*(cw+4),y+Math.floor(i/4)*(ch+3));});
+      y+=Math.ceil(cs.length/4)*(ch+3)+1;
     });
-    y+=2*(ch+4)+4;
+    y+=2;
 
     // Mensajes clave (derivados de los datos)
     y=sec(y,'Lectura de los datos');
@@ -7931,6 +7944,7 @@ function tbDescargarPDF(){
       'Composición del ingreso: el promedio anual de ingresantes por cohorte pasó de '+(cohTot?cohTot[1]+' (2016–2020) a '+cohTot[2]+' (2021–2025), '+cohTot[3]:'s/d')+'. El total se mantiene estable pero cambia la composición: '+cohCar.join('; ')+(cohSd.length?' ('+cohSd.join(', ')+': sin dato)':'')+'.',
       'Matrícula: '+E25.v+' estudiantes en 2025 ('+tbPdfClean(E25.tt).replace(/ vs 2024$/,'')+' respecto de '+tbPdfClean(E25.b)+' en 2024), con un rendimiento académico de '+R.v+' ('+tbPdfClean(R.tt).replace(/ vs 2024$/,'')+' respecto de '+tbPdfClean(R.b)+' en 2024).',
       'Egresos: '+G.v+' egresados en 2025 ('+tbPdfClean(G.tt)+'). El promedio anual pasó de '+tbFmt1(tbAvg('FCE',2016,2020))+' (2016–2020) a '+tbFmt1(tbAvg('FCE',2021,2025))+' (2021–2025), '+tbPct(tbAvg('FCE',2021,2025),tbAvg('FCE',2016,2020))+'.',
+      'Perfil de ingreso 2026: '+tbPdfK('todas','Sin exp. univ. completa').v+' de los ingresantes no tiene experiencia universitaria completa en el hogar ('+tbPdfClean(tbPdfK('todas','Sin exp. univ. completa').s).replace('Ingresantes 2026 · ','')+') y '+tbPdfK('todas','Escuela secundaria pública').v+' proviene de escuelas secundarias públicas. Entre los egresados 2025 caracterizados, el '+tbPdfK('todas','Egresados sin exp. univ. completa').v+' no tiene experiencia universitaria completa en el hogar. Egresos 2026: '+tbPdfK('todas','Egresados 2026').v+' entre abril y octubre (ciclo en curso).',
       'Duración: el tiempo medio de egreso ponderado de la FCE es de '+D.v+' años (egresos 2016–2025). La mediana de la Facultad no puede derivarse de los datos por título; para conocer la mediana de cada carrera, ver la sección «Duración de la carrera».'
     ];
     doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
