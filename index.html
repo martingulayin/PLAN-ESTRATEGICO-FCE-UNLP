@@ -3712,6 +3712,8 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
       <button class="tb__pdfbtn" id="tb-pdf-btn" onclick="tbDescargarPDF()" title="Descarga un informe en PDF con los datos actuales del tablero">&#11015; Descargar informe PDF</button>
     </div>
   </div>
+  <div id="tb-edit-bar" class="tbe-bar" style="display:none;"></div>
+  <div id="tb-preview-banner" class="tbe-banner" style="display:none;"></div>
   <div class="tb__fi">
     <span class="tb__fl">Carrera</span>
     <button class="tb__fb on"  onclick="tbF('todas',this)">Todas</button>
@@ -3723,42 +3725,43 @@ document.getElementById('welcomeOverlay').addEventListener('click', function(e){
     <button class="tb__fb" onclick="tbF('TC',this)">Tec. Cooperativas</button>
   </div>
   <div class="tb__bd">
-    <div class="tb__sc"><div class="tb__st">Indicadores generales · FCE</div><div class="tb__kg" id="tb__kg"></div>
+    <div class="tb__sc"><div class="tb__st" id="tb-st-ind">Indicadores generales · FCE</div><div class="tb__kg" id="tb__kg"></div>
       <div class="tb__nt" id="tb-n-alcance"></div></div>
     <div class="tb__sc">
-      <div class="tb__st">Ingreso · Ingresantes 2026 y evolución por cohorte</div>
+      <div class="tb__st" id="tb-st-ing">Ingreso · Ingresantes 2026 y evolución por cohorte</div>
       <div class="tb__2c tb__w1">
         <div class="tb__pn" id="tb-ing26"></div>
         <div class="tb__pn" id="tb-coh"></div>
       </div>
-      <div class="tb__pn" style="margin-top:.9rem;"><div class="tb__pt">Ingresantes totales FCE por cohorte <span>2016–2025</span></div><div class="tb__bars" id="tb__bING"></div><div class="tb__bf"><span>2016</span><span>2025</span></div>
+      <div class="tb__pn" style="margin-top:.9rem;"><div class="tb__pt" id="tb-pt-serie">Ingresantes totales FCE por cohorte <span>2016–2025</span></div><div class="tb__bars" id="tb__bING"></div><div class="tb__bf"><span>2016</span><span>2025</span></div>
         <div class="tb__nt" id="tb-n-ingserie"></div></div>
     </div>
     <div class="tb__sc">
-      <div class="tb__st">Estudiantes 2025</div>
+      <div class="tb__st" id="tb-st-est">Estudiantes 2025</div>
       <div class="tb__2c tb__w2">
         <div class="tb__pn" style="min-width:0;" id="tb-mat"></div>
         <div class="tb__pn" style="min-width:0;" id="tb-peso"></div>
       </div>
     </div>
     <div class="tb__sc">
-      <div class="tb__st">Egresados por carrera · tendencia 2016–2025</div>
+      <div class="tb__st" id="tb-st-egr">Egresados por carrera · tendencia 2016–2025</div>
       <div class="tb__3c" id="tb-egr-grid"></div>
       <div class="tb__pn" style="margin-top:.9rem;" id="tb-egrvar"></div>
       <div class="tb__nt" id="tb-n-egr"></div>
     </div>
     <div class="tb__sc">
-      <div class="tb__st">Duración de la carrera · egresos 2016–2025</div>
+      <div class="tb__st" id="tb-st-dur">Duración de la carrera · egresos 2016–2025</div>
       <div class="tb__dg" id="tb-dur"></div>
       <div class="tb__nt" id="tb-n-dur"></div>
     </div>
     <div class="tb__sc">
-      <div class="tb__st">Lic. en Ciencia de Datos en Organizaciones · ECOINFO · 2024–2026</div>
+      <div class="tb__st" id="tb-st-cdo">Lic. en Ciencia de Datos en Organizaciones · ECOINFO · 2024–2026</div>
       <div class="tb__2c tb__w2">
         <div class="tb__pn" id="tb-cdo1"></div>
         <div class="tb__pn" id="tb-cdo2"></div>
       </div>
     </div>
+    <div id="tb-extras"></div>
   </div>
 </div><!-- tableroView -->
 
@@ -7692,28 +7695,28 @@ function tbRenderAll(){
   tbSet('tb-ft','Fuentes: '+tbEsc(D.meta.fuentes));
   tbSet('tb-bg',tbEsc(D.meta.badge));
   tbSet('tb-n-alcance',tbEsc(D.notas.alcance));
-  tbSet('tb-ing26','<div class="tb__pt">Ingresantes 2026 <span>Total: '+tbEsc(D.ing26.total)+'</span></div><div class="tb__hw">'
+  tbSet('tb-ing26','<div class="tb__pt">'+tbEsc(tbT('panIng26'))+' <span>Total: '+tbEsc(D.ing26.total)+'</span></div><div class="tb__hw">'
     +D.ing26.items.map(function(i){return '<div><div class="tb__hl">'+tbEsc(i.l)+' <span>'+tbEsc(i.v)+'</span></div><div class="tb__htr"><div class="tb__hf" style="width:'+i.w+'%"></div></div></div>';}).join('')
     +'</div>'+tbNt(D.notas.ing26));
-  tbSet('tb-coh','<div class="tb__pt">Ingresantes por cohorte · promedio anual <span>'+tbEsc(D.titulos.cohSpan)+'</span></div>'+tbTbl(D.cohortes)+tbNt(D.notas.cohortes));
+  tbSet('tb-coh','<div class="tb__pt">'+tbEsc(tbT('panCoh'))+' <span>'+tbEsc(D.titulos.cohSpan)+'</span></div>'+tbTbl(D.cohortes)+tbNt(D.notas.cohortes));
   tbSet('tb-n-ingserie',tbEsc(D.notas.ingSerie));
-  tbSet('tb-mat','<div class="tb__pt">Matrícula por título</div>'+tbTbl(D.matricula)+tbNt(D.notas.matricula));
-  tbSet('tb-peso','<div class="tb__pt">Peso de la FCE en la UNLP · 2025</div>'+tbTbl(D.peso,'table-layout:fixed;','width:38%')+tbNt(D.notas.peso));
+  tbSet('tb-mat','<div class="tb__pt">'+tbEsc(tbT('panMat'))+'</div>'+tbTbl(D.matricula)+tbNt(D.notas.matricula));
+  tbSet('tb-peso','<div class="tb__pt">'+tbEsc(tbT('panPeso'))+'</div>'+tbTbl(D.peso,'table-layout:fixed;','width:38%')+tbNt(D.notas.peso));
   var cfg=[['CP','Contador Público','CP'],['LA','Lic. Administración','LA'],['LE','Lic. Economía','LE'],['LT','Lic. Turismo','LT'],['TC','Tec. Cooperativas','TC'],['FCE','Total FCE (5 títulos)','todas']];
   tbSet('tb-egr-grid',cfg.map(function(c){
     var tot=TBE[c[0]].reduce(function(a,d){return a+d.v;},0);
     var prom=((TBK[c[2]]||[]).filter(function(k){return k.l==='Egresados prom.';})[0]||{}).v||'s/d';
     return '<div class="tb__pn"><div class="tb__pt">'+c[1]+' <span>Prom. 2021–25: '+tbEsc(prom)+'</span></div><div class="tb__bars" id="tb__b'+c[0]+'"></div><div class="tb__bf"><span>2016</span><span>2025</span></div><div class="tb__nt">Total 10 años: '+String(tot).replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' egresados</div></div>';
   }).join(''));
-  tbSet('tb-egrvar','<div class="tb__pt">Variaciones de egresos</div>'+tbTbl(D.egresosVar));
+  tbSet('tb-egrvar','<div class="tb__pt">'+tbEsc(tbT('panEgrVar'))+'</div>'+tbTbl(D.egresosVar));
   tbSet('tb-n-egr',tbEsc(D.notas.egresos));
   tbSet('tb-dur',D.duracion.map(function(d){return '<div class="tb__dc"><div class="tb__dn">'+tbEsc(d.n)+'</div><div class="tb__dm">'+tbEsc(d.m)+' <span>años mediana</span></div><div class="tb__da">'+tbEsc(d.a)+'</div><div class="tb__dr">'+tbEsc(d.r)+'</div></div>';}).join(''));
   tbSet('tb-n-dur',tbEsc(D.notas.duracion));
-  tbSet('tb-cdo1','<div class="tb__pt">Ingreso, matrícula y permanencia <span>'+tbEsc(D.titulos.cdoIngSpan)+'</span></div>'+tbTbl(D.cdoIngreso)+tbNt(D.notas.cdoIngreso));
-  tbSet('tb-cdo2','<div class="tb__pt">Perfil de ingresantes <span>'+tbEsc(D.titulos.cdoPerfSpan)+'</span></div>'+tbTbl(D.cdoPerfil)+tbNt(D.notas.cdoPerfil));
+  tbSet('tb-cdo1','<div class="tb__pt">'+tbEsc(tbT('panCdo1'))+' <span>'+tbEsc(D.titulos.cdoIngSpan)+'</span></div>'+tbTbl(D.cdoIngreso)+tbNt(D.notas.cdoIngreso));
+  tbSet('tb-cdo2','<div class="tb__pt">'+tbEsc(tbT('panCdo2'))+' <span>'+tbEsc(D.titulos.cdoPerfSpan)+'</span></div>'+tbTbl(D.cdoPerfil)+tbNt(D.notas.cdoPerfil));
 }
 
-function buildTablero(){tbRenderAll();tbRK('todas');['CP','LA','LE','LT','TC','FCE'].forEach(function(k){tbBB('tb__b'+k,TBE[k]);});tbBB('tb__bING',TBI);}
+function buildTablero(){tbInit();} // carga los datos publicados en la base y dibuja el tablero (ver módulo de edición)
 
 function tbRK(k){
   var g=document.getElementById('tb__kg');if(!g)return;
@@ -7726,10 +7729,10 @@ function tbRK(k){
   ];
   function card(i){
     var tc=i.t==='up'?'up':i.t==='dn'?'dn':'nt';
-    return '<div class="tb__kc"><div class="tb__kl">'+i.l+'</div>'
-      +'<div class="tb__kv'+(i.g?' g':'')+'">'+i.v+'</div>'
-      +'<div class="tb__ks">'+i.s+'</div>'
-      +(i.tt?'<div class="tb__kt '+tc+'">'+i.tt+'</div>':'')
+    return '<div class="tb__kc"><div class="tb__kl">'+tbEsc(i.l)+'</div>'
+      +'<div class="tb__kv'+(i.g?' g':'')+'">'+tbEsc(i.v)+'</div>'
+      +'<div class="tb__ks">'+tbEsc(i.s)+'</div>'
+      +(i.tt?'<div class="tb__kt '+tc+'">'+tbEsc(i.tt)+'</div>':'')
       +'</div>';
   }
   var usados={},html='';
@@ -7751,13 +7754,15 @@ function tbBB(id,data){
     var h=Math.max(8,Math.round(d.v/mx*100));
     var b=document.createElement('div');
     b.className='tb__bar';b.style.height=h+'%';
-    b.title=d.y+': '+d.v;
-    b.innerHTML='<div class="tb__bv">'+d.v+'</div><div class="tb__by">'+String(d.y).slice(2)+'</div>';
+    var yy=tbEsc(d.y),vv=tbEsc(d.v);
+    b.title=yy+': '+vv;
+    b.innerHTML='<div class="tb__bv">'+vv+'</div><div class="tb__by">'+String(yy).slice(2)+'</div>';
     el.appendChild(b);
   });
 }
 
 function tbF(k,btn){
+  if(window._tb)_tb.filtro=k;
   document.querySelectorAll('.tb__fb').forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
   tbRK(k);
@@ -7775,7 +7780,7 @@ function tbPct(a,b){if(!b)return 's/d';var v=(a/b-1)*100;return(v>=0?'+':'-')+Ma
 function tbAvg(key,y0,y1){var a=(TBE[key]||[]).filter(function(d){return d.y>=y0&&d.y<=y1;});return a.length?a.reduce(function(t,d){return t+d.v;},0)/a.length:0;}
 function tbPdfK(key,label){var a=(TBK[key]||[]);for(var i=0;i<a.length;i++){if(a[i].l===label)return a[i];}return{l:label,v:'s/d',s:'',tt:''};}
 
-function tbDescargarPDF(){
+function tbDescargarPDF_(){ // se llama desde tbDescargarPDF(), que primero asegura los datos de la base
   var btn=document.getElementById('tb-pdf-btn');
   try{
     if(!window.jspdf||!window.jspdf.jsPDF){alert('No se pudo cargar el generador de PDF. Verificá la conexión a internet e intentá de nuevo.');return;}
@@ -8038,6 +8043,45 @@ function tbDescargarPDF(){
     if(asim===dur.length-1)dnotas.push('En todas las carreras la media supera a la mediana: la distribución es asimétrica a la derecha, con una cola de egresos tardíos que eleva el promedio. Por eso la mediana es la medida más representativa de la duración típica.');
     y=note(y+1,dnotas.join(' '));
 
+    // ═══ CONTENIDO ADICIONAL (cargado desde el editor del tablero) ═══
+    var XT=(typeof TBX!=='undefined'&&TBX?TBX:[]).filter(function(s){return s&&s.pdf!==false&&(s.bloques||[]).length;});
+    if(XT.length){
+      doc.addPage();band();pg.extras=doc.internal.getNumberOfPages();
+      y=sec(22,'Información complementaria');
+      var xNueva=function(alto){if(y+alto>278){doc.addPage();band();y=22;}};
+      var xTabla=function(head,body){
+        doc.autoTable({startY:y,head:[head],body:body,theme:'grid',margin:{left:M,right:M,top:20,bottom:16},
+          styles:{font:'helvetica',fontSize:8.5,cellPadding:1.8,textColor:NAVY,lineColor:[215,220,228],lineWidth:.2,valign:'middle'},
+          headStyles:{fillColor:NAVY,textColor:255,fontStyle:'bold',halign:'center'},alternateRowStyles:{fillColor:LIGHT},
+          didParseCell:function(d){if(d.section==='body'){if(d.column.index>0)d.cell.styles.halign='center';if(/^Total/.test(String(d.row.raw[0]))){d.cell.styles.fontStyle='bold';d.cell.styles.fillColor=[235,226,205];}}},
+          didDrawPage:function(){band();}});
+        y=doc.lastAutoTable.finalY+3;
+      };
+      XT.forEach(function(s,si){
+        xNueva(30);
+        if(si>0)y+=3;
+        doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
+        doc.text(tbPdfClean(s.titulo||'Información complementaria'),M,y);y+=5.5;
+        (s.bloques||[]).forEach(function(b){
+          xNueva(22);
+          if(b.titulo)y=sub(y,tbPdfClean(b.titulo));
+          if(b.tipo==='tabla'&&(b.head||[]).length){
+            xTabla(b.head.map(tbPdfClean),(b.rows||[]).map(function(r){return r.map(function(c){return tbPdfClean(String(c==null?'':c).replace(/^\^/,''));});}));
+          }else if(b.tipo==='tarjetas'&&(b.items||[]).length){
+            xTabla(['Indicador','Valor','Detalle'],b.items.map(function(i){return[tbPdfClean(i.l),tbPdfClean(i.v),tbPdfClean(i.s)];}));
+          }else if(b.texto){
+            doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(NAVY[0],NAVY[1],NAVY[2]);
+            String(b.texto).split(/\n/).forEach(function(par){
+              doc.splitTextToSize(tbPdfClean(par),CW).forEach(function(l){xNueva(5);doc.text(l,M,y);y+=4.3;});
+              y+=1.5;
+            });
+          }
+          if(b.nota)y=note(y,tbPdfClean(b.nota));
+          y+=2;
+        });
+      });
+    }
+
     // Índice (con enlaces a cada sección)
     doc.setPage(pg.indice);
     y=sec(22,'Índice');
@@ -8049,6 +8093,7 @@ function tbDescargarPDF(){
       ['Egresados por carrera','Tendencia 2016–2025 y promedio anual por período',pg.egresos],
       ['Duración de la carrera','Mediana, media, cuartiles y rango por carrera',pg.duracion]
     ];
+    if(pg.extras)items.push(['Información complementaria',XT.map(function(s){return tbPdfClean(s.titulo||'');}).filter(Boolean).join(' · ').slice(0,95),pg.extras]);
     y+=4;
     items.forEach(function(it,i){
       var num=String(i+1)+'.';
@@ -9429,6 +9474,9 @@ async function loadAdminUsers() {
       <button class="sec-action-btn" onclick="toggleSecEdit('${escJs(u.id)}')" title="Editar secciones">
         📂 ${esc(secLabel(u.secciones))}
       </button>
+      <button class="sec-action-btn" ${u.rol==='admin'?'disabled style="opacity:.6;cursor:default;"':`onclick="toggleEditaTablero('${escJs(u.id)}',${!!u.puede_editar_tablero})"`} title="Permiso para editar el Tablero Institucional">
+        📊 Tablero: ${u.rol==='admin'?'edita (admin)':(u.puede_editar_tablero?'✓ edita':'solo ve')}
+      </button>
       <button class="sec-action-btn" onclick="toggleEditPerfil('${escJs(u.id)}')" title="Editar nombre, área y cargo">
         ✏️ Editar
       </button>
@@ -9455,6 +9503,18 @@ async function loadAdminUsers() {
 
   // Cargar sesiones debajo
   loadSesiones();
+}
+
+async function toggleEditaTablero(uid, actual) {
+  const nuevo = !actual;
+  if (!confirm(nuevo ? '¿Dar a este usuario permiso para editar el Tablero Institucional?' : '¿Quitar a este usuario el permiso para editar el Tablero Institucional?')) return;
+  const { error } = await sb.from('perfiles').update({ puede_editar_tablero: nuevo }).eq('id', uid);
+  if (error) {
+    alert(/puede_editar_tablero|column/i.test(error.message || '') ? 'Falta correr el script SQL del tablero en Supabase (columna puede_editar_tablero).' : 'No se pudo guardar el permiso. Intentá nuevamente.');
+    return;
+  }
+  await logAct('editar', 'usuarios', (nuevo ? 'Dio' : 'Quitó') + ' permiso de edición del tablero (id: ' + uid + ')');
+  loadAdminUsers();
 }
 
 function toggleSecEdit(uid) {
@@ -11557,6 +11617,670 @@ function ttToggle(t) {
   var r = document.querySelector('#temasView tr.tt-row.sel');
   if (r) r.focus({preventScroll:true});
 }
+</script>
+<style>
+  /* ── Tablero: barra de edición y editor ── */
+  .tbe-bar{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;background:#0A1628;border-bottom:1px solid rgba(201,150,58,.2);padding:.55rem 2.5rem;font-family:'Inter',sans-serif;}
+  .tbe-l,.tbe-r{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+  .tbe-chip{font-size:.68rem;font-weight:600;padding:.3rem .65rem;border-radius:999px;border:1px solid #1E3A5A;color:#A9C1D6;background:#0F2238;font-family:inherit;}
+  .tbe-chip.ok{color:#7FD6A8;border-color:#1E5A42;background:#0D2A22;}
+  .tbe-chip.warn{color:#F2C46D;border-color:#5A4720;background:#2A2210;}
+  .tbe-chip.pend{color:#FFD58A;border-color:#8A6A24;background:#33270E;cursor:pointer;}
+  button.tbe-chip.pend:hover{background:#45340F;}
+  .tbe-btn{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;padding:.42rem .85rem;border-radius:5px;border:1px solid #2A4A6A;background:#12263D;color:#E2E8F0;cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .tbe-btn:hover{border-color:var(--gold);color:#fff;}
+  .tbe-btn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+  .tbe-btn.gold:hover{background:var(--gold-l);}
+  .tbe-btn:disabled{opacity:.5;cursor:not-allowed;}
+  .tbe-btn.sm{font-size:.68rem;padding:.3rem .6rem;margin:.35rem .3rem 0 0;}
+  .tbe-sw{display:flex;align-items:center;gap:.35rem;font-size:.7rem;color:#A9C1D6;cursor:pointer;}
+  .tbe-sw input{accent-color:var(--gold);}
+  .tbe-banner{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;background:#33270E;border-bottom:2px solid var(--gold);color:#FFE2A8;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:600;padding:.6rem 2.5rem;}
+  .tbe-bn-act{display:flex;gap:.4rem;flex-wrap:wrap;}
+  .tb__bd.tbe-cargando{opacity:.35;pointer-events:none;transition:opacity .2s;}
+  .tbx-bloques{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.9rem;align-items:start;}
+  .tbx-texto{font-size:.74rem;color:#C9D6E3;line-height:1.6;}
+  .tbe-ov{position:fixed;inset:0;z-index:9500;background:rgba(3,8,15,.72);display:flex;align-items:stretch;justify-content:center;padding:2.5vh 2vw;font-family:'Inter',sans-serif;}
+  .tbe-ov.chico{align-items:center;z-index:9600;}
+  .tbe-ov-box{background:#0D1B2A;border:1px solid #1E3A5A;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);width:min(1280px,100%);display:flex;flex-direction:column;overflow:hidden;color:#E2E8F0;}
+  .tbe-ov.chico .tbe-ov-box{width:min(820px,100%);max-height:90vh;}
+  .tbe-ov-hd{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.2rem;border-bottom:1px solid #1E3A5A;background:#0A1628;}
+  .tbe-ov-tt{font-size:.95rem;font-weight:800;color:#fff;}
+  .tbe-x{background:#12263D;border:1px solid #2A4A6A;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;}
+  .tbe-ov-body{flex:1;overflow:auto;padding:1rem 1.2rem;}
+  .tbe-ov-ft{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding:.75rem 1.2rem;border-top:1px solid #1E3A5A;background:#0A1628;}
+  .tbe-sp{flex:1;}
+  .tbe-ed{display:grid;grid-template-columns:250px 1fr;gap:1rem;height:100%;min-height:0;}
+  #tbe-editor .tbe-ov-body{padding:0;overflow:hidden;}
+  #tbe-editor .tbe-ed{height:100%;}
+  .tbe-nav{border-right:1px solid #1E3A5A;padding:.8rem .6rem;overflow-y:auto;background:#0A1628;}
+  .tbe-nb{display:block;width:100%;text-align:left;font-family:inherit;font-size:.74rem;font-weight:600;color:#A9C1D6;background:none;border:none;border-radius:6px;padding:.5rem .65rem;cursor:pointer;margin-bottom:2px;}
+  .tbe-nb:hover{background:#12263D;color:#fff;}
+  .tbe-nb.on{background:rgba(201,150,58,.16);color:var(--gold-l);box-shadow:inset 3px 0 0 var(--gold);}
+  .tbe-dirty{font-size:.68rem;color:#F2C46D;padding:.7rem .65rem;font-weight:700;}
+  .tbe-main{overflow-y:auto;padding:1rem 1.3rem 2rem 0;}
+  .tbe-h{font-size:1rem;font-weight:800;color:#fff;margin:0 0 .25rem;}
+  .tbe-sub{font-size:.72rem;color:#8FA9C0;margin:.2rem 0 .9rem;line-height:1.5;}
+  .tbe-mini{font-size:.68rem;color:#8FA9C0;}
+  .tbe-lb{display:block;font-size:.64rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7F9AB3;margin:.7rem 0 .25rem;}
+  .tbe-in{width:100%;box-sizing:border-box;background:#12263D;border:1px solid #2A4A6A;border-radius:5px;color:#E2E8F0;padding:.4rem .55rem;font-family:inherit;font-size:.76rem;}
+  .tbe-in:focus{outline:none;border-color:var(--gold);background:#162D47;}
+  .tbe-in[readonly]{background:#0F1F33;color:#9BB0C4;border-style:dashed;}
+  .tbe-in.tbe-bad{border-color:#E05A4F;background:#2A1414;}
+  textarea.tbe-in{resize:vertical;line-height:1.45;}
+  .w-xs{max-width:80px;}.w-s{max-width:140px;}.w-m{max-width:320px;}.w-l{max-width:460px;}
+  .tbe-grid{border-collapse:separate;border-spacing:4px;width:100%;margin:.4rem 0;}
+  .tbe-grid th{font-size:.64rem;font-weight:700;color:#7F9AB3;text-align:left;padding:0 2px;white-space:nowrap;}
+  .tbe-grid th .tbe-in{font-weight:700;color:var(--gold-l);}
+  .tbe-grid td{vertical-align:middle;}
+  .tbe-narrow{max-width:420px;}
+  .tbe-scroll{overflow-x:auto;}
+  .tbe-scroll .tbe-grid td .tbe-in,.tbe-scroll .tbe-grid th .tbe-in{min-width:90px;}
+  .tbe-nw{white-space:nowrap;width:1%;}
+  .tbe-ic{background:#12263D;border:1px solid #2A4A6A;color:#A9C1D6;width:26px;height:26px;border-radius:5px;cursor:pointer;font-size:.72rem;margin-left:2px;}
+  .tbe-ic:hover{color:#fff;border-color:var(--gold);}
+  .tbe-ic.del:hover{border-color:#E05A4F;color:#FF8A80;}
+  .tbe-cards{display:grid;gap:.6rem;}
+  .tbe-card{background:#0F2238;border:1px solid #1E3A5A;border-radius:8px;padding:.65rem .8rem;margin-bottom:.6rem;}
+  .tbe-card-hd{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;}
+  .tbe-row{display:flex;gap:.6rem;flex-wrap:wrap;}
+  .tbe-row>div{min-width:120px;}
+  .tbe-grow{flex:1;min-width:200px;}
+  .tbe-lock{font-size:.85rem;}
+  .tbe-chk{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;color:#A9C1D6;margin:.5rem 0;cursor:pointer;}
+  .tbe-chk input{accent-color:var(--gold);}
+  .tbe-tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin:.3rem 0 .6rem;}
+  .tbe-tab{font-family:inherit;font-size:.7rem;font-weight:700;padding:.35rem .75rem;border-radius:999px;border:1px solid #2A4A6A;background:#12263D;color:#A9C1D6;cursor:pointer;}
+  .tbe-tab.on{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+  .tbe-sec{border-color:#3A5A7A;}
+  .tbe-num{font-size:.7rem;color:var(--gold-l);white-space:nowrap;}
+  .tbe-blq{background:#0A1A2C;border:1px dashed #2A4A6A;border-radius:7px;padding:.55rem .7rem;margin:.6rem 0;}
+  .tbe-tag{font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:#1E3A5A;color:#CFE0EF;padding:.2rem .45rem;border-radius:4px;}
+  .tbe-add{font-size:.7rem;color:#8FA9C0;margin-top:.4rem;}
+  .tbe-vacio{font-size:.78rem;color:#8FA9C0;padding:1rem 0;}
+  .tbe-hist{width:100%;border-collapse:collapse;font-size:.74rem;}
+  .tbe-hist th{text-align:left;font-size:.64rem;color:#7F9AB3;text-transform:uppercase;letter-spacing:.05em;padding:.4rem;border-bottom:1px solid #1E3A5A;}
+  .tbe-hist td{padding:.45rem .4rem;border-bottom:1px solid #15304A;vertical-align:top;color:#CFE0EF;}
+  .tbe-est{font-size:.64rem;font-weight:800;padding:.15rem .45rem;border-radius:4px;background:#1E3A5A;color:#CFE0EF;}
+  .tbe-est.publicado{background:#0D2A22;color:#7FD6A8;}.tbe-est.pendiente{background:#33270E;color:#FFD58A;}.tbe-est.rechazado{background:#2A1414;color:#FF8A80;}
+  @media(max-width:800px){.tbe-ed{grid-template-columns:1fr;}.tbe-nav{border-right:none;border-bottom:1px solid #1E3A5A;max-height:160px;}.tbe-main{padding:1rem;}.tbe-bar,.tbe-banner{padding-left:1rem;padding-right:1rem;}.tbe-ov{padding:0;}.tbe-ov-box{border-radius:0;}}
+</style>
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// TABLERO INSTITUCIONAL · DATOS EN SUPABASE Y MODO EDICIÓN
+// - Los datos publicados se leen de la tabla tablero_versiones (estado 'publicado').
+// - Si la base no responde o todavía no hay versiones, se usan los datos del HTML (TB_SEMILLA).
+// - Editan: administradores y usuarios con perfiles.puede_editar_tablero = true.
+// - Con la aprobación activada, los cambios de un editor quedan pendientes hasta que el admin los publica.
+// ══════════════════════════════════════════════════════════════════════════
+var TB_SEMILLA = JSON.parse(JSON.stringify({TBD:TBD, TBK:TBK, TBE:TBE, TBI:TBI, TBX:[]}));
+var TBX = [];                 // contenido adicional (secciones agregadas desde el editor)
+var _tb = {
+  cargado:false, cargando:null, fuente:'html', version:null, publicado:null,
+  pendiente:null, requiereAprob:true, errorDb:null, preview:null,
+  draft:null, dirty:false, bloque:'meta', tbeKey:'CP', filtro:'todas'
+};
+
+// Títulos de secciones y paneles (editables). Los valores por defecto son los del diseño original.
+var TB_TIT_DEF = {
+  secInd:'Indicadores generales · FCE',
+  secIng:'Ingreso · Ingresantes 2026 y evolución por cohorte',
+  panIng26:'Ingresantes 2026',
+  panCoh:'Ingresantes por cohorte · promedio anual',
+  panSerie:'Ingresantes totales FCE por cohorte',
+  panSerieSpan:'2016–2025',
+  secEst:'Estudiantes 2025',
+  panMat:'Matrícula por título',
+  panPeso:'Peso de la FCE en la UNLP · 2025',
+  secEgr:'Egresados por carrera · tendencia 2016–2025',
+  panEgrVar:'Variaciones de egresos',
+  secDur:'Duración de la carrera · egresos 2016–2025',
+  secCdo:'Lic. en Ciencia de Datos en Organizaciones · ECOINFO · 2024–2026',
+  panCdo1:'Ingreso, matrícula y permanencia',
+  panCdo2:'Perfil de ingresantes'
+};
+var TB_TIT_LBL = {
+  secInd:'Sección · Indicadores generales', secIng:'Sección · Ingreso', panIng26:'Panel · Ingresantes del año',
+  panCoh:'Panel · Ingresantes por cohorte', panSerie:'Panel · Serie de ingresantes', panSerieSpan:'Serie de ingresantes · período',
+  secEst:'Sección · Estudiantes', panMat:'Panel · Matrícula', panPeso:'Panel · Peso en la UNLP',
+  secEgr:'Sección · Egresados', panEgrVar:'Panel · Variaciones de egresos', secDur:'Sección · Duración',
+  secCdo:'Sección · CDO', panCdo1:'Panel CDO · Ingreso y permanencia', panCdo2:'Panel CDO · Perfil'
+};
+function tbT(k){ var t = TBD.titulos || {}; return (t[k] != null && String(t[k]).trim() !== '') ? t[k] : TB_TIT_DEF[k]; }
+
+// Etiquetas de tarjetas que usan la agrupación en pantalla y el PDF (no se renombran ni se borran).
+var TB_LBL_FIJAS = ['Ingresantes 2026','Sin exp. univ. completa','Escuela secundaria pública','Egresados 2026','Ingresantes 2025',
+  'Estudiantes 2025','Mujeres','Egresados 2025','Egresados sin exp. univ. completa','Permanencia 1er año','Mujeres ingresantes',
+  'Edad mediana ingresantes','Egresados','Egresados prom.','Duración media','Duración mediana','Rendimiento'];
+
+function tbClonar(o){ return JSON.parse(JSON.stringify(o)); }
+function tbDatosActuales(){ return {TBD:TBD, TBK:TBK, TBE:TBE, TBI:TBI, TBX:TBX}; }
+function tbAplicar(d){
+  if (!d || !d.TBD) return;
+  var c = tbClonar(d);
+  TBD = c.TBD; TBK = c.TBK || TB_SEMILLA.TBK; TBE = c.TBE || TB_SEMILLA.TBE; TBI = c.TBI || TB_SEMILLA.TBI; TBX = c.TBX || [];
+}
+function tbEsAdmin(){ return !!(currentPerfil && currentPerfil.rol === 'admin' && currentPerfil.activo !== false); }
+function tbEsEditor(){ return !!(currentPerfil && currentPerfil.activo !== false && (currentPerfil.rol === 'admin' || currentPerfil.puede_editar_tablero === true)); }
+function tbFecha(f){ if (!f) return ''; var d = new Date(f); return isNaN(d) ? '' : d.toLocaleDateString('es-AR') + ' ' + d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'}); }
+function tbTimeout(ms){ return new Promise(function(res){ setTimeout(function(){ res({error:{message:'tiempo de espera agotado'}}); }, ms); }); }
+
+async function tbCargar(){
+  _tb.errorDb = null; _tb.pendiente = null;
+  try {
+    if (typeof sb === 'undefined' || !sb) throw new Error('sin conexión con la base');
+    var r = await Promise.race([
+      sb.from('tablero_versiones').select('id,datos,estado,nota,creado_por_nombre,creado_en,revisado_por_nombre,revisado_en')
+        .eq('estado', 'publicado').order('creado_en', {ascending:false}).limit(1),
+      tbTimeout(8000)
+    ]);
+    if (r && r.error) throw new Error(r.error.message || 'error de lectura');
+    if (r && r.data && r.data.length) {
+      _tb.version = r.data[0]; _tb.publicado = tbClonar(r.data[0].datos); _tb.fuente = 'db';
+      tbAplicar(r.data[0].datos);
+    } else {
+      _tb.version = null; _tb.publicado = tbClonar(TB_SEMILLA); _tb.fuente = 'html';
+      tbAplicar(TB_SEMILLA);
+    }
+    if (tbEsEditor()) {
+      var p = await sb.from('tablero_versiones').select('id,datos,nota,creado_por,creado_por_nombre,creado_en,base_id')
+        .eq('estado', 'pendiente').order('creado_en', {ascending:false}).limit(1);
+      if (!p.error && p.data && p.data.length) _tb.pendiente = p.data[0];
+      var c = await sb.from('tablero_config').select('requiere_aprobacion').eq('id', 1).limit(1);
+      if (!c.error && c.data && c.data.length) _tb.requiereAprob = !!c.data[0].requiere_aprobacion;
+    }
+  } catch (e) {
+    _tb.errorDb = (e && e.message) || String(e);
+    if (!_tb.publicado) { _tb.publicado = tbClonar(TB_SEMILLA); _tb.fuente = 'html'; tbAplicar(TB_SEMILLA); }
+  }
+  _tb.cargado = true;
+}
+function tbAsegurarDatos(){
+  if (_tb.cargado) return Promise.resolve();
+  if (!_tb.cargando) _tb.cargando = tbCargar();
+  return _tb.cargando;
+}
+
+// ── Render ──────────────────────────────────────────────────────────────────
+function tbRenderTodo(){
+  tbRenderAll();
+  tbRK(_tb.filtro || 'todas');
+  ['CP','LA','LE','LT','TC','FCE'].forEach(function(k){ if (TBE[k]) tbBB('tb__b'+k, TBE[k]); });
+  tbBB('tb__bING', TBI);
+  tbRenderTitulos();
+  tbRenderExtras();
+  tbRenderBarra();
+}
+function tbRenderTitulos(){
+  var set = function(id, k){ var e = document.getElementById(id); if (e) e.textContent = tbT(k); };
+  set('tb-st-ind','secInd'); set('tb-st-ing','secIng'); set('tb-st-est','secEst'); set('tb-st-egr','secEgr'); set('tb-st-dur','secDur'); set('tb-st-cdo','secCdo');
+  var s = document.getElementById('tb-pt-serie');
+  if (s) s.innerHTML = tbEsc(tbT('panSerie')) + ' <span>' + tbEsc(tbT('panSerieSpan')) + '</span>';
+}
+function tbRenderExtras(){
+  var box = document.getElementById('tb-extras'); if (!box) return;
+  box.innerHTML = (TBX || []).map(function(sec){
+    var bl = (sec.bloques || []).map(function(b){
+      var tit = b.titulo ? '<div class="tb__pt">' + tbEsc(b.titulo) + '</div>' : '';
+      if (b.tipo === 'tabla') return '<div class="tb__pn" style="min-width:0;">' + tit + tbTbl({head:(b.head || []), rows:(b.rows || [])}) + (b.nota ? tbNt(b.nota) : '') + '</div>';
+      if (b.tipo === 'tarjetas') return '<div>' + (b.titulo ? '<div class="tb__pt" style="margin-bottom:.5rem;">' + tbEsc(b.titulo) + '</div>' : '')
+        + '<div class="tb__kg">' + (b.items || []).map(function(i){
+            return '<div class="tb__kc"><div class="tb__kl">' + tbEsc(i.l) + '</div><div class="tb__kv">' + tbEsc(i.v) + '</div><div class="tb__ks">' + tbEsc(i.s) + '</div></div>';
+          }).join('') + '</div>' + (b.nota ? tbNt(b.nota) : '') + '</div>';
+      return '<div class="tb__pn">' + tit + '<div class="tbx-texto">' + tbEsc(b.texto || '').replace(/\n/g, '<br>') + '</div></div>';
+    }).join('');
+    return '<div class="tb__sc"><div class="tb__st">' + tbEsc(sec.titulo || 'Información complementaria') + '</div><div class="tbx-bloques">' + bl + '</div></div>';
+  }).join('');
+}
+
+// Barra de estado y acciones (solo para editores)
+function tbRenderBarra(){
+  var bar = document.getElementById('tb-edit-bar'); if (!bar) return;
+  if (!tbEsEditor()) { bar.style.display = 'none'; bar.innerHTML = ''; return; }
+  bar.style.display = 'flex';
+  var est;
+  if (_tb.errorDb && _tb.fuente === 'html') est = '<span class="tbe-chip warn" title="' + tbEsc(_tb.errorDb) + '">⚠ ' + (/relation|schema cache|does not exist|Could not find/i.test(_tb.errorDb) ? 'Falta correr el script SQL del tablero en Supabase' : 'No se pudo leer la base') + ': se muestran los datos del HTML</span>';
+  else if (_tb.fuente === 'html') est = '<span class="tbe-chip warn">● Datos del HTML · todavía no se migraron a la base</span>';
+  else est = '<span class="tbe-chip ok">● Publicado ' + tbEsc(tbFecha(_tb.version.revisado_en || _tb.version.creado_en)) + (_tb.version.creado_por_nombre ? ' · ' + tbEsc(_tb.version.creado_por_nombre) : '') + '</span>';
+  var h = '<div class="tbe-l">' + est;
+  if (_tb.pendiente) {
+    h += tbEsAdmin()
+      ? '<button class="tbe-chip pend" onclick="tbVerVersion(' + _tb.pendiente.id + ',true)">⏳ Cambios pendientes de ' + tbEsc(_tb.pendiente.creado_por_nombre || 'un editor') + ' · Revisar</button>'
+      : '<span class="tbe-chip pend">⏳ Hay una propuesta pendiente de aprobación (' + tbEsc(tbFecha(_tb.pendiente.creado_en)) + ')</span>';
+  }
+  h += '</div><div class="tbe-r">';
+  if (tbEsAdmin() && _tb.fuente === 'html' && !_tb.errorDb) h += '<button class="tbe-btn gold" onclick="tbMigrar()">⇪ Migrar datos a la base</button>';
+  if (tbEsAdmin() && !_tb.errorDb) h += '<label class="tbe-sw" title="Si está activada, los cambios de otros editores quedan pendientes hasta que un administrador los publique"><input type="checkbox" ' + (_tb.requiereAprob ? 'checked' : '') + ' onchange="tbSetAprob(this.checked,this)"> Aprobación de cambios</label>';
+  if (!_tb.errorDb) h += '<button class="tbe-btn" onclick="tbHistorial()">🕘 Historial</button>';
+  h += '<button class="tbe-btn gold" onclick="tbAbrirEditor()"' + (_tb.errorDb ? ' disabled title="La base no está disponible"' : '') + '>✏ Editar tablero</button></div>';
+  bar.innerHTML = h;
+}
+
+async function tbInit(){
+  var bd = document.querySelector('#tableroView .tb__bd');
+  if (bd && !_tb.cargado) bd.classList.add('tbe-cargando');
+  await tbAsegurarDatos();
+  if (bd) bd.classList.remove('tbe-cargando');
+  tbRenderTodo();
+}
+
+// ── Guardado ────────────────────────────────────────────────────────────────
+function tbMsgError(e){
+  var m = (e && (e.message || e.hint || e.details)) || String(e || '');
+  if (/version_desactualizada/.test(m)) return 'Otra persona publicó cambios mientras editabas. Cerrá el editor, recargá la página y volvé a aplicar tus cambios.';
+  if (/sin_permiso/.test(m)) return 'Tu usuario no tiene permiso para editar el tablero.';
+  if (/no_pendiente/.test(m)) return 'Esa versión ya no está pendiente (puede que otra persona la haya revisado).';
+  if (/function .* does not exist|Could not find the function|relation .* does not exist|schema cache/i.test(m)) return 'La base todavía no está preparada: falta correr el script SQL del tablero en Supabase.';
+  return 'No se pudo completar la operación: ' + m;
+}
+async function tbGuardarDatos(datos, nota){
+  var r = await sb.rpc('tablero_guardar', {p_datos:datos, p_nota:nota || null, p_base_id:_tb.version ? _tb.version.id : null});
+  if (r.error) throw r.error;
+  return r.data || {};
+}
+async function tbRecargar(){ _tb.cargado = false; _tb.cargando = null; await tbAsegurarDatos(); tbRenderTodo(); }
+
+async function tbMigrar(){
+  if (!tbEsAdmin()) return;
+  if (!confirm('Se va a copiar a la base de datos la información que hoy está en el HTML. Desde ese momento el tablero y el PDF leen de la base. ¿Continuar?')) return;
+  try {
+    await tbGuardarDatos(tbClonar(TB_SEMILLA), 'Migración inicial de los datos del HTML');
+    if (typeof logAct === 'function') logAct('crear', 'tablero', 'Migró los datos del tablero a la base');
+    await tbRecargar();
+    alert('Listo: el tablero ya lee los datos desde la base.');
+  } catch (e) { alert(tbMsgError(e)); }
+}
+async function tbSetAprob(v, el){
+  try {
+    var r = await sb.rpc('tablero_config_aprobacion', {p_requiere:!!v});
+    if (r.error) throw r.error;
+    _tb.requiereAprob = !!v;
+    if (typeof logAct === 'function') logAct('editar', 'tablero', (v ? 'Activó' : 'Desactivó') + ' la aprobación de cambios del tablero');
+  } catch (e) { if (el) el.checked = !v; alert(tbMsgError(e)); }
+}
+
+// ── Vista previa / versión ─────────────────────────────────────────────────
+function tbBanner(html){
+  var b = document.getElementById('tb-preview-banner'); if (!b) return;
+  if (!html) { b.style.display = 'none'; b.innerHTML = ''; return; }
+  b.innerHTML = html; b.style.display = 'flex';
+}
+function tbPreviewDraft(){
+  if (!_tb.draft) return;
+  var err = tbValidar(_tb.draft); if (err) { alert(err); return; }
+  tbCerrarOverlay('tbe-editor');
+  _tb.preview = 'draft';
+  tbAplicar(_tb.draft); tbRenderTodo();
+  tbBanner('<span>👁 Vista previa de tus cambios · todavía no se guardaron</span><span class="tbe-bn-act"><button class="tbe-btn" onclick="tbVolverEditor()">✏ Volver al editor</button><button class="tbe-btn gold" onclick="tbVolverEditor(true)">💾 Guardar…</button></span>');
+  window.scrollTo({top:document.getElementById('tableroView').offsetTop - 10, behavior:'smooth'});
+}
+function tbSalirPreview(){
+  _tb.preview = null; tbBanner(null);
+  tbAplicar(_tb.publicado || TB_SEMILLA); tbRenderTodo();
+}
+function tbVolverEditor(guardar){
+  tbSalirPreview();
+  tbAbrirEditor(true);
+  if (guardar) tbGuardarDialogo();
+}
+async function tbVerVersion(id, revisar){
+  try {
+    var r = await sb.from('tablero_versiones').select('id,datos,estado,nota,creado_por_nombre,creado_en').eq('id', id).limit(1);
+    if (r.error || !r.data || !r.data.length) throw (r.error || new Error('no se encontró la versión'));
+    var v = r.data[0];
+    tbCerrarOverlay('tbe-hist');
+    _tb.preview = 'version';
+    tbAplicar(v.datos); tbRenderTodo();
+    var acc = '<button class="tbe-btn" onclick="tbSalirPreview()">✕ Volver al publicado</button>';
+    if (revisar && v.estado === 'pendiente' && tbEsAdmin())
+      acc = '<button class="tbe-btn" onclick="tbRevisar(' + v.id + ',false)">✕ Rechazar</button><button class="tbe-btn gold" onclick="tbRevisar(' + v.id + ',true)">✓ Publicar</button>' + acc;
+    else if (tbEsEditor() && v.estado !== 'publicado')
+      acc = '<button class="tbe-btn" onclick="tbRestaurar(' + v.id + ')">↺ Usar esta versión</button>' + acc;
+    tbBanner('<span>👁 Versión #' + v.id + ' · ' + tbEsc(tbEstadoLbl(v.estado)) + ' · ' + tbEsc(v.creado_por_nombre || '') + ' · ' + tbEsc(tbFecha(v.creado_en))
+      + (v.nota ? ' · «' + tbEsc(v.nota) + '»' : '') + '</span><span class="tbe-bn-act">' + acc + '</span>');
+    window.scrollTo({top:document.getElementById('tableroView').offsetTop - 10, behavior:'smooth'});
+  } catch (e) { alert(tbMsgError(e)); }
+}
+async function tbRevisar(id, aprobar){
+  if (!confirm(aprobar ? '¿Publicar estos cambios? Pasan a ser los datos visibles del tablero y del PDF.' : '¿Rechazar esta propuesta? Queda en el historial como rechazada.')) return;
+  try {
+    var r = await sb.rpc('tablero_revisar', {p_id:id, p_aprobar:!!aprobar});
+    if (r.error) throw r.error;
+    if (typeof logAct === 'function') logAct('editar', 'tablero', (aprobar ? 'Publicó' : 'Rechazó') + ' la versión #' + id + ' del tablero');
+    _tb.preview = null; tbBanner(null);
+    await tbRecargar();
+  } catch (e) { alert(tbMsgError(e)); }
+}
+async function tbRestaurar(id){
+  try {
+    var r = await sb.from('tablero_versiones').select('datos').eq('id', id).limit(1);
+    if (r.error || !r.data || !r.data.length) throw (r.error || new Error('no se encontró la versión'));
+    _tb.preview = null; tbBanner(null);
+    tbAplicar(_tb.publicado || TB_SEMILLA); tbRenderTodo();
+    _tb.draft = tbClonar(r.data[0].datos); if (!_tb.draft.TBX) _tb.draft.TBX = [];
+    _tb.dirty = true; _tb.notaSugerida = 'Restaura la versión #' + id;
+    tbCerrarOverlay('tbe-hist');
+    tbAbrirEditor(true);
+  } catch (e) { alert(tbMsgError(e)); }
+}
+
+// ── Historial ──────────────────────────────────────────────────────────────
+function tbEstadoLbl(e){ return {publicado:'Publicada', pendiente:'Pendiente', rechazado:'Rechazada', archivado:'Anterior', reemplazado:'Reemplazada'}[e] || e; }
+async function tbHistorial(){
+  var ov = tbOverlay('tbe-hist', '🕘 Historial de versiones del tablero', '<div class="tbe-vacio">Cargando…</div>', '<button class="tbe-btn" onclick="tbCerrarOverlay(\'tbe-hist\')">Cerrar</button>', true);
+  try {
+    var r = await sb.from('tablero_versiones').select('id,estado,nota,creado_por_nombre,creado_en,revisado_por_nombre,revisado_en').order('creado_en', {ascending:false}).limit(60);
+    if (r.error) throw r.error;
+    var body = ov.querySelector('.tbe-ov-body');
+    if (!r.data.length) { body.innerHTML = '<div class="tbe-vacio">Todavía no hay versiones guardadas. El tablero usa los datos del HTML.</div>'; return; }
+    body.innerHTML = '<table class="tbe-hist"><tr><th>#</th><th>Estado</th><th>Fecha</th><th>Autor</th><th>Descripción</th><th></th></tr>' + r.data.map(function(v){
+      return '<tr><td>' + v.id + '</td><td><span class="tbe-est ' + v.estado + '">' + tbEstadoLbl(v.estado) + '</span></td><td>' + tbEsc(tbFecha(v.creado_en)) + '</td><td>' + tbEsc(v.creado_por_nombre || '') + (v.revisado_por_nombre ? '<div class="tbe-mini">Revisó: ' + tbEsc(v.revisado_por_nombre) + '</div>' : '') + '</td><td>' + tbEsc(v.nota || '') + '</td>'
+        + '<td class="tbe-nw"><button class="tbe-btn sm" onclick="tbVerVersion(' + v.id + ',' + (v.estado === 'pendiente') + ')">Ver</button>'
+        + (v.estado !== 'publicado' ? ' <button class="tbe-btn sm" onclick="tbRestaurar(' + v.id + ')">Usar</button>' : '') + '</td></tr>';
+    }).join('') + '</table><div class="tbe-mini" style="margin-top:.6rem;">«Usar» abre el editor con esa versión; al guardarla se crea una versión nueva (no se borra nada).</div>';
+  } catch (e) { ov.querySelector('.tbe-ov-body').innerHTML = '<div class="tbe-vacio">' + tbEsc(tbMsgError(e)) + '</div>'; }
+}
+
+// ── Overlays genéricos ─────────────────────────────────────────────────────
+function tbOverlay(id, titulo, body, pie, chico){
+  tbCerrarOverlay(id);
+  var ov = document.createElement('div');
+  ov.className = 'tbe-ov' + (chico ? ' chico' : ''); ov.id = id;
+  ov.innerHTML = '<div class="tbe-ov-box" role="dialog" aria-modal="true" aria-label="' + tbEsc(titulo) + '"><div class="tbe-ov-hd"><div class="tbe-ov-tt">' + titulo + '</div>'
+    + '<button class="tbe-x" aria-label="Cerrar" onclick="tbCerrarOverlay(\'' + id + '\')">✕</button></div><div class="tbe-ov-body">' + body + '</div>'
+    + (pie ? '<div class="tbe-ov-ft">' + pie + '</div>' : '') + '</div>';
+  document.body.appendChild(ov);
+  document.body.style.overflow = 'hidden';
+  return ov;
+}
+function tbCerrarOverlay(id){
+  if (id === 'tbe-editor' && arguments[1] === 'pedir' && _tb.dirty && !confirm('Tenés cambios sin guardar. Se conservan mientras no recargues la página. ¿Cerrar el editor?')) return;
+  var e = document.getElementById(id); if (e) e.remove();
+  if (!document.querySelector('.tbe-ov')) document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Escape') return;
+  var ovs = document.querySelectorAll('.tbe-ov'); if (!ovs.length) return;
+  var ult = ovs[ovs.length - 1];
+  tbCerrarOverlay(ult.id, ult.id === 'tbe-editor' ? 'pedir' : undefined);
+});
+
+// ── Editor ─────────────────────────────────────────────────────────────────
+var TBE_KPI_KEYS = [['todas','Todas las carreras'],['CP','Contador Público'],['LA','Lic. Administración'],['LE','Lic. Economía'],['LT','Lic. Turismo'],['TC','Tec. Cooperativas'],['CDO','CDO']];
+var TBE_TABLAS = [['cohortes','Ingresantes por cohorte'],['matricula','Matrícula por título'],['peso','Peso de la FCE en la UNLP'],['egresosVar','Variaciones de egresos'],['cdoIngreso','CDO · Ingreso y permanencia'],['cdoPerfil','CDO · Perfil de ingresantes']];
+var TBE_NOTAS = {alcance:'Indicadores generales (alcance)', ing26:'Ingresantes del año', cohortes:'Ingresantes por cohorte', ingSerie:'Serie de ingresantes', matricula:'Matrícula', peso:'Peso en la UNLP', egresos:'Egresados', duracion:'Duración', cdoIngreso:'CDO · Ingreso', cdoPerfil:'CDO · Perfil'};
+var TBE_TIT_EXTRA = {cohSpan:'Ingresantes por cohorte · etiqueta derecha', cdoIngSpan:'CDO ingreso · etiqueta derecha', cdoPerfSpan:'CDO perfil · etiqueta derecha'};
+function tbeBloques(){
+  var b = [['meta','General · fuentes y período'],['titulos','Títulos de secciones y paneles']];
+  TBE_KPI_KEYS.forEach(function(k){ b.push(['kpi:' + k[0], 'Tarjetas · ' + k[1]]); });
+  b.push(['ing26','Ingresantes del año por carrera']);
+  b.push(['serie','Serie de ingresantes por cohorte']);
+  b.push(['egresos','Egresados por año y carrera']);
+  TBE_TABLAS.forEach(function(t){ b.push(['tbl:' + t[0], 'Tabla · ' + t[1]]); });
+  b.push(['duracion','Duración de la carrera']);
+  b.push(['notas','Notas al pie']);
+  b.push(['autoridades','Autoridades (PDF)']);
+  b.push(['extras','＋ Contenido adicional']);
+  return b;
+}
+function tbAbrirEditor(mantener){
+  if (!tbEsEditor()) return;
+  if (!mantener || !_tb.draft) { _tb.draft = tbClonar(_tb.publicado || tbDatosActuales()); _tb.dirty = false; _tb.notaSugerida = ''; }
+  if (!_tb.draft.TBX) _tb.draft.TBX = [];
+  if (!_tb.draft.TBD.titulos) _tb.draft.TBD.titulos = {};
+  var aviso = (_tb.requiereAprob && !tbEsAdmin()) ? '<span class="tbe-mini">Al guardar, tus cambios quedan pendientes hasta que un administrador los publique.</span>' : '<span class="tbe-mini">Al guardar, los cambios se publican y quedan registrados en el historial.</span>';
+  var ov = tbOverlay('tbe-editor', '✏ Editor del Tablero Institucional',
+    '<div class="tbe-ed"><nav class="tbe-nav" id="tbe-nav"></nav><section class="tbe-main" id="tbe-main"></section></div>',
+    aviso + '<span class="tbe-sp"></span><button class="tbe-btn" onclick="tbDescartar()">Descartar cambios</button><button class="tbe-btn" onclick="tbPreviewDraft()">👁 Vista previa</button><button class="tbe-btn gold" onclick="tbGuardarDialogo()">💾 Guardar…</button>');
+  ov.querySelector('.tbe-x').setAttribute('onclick', "tbCerrarOverlay('tbe-editor','pedir')");
+  ov.addEventListener('input', tbOnInput);
+  ov.addEventListener('change', tbOnInput);
+  tbeNav(); tbeMostrar(_tb.bloque || 'meta');
+}
+function tbeNav(){
+  var n = document.getElementById('tbe-nav'); if (!n) return;
+  n.innerHTML = tbeBloques().map(function(b){
+    return '<button class="tbe-nb' + (b[0] === _tb.bloque ? ' on' : '') + '" onclick="tbeMostrar(\'' + b[0] + '\')">' + tbEsc(b[1]) + '</button>';
+  }).join('') + '<div class="tbe-dirty" id="tbe-dirty">' + (_tb.dirty ? '● Cambios sin guardar' : '') + '</div>';
+}
+function tbDescartar(){
+  if (_tb.dirty && !confirm('¿Descartar todos los cambios hechos en el editor?')) return;
+  _tb.draft = null; _tb.dirty = false;
+  tbCerrarOverlay('tbe-editor');
+}
+function tbMarcar(){ _tb.dirty = true; var d = document.getElementById('tbe-dirty'); if (d) d.textContent = '● Cambios sin guardar'; }
+
+// Ruta de datos en atributos data-p (JSON) y tipo en data-t ('n' = número)
+function tbP(path){ return " data-p='" + JSON.stringify(path).replace(/'/g, '&#39;') + "'"; }
+function tbGet(o, p){ for (var i = 0; i < p.length; i++){ if (o == null) return undefined; o = o[p[i]]; } return o; }
+function tbSetP(o, p, v){ for (var i = 0; i < p.length - 1; i++){ if (o[p[i]] == null) o[p[i]] = (typeof p[i + 1] === 'number') ? [] : {}; o = o[p[i]]; } o[p[p.length - 1]] = v; }
+function tbNum(s){ var t = String(s).trim().replace(/\./g, '').replace(',', '.'); var n = Number(t); return (t === '' || isNaN(n)) ? null : n; }
+function tbOnInput(ev){
+  var el = ev.target; if (!el || !el.getAttribute) return;
+  var ps = el.getAttribute('data-p'); if (!ps || !_tb.draft) return;
+  var p = JSON.parse(ps), t = el.getAttribute('data-t'), v;
+  if (el.type === 'checkbox') v = el.checked ? (t === 'b' ? true : 1) : (t === 'b' ? false : 0);
+  else if (t === 'n') { v = tbNum(el.value); el.classList.toggle('tbe-bad', v === null); if (v === null) return; }
+  else v = el.value;
+  tbSetP(_tb.draft, p, v);
+  if (el.type === 'checkbox' && t !== 'b' && !v) { var parent = tbGet(_tb.draft, p.slice(0, -1)); if (parent) delete parent[p[p.length - 1]]; }
+  tbMarcar();
+}
+function tbIn(path, val, opts){
+  opts = opts || {};
+  var ph = opts.ph ? ' placeholder="' + tbEsc(opts.ph) + '"' : '';
+  var ro = opts.ro ? ' readonly title="' + tbEsc(opts.ro) + '"' : '';
+  if (opts.area) return '<textarea class="tbe-in' + (opts.cls ? ' ' + opts.cls : '') + '" rows="' + (opts.rows || 3) + '"' + tbP(path) + ph + ro + '>' + tbEsc(val == null ? '' : val) + '</textarea>';
+  return '<input class="tbe-in' + (opts.cls ? ' ' + opts.cls : '') + '"' + tbP(path) + (opts.num ? ' data-t="n" inputmode="decimal"' : '') + ph + ro + ' value="' + tbEsc(val == null ? '' : (opts.num ? String(val).replace('.', ',') : val)) + '">';
+}
+function tbH(t, sub){ return '<h3 class="tbe-h">' + t + '</h3>' + (sub ? '<p class="tbe-sub">' + sub + '</p>' : ''); }
+function tbBtn(txt, fn, cls){ return '<button class="tbe-btn sm' + (cls ? ' ' + cls : '') + '" onclick="' + fn + '">' + txt + '</button>'; }
+
+function tbeMostrar(b){
+  _tb.bloque = b; tbeNav();
+  var m = document.getElementById('tbe-main'); if (!m) return;
+  var D = _tb.draft, h = '';
+  if (b === 'meta') {
+    h = tbH('General', 'Aparecen en el encabezado del tablero y en el PDF.')
+      + '<label class="tbe-lb">Fuentes</label>' + tbIn(['TBD','meta','fuentes'], D.TBD.meta.fuentes)
+      + '<label class="tbe-lb">Período de los datos (etiqueta del encabezado)</label>' + tbIn(['TBD','meta','badge'], D.TBD.meta.badge);
+  } else if (b === 'titulos') {
+    h = tbH('Títulos de secciones y paneles', 'Útiles para actualizar los años al cambiar de período. Si dejás un campo vacío se usa el título original.');
+    Object.keys(TB_TIT_DEF).forEach(function(k){ h += '<label class="tbe-lb">' + tbEsc(TB_TIT_LBL[k] || k) + '</label>' + tbIn(['TBD','titulos',k], D.TBD.titulos[k] != null ? D.TBD.titulos[k] : TB_TIT_DEF[k]); });
+    Object.keys(TBE_TIT_EXTRA).forEach(function(k){ h += '<label class="tbe-lb">' + tbEsc(TBE_TIT_EXTRA[k]) + '</label>' + tbIn(['TBD','titulos',k], D.TBD.titulos[k]); });
+  } else if (b.indexOf('kpi:') === 0) {
+    h = tbeKpis(b.slice(4));
+  } else if (b === 'ing26') {
+    h = tbH('Ingresantes del año por carrera', 'El % de barra define el largo de cada barra (0 a 100).')
+      + '<label class="tbe-lb">Total</label>' + tbIn(['TBD','ing26','total'], D.TBD.ing26.total, {cls:'w-s'})
+      + '<table class="tbe-grid"><tr><th>Carrera</th><th>Valor mostrado</th><th>% barra</th><th></th></tr>'
+      + D.TBD.ing26.items.map(function(it, i){ return '<tr><td>' + tbIn(['TBD','ing26','items',i,'l'], it.l) + '</td><td>' + tbIn(['TBD','ing26','items',i,'v'], it.v) + '</td><td>' + tbIn(['TBD','ing26','items',i,'w'], it.w, {num:1, cls:'w-xs'}) + '</td><td class="tbe-nw">' + tbeFilaBtns("['TBD','ing26','items']", i) + '</td></tr>'; }).join('')
+      + '</table>' + tbBtn('＋ Agregar carrera', "tbeAgregar(['TBD','ing26','items'],{l:'',v:'',w:0})");
+  } else if (b === 'serie') {
+    h = tbH('Serie de ingresantes por cohorte', 'Un valor por año. Se usa en el gráfico del tablero y en el PDF.') + tbeSerie(['TBI'], D.TBI);
+  } else if (b === 'egresos') {
+    var k = _tb.tbeKey || 'CP';
+    h = tbH('Egresados por año y carrera', 'Series de los gráficos de egresos (tablero y PDF). Los promedios por período del PDF se calculan con estos valores.')
+      + '<div class="tbe-tabs">' + ['CP','LA','LE','LT','TC','FCE'].map(function(c){ return '<button class="tbe-tab' + (c === k ? ' on' : '') + '" onclick="_tb.tbeKey=\'' + c + '\';tbeMostrar(\'egresos\')">' + (c === 'FCE' ? 'Total FCE' : c) + '</button>'; }).join('') + '</div>'
+      + tbeSerie(['TBE', k], D.TBE[k] || []);
+  } else if (b.indexOf('tbl:') === 0) {
+    var tk = b.slice(4), tn = (TBE_TABLAS.filter(function(t){ return t[0] === tk; })[0] || [tk, tk])[1];
+    h = tbH('Tabla · ' + tbEsc(tn), 'Las columnas de esta tabla son fijas porque las usa el PDF; podés editar los textos, los valores y las filas. Empezá una celda con ^ para resaltarla; la fila que empieza con «Total» se muestra en negrita.')
+      + tbeTabla(['TBD', tk], D.TBD[tk], true);
+  } else if (b === 'duracion') {
+    h = tbH('Duración de la carrera', 'Mediana en años (ej. 8,5). «Media en años enteros» agrega el asterisco del PDF.')
+      + '<table class="tbe-grid"><tr><th>Carrera</th><th>Mediana</th><th>Tiempo medio (texto)</th><th>Cuartiles y rango (texto)</th><th>Media en años enteros</th><th></th></tr>'
+      + D.TBD.duracion.map(function(d, i){ return '<tr><td>' + tbIn(['TBD','duracion',i,'n'], d.n) + '</td><td>' + tbIn(['TBD','duracion',i,'m'], d.m, {cls:'w-xs'}) + '</td><td>' + tbIn(['TBD','duracion',i,'a'], d.a, {ph:'Tiempo medio: 10,0 años'}) + '</td><td>' + tbIn(['TBD','duracion',i,'r'], d.r, {ph:'Q1–Q3: 6,5–11,8 · Rango: 3–16'}) + '</td><td style="text-align:center"><input type="checkbox"' + tbP(['TBD','duracion',i,'ent']) + (d.ent ? ' checked' : '') + '></td><td class="tbe-nw">' + tbeFilaBtns("['TBD','duracion']", i) + '</td></tr>'; }).join('')
+      + '</table>' + tbBtn('＋ Agregar carrera', "tbeAgregar(['TBD','duracion'],{n:'',m:'',a:'Tiempo medio: ',r:'Q1–Q3: – · Rango: –'})")
+      + '<p class="tbe-sub">Mantené el formato «Q1–Q3: a–b · Rango: c–d» para que el PDF pueda separar los valores.</p>';
+  } else if (b === 'notas') {
+    h = tbH('Notas al pie', 'Aclaraciones que aparecen debajo de cada panel.');
+    Object.keys(TBE_NOTAS).forEach(function(k){ h += '<label class="tbe-lb">' + tbEsc(TBE_NOTAS[k]) + '</label>' + tbIn(['TBD','notas',k], D.TBD.notas[k], {area:1, rows:3}); });
+  } else if (b === 'autoridades') {
+    var AU = D.TBD.autoridades;
+    h = tbH('Autoridades', 'Página de autoridades del informe PDF «La Facultad en Cifras».')
+      + '<label class="tbe-lb">Período</label>' + tbIn(['TBD','autoridades','periodo'], AU.periodo, {cls:'w-s'});
+    AU.grupos.forEach(function(g, gi){
+      h += '<div class="tbe-card"><div class="tbe-card-hd">' + tbIn(['TBD','autoridades','grupos',gi,'t'], g.t, {cls:'w-m', ph:'Nombre del grupo'}) + '<span class="tbe-sp"></span>' + tbeFilaBtns("['TBD','autoridades','grupos']", gi) + '</div>'
+        + '<table class="tbe-grid"><tr><th>Cargo</th><th>Nombre</th><th></th></tr>' + g.f.map(function(f, fi){ return '<tr><td>' + tbIn(['TBD','autoridades','grupos',gi,'f',fi,0], f[0]) + '</td><td>' + tbIn(['TBD','autoridades','grupos',gi,'f',fi,1], f[1]) + '</td><td class="tbe-nw">' + tbeFilaBtns("['TBD','autoridades','grupos'," + gi + ",'f']", fi) + '</td></tr>'; }).join('') + '</table>'
+        + tbBtn('＋ Agregar persona', "tbeAgregar(['TBD','autoridades','grupos'," + gi + ",'f'],['',''])") + '</div>';
+    });
+    h += tbBtn('＋ Agregar grupo', "tbeAgregar(['TBD','autoridades','grupos'],{t:'Nuevo grupo',f:[['','']]})");
+  } else if (b === 'extras') {
+    h = tbeExtras();
+  }
+  m.innerHTML = h;
+  m.scrollTop = 0;
+}
+
+function tbeFilaBtns(pathJs, i){
+  return '<button class="tbe-ic" title="Subir" onclick="tbeMover(' + pathJs + ',' + i + ',-1)">↑</button><button class="tbe-ic" title="Bajar" onclick="tbeMover(' + pathJs + ',' + i + ',1)">↓</button><button class="tbe-ic del" title="Quitar" onclick="tbeQuitar(' + pathJs + ',' + i + ')">✕</button>';
+}
+function tbeAgregar(path, nuevo){ var a = tbGet(_tb.draft, path); if (!a) { tbSetP(_tb.draft, path, []); a = tbGet(_tb.draft, path); } a.push(tbClonar(nuevo)); tbMarcar(); tbeMostrar(_tb.bloque); }
+function tbeQuitar(path, i){ var a = tbGet(_tb.draft, path); if (!a) return; if (!confirm('¿Quitar este elemento?')) return; a.splice(i, 1); tbMarcar(); tbeMostrar(_tb.bloque); }
+function tbeMover(path, i, d){ var a = tbGet(_tb.draft, path); var j = i + d; if (!a || j < 0 || j >= a.length) return; var t = a[i]; a[i] = a[j]; a[j] = t; tbMarcar(); tbeMostrar(_tb.bloque); }
+
+function tbeKpis(key){
+  var arr = _tb.draft.TBK[key] || (_tb.draft.TBK[key] = []);
+  var nom = (TBE_KPI_KEYS.filter(function(k){ return k[0] === key; })[0] || [key, key])[1];
+  var pth = "['TBK','" + key + "']";
+  var h = tbH('Tarjetas · ' + tbEsc(nom), 'Cada fila es una tarjeta del filtro «' + tbEsc(nom) + '». Las etiquetas con 🔒 las usan la agrupación en pantalla y el PDF: se pueden editar sus valores, pero no renombrarlas ni quitarlas. Las tarjetas nuevas aparecen en «Otros indicadores».')
+    + '<div class="tbe-cards">';
+  arr.forEach(function(k, i){
+    var fija = TB_LBL_FIJAS.indexOf(k.l) >= 0 && !k._nueva;
+    h += '<div class="tbe-card"><div class="tbe-card-hd">' + (fija ? '<span class="tbe-lock" title="Etiqueta usada por el PDF y la agrupación">🔒</span>' : '')
+      + tbIn(['TBK', key, i, 'l'], k.l, {cls:'w-m', ph:'Etiqueta', ro:fija ? 'Etiqueta fija: la usan el PDF y la agrupación de tarjetas' : ''})
+      + '<span class="tbe-sp"></span><button class="tbe-ic" title="Subir" onclick="tbeMover(' + pth + ',' + i + ',-1)">↑</button><button class="tbe-ic" title="Bajar" onclick="tbeMover(' + pth + ',' + i + ',1)">↓</button>'
+      + (fija ? '' : '<button class="tbe-ic del" title="Quitar" onclick="tbeQuitar(' + pth + ',' + i + ')">✕</button>') + '</div>'
+      + '<div class="tbe-row"><div><label class="tbe-lb">Valor</label>' + tbIn(['TBK', key, i, 'v'], k.v) + '</div>'
+      + '<div class="tbe-grow"><label class="tbe-lb">Detalle (debajo del valor)</label>' + tbIn(['TBK', key, i, 's'], k.s) + '</div></div>'
+      + '<div class="tbe-row"><div><label class="tbe-lb">Tendencia</label><select class="tbe-in"' + tbP(['TBK', key, i, 't']) + '>'
+      + [['nt','– Neutra'],['up','↑ Sube (verde)'],['dn','↓ Baja (rojo)']].map(function(o){ return '<option value="' + o[0] + '"' + ((k.t || 'nt') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>'
+      + '<div class="tbe-grow"><label class="tbe-lb">Texto de comparación</label>' + tbIn(['TBK', key, i, 'tt'], k.tt, {ph:'Opcional (ej.: ↑ 3,7% vs 2024)'}) + '</div>'
+      + '<div><label class="tbe-lb">Valor de referencia (PDF)</label>' + tbIn(['TBK', key, i, 'b'], k.b, {cls:'w-s', ph:'Opcional'}) + '</div>'
+      + '<div style="align-self:flex-end;padding-bottom:.45rem;"><label class="tbe-chk"><input type="checkbox"' + tbP(['TBK', key, i, 'g']) + (k.g ? ' checked' : '') + '> Destacada (dorado)</label></div></div></div>';
+  });
+  return h + '</div>' + tbBtn('＋ Agregar tarjeta', "tbeAgregar(" + pth + ",{l:'Nuevo indicador',v:'',s:'',t:'nt',tt:'',_nueva:1})");
+}
+
+function tbeSerie(path, arr){
+  var pj = JSON.stringify(path).replace(/"/g, "'");
+  return '<table class="tbe-grid tbe-narrow"><tr><th>Año</th><th>Valor</th><th></th></tr>' + arr.map(function(d, i){
+    return '<tr><td>' + tbIn(path.concat([i, 'y']), d.y, {num:1, cls:'w-xs'}) + '</td><td>' + tbIn(path.concat([i, 'v']), d.v, {num:1, cls:'w-s'}) + '</td><td class="tbe-nw">' + tbeFilaBtns(pj, i) + '</td></tr>';
+  }).join('') + '</table>' + tbBtn('＋ Agregar año', "tbeAgregarAnio(" + pj + ")");
+}
+function tbeAgregarAnio(path){ var a = tbGet(_tb.draft, path) || []; var u = a.length ? Number(a[a.length - 1].y) + 1 : new Date().getFullYear(); tbeAgregar(path, {y:u, v:0}); }
+
+function tbeTabla(path, t, fijas){
+  var pj = JSON.stringify(path).replace(/"/g, "'");
+  var nC = t.head.length;
+  var h = '<div class="tbe-scroll"><table class="tbe-grid"><tr>' + t.head.map(function(c, ci){
+      return '<th>' + tbIn(path.concat(['head', ci]), c) + (fijas ? '' : '<button class="tbe-ic del" title="Quitar columna" onclick="tbeQuitarCol(' + pj + ',' + ci + ')">✕</button>') + '</th>';
+    }).join('') + '<th></th></tr>'
+    + t.rows.map(function(r, ri){ return '<tr>' + t.head.map(function(_, ci){ return '<td>' + tbIn(path.concat(['rows', ri, ci]), r[ci] == null ? '' : r[ci]) + '</td>'; }).join('') + '<td class="tbe-nw">' + tbeFilaBtns(JSON.stringify(path.concat(['rows'])).replace(/"/g, "'"), ri) + '</td></tr>'; }).join('')
+    + '</table></div>'
+    + tbBtn('＋ Agregar fila', "tbeAgregarFila(" + pj + ")")
+    + (fijas ? '' : ' ' + tbBtn('＋ Agregar columna', "tbeAgregarCol(" + pj + ")"))
+    + ' ' + tbBtn('📋 Pegar desde Excel', "tbePegar(" + pj + "," + (fijas ? nC : 0) + ")");
+  return h;
+}
+function tbeAgregarFila(path){ var t = tbGet(_tb.draft, path); t.rows.push(t.head.map(function(){ return ''; })); tbMarcar(); tbeMostrar(_tb.bloque); }
+function tbeAgregarCol(path){ var t = tbGet(_tb.draft, path); t.head.push('Nueva columna'); t.rows.forEach(function(r){ r.push(''); }); tbMarcar(); tbeMostrar(_tb.bloque); }
+function tbeQuitarCol(path, ci){ var t = tbGet(_tb.draft, path); if (t.head.length <= 1) return; if (!confirm('¿Quitar la columna «' + t.head[ci] + '»?')) return; t.head.splice(ci, 1); t.rows.forEach(function(r){ r.splice(ci, 1); }); tbMarcar(); tbeMostrar(_tb.bloque); }
+function tbePegar(path, nFijas){
+  var ov = tbOverlay('tbe-pegar', '📋 Pegar desde Excel',
+    '<p class="tbe-sub">Seleccioná las celdas en Excel (o Google Sheets), copiá (Ctrl+C) y pegá acá (Ctrl+V).' + (nFijas ? ' La tabla tiene <b>' + nFijas + ' columnas</b> fijas: pegá exactamente esa cantidad.' : '') + ' Se reemplazan todas las filas de la tabla.</p>'
+    + '<textarea id="tbe-pegar-txt" class="tbe-in" rows="10" style="font-family:monospace;font-size:.75rem;"></textarea>'
+    + '<label class="tbe-chk"><input type="checkbox" id="tbe-pegar-hd" checked> La primera fila es el encabezado</label>',
+    '<span class="tbe-sp"></span><button class="tbe-btn" onclick="tbCerrarOverlay(\'tbe-pegar\')">Cancelar</button><button class="tbe-btn gold" id="tbe-pegar-ok">Reemplazar filas</button>', true);
+  ov.querySelector('#tbe-pegar-ok').onclick = function(){
+    var txt = document.getElementById('tbe-pegar-txt').value.replace(/\r/g, '').replace(/\n+$/, '');
+    if (!txt.trim()) { alert('No pegaste nada.'); return; }
+    var filas = txt.split('\n').map(function(l){ return l.split('\t').map(function(c){ return c.trim(); }); });
+    var hd = document.getElementById('tbe-pegar-hd').checked;
+    var head = hd ? filas.shift() : null;
+    var n = nFijas || (head ? head.length : Math.max.apply(null, filas.map(function(f){ return f.length; })));
+    var malas = filas.filter(function(f){ return f.length !== n; }).length + (head && head.length !== n ? 1 : 0);
+    if (nFijas && malas) { alert('Hay filas con una cantidad de columnas distinta de ' + n + '. Revisá la selección en Excel.'); return; }
+    var t = tbGet(_tb.draft, path);
+    if (head) t.head = head.slice(0, n).concat(new Array(Math.max(0, n - head.length)).fill(''));
+    else if (!nFijas) { while (t.head.length < n) t.head.push('Columna ' + (t.head.length + 1)); t.head = t.head.slice(0, n); }
+    t.rows = filas.map(function(f){ var r = f.slice(0, n); while (r.length < n) r.push(''); return r; });
+    tbMarcar(); tbCerrarOverlay('tbe-pegar'); tbeMostrar(_tb.bloque);
+  };
+  setTimeout(function(){ var t = document.getElementById('tbe-pegar-txt'); if (t) t.focus(); }, 50);
+}
+
+function tbeExtras(){
+  var X = _tb.draft.TBX;
+  var h = tbH('Contenido adicional', 'Secciones nuevas que se muestran al final del tablero. Cada sección puede tener tablas, tarjetas o textos. Si marcás «Incluir en el PDF», se agregan al informe en una página de información complementaria.');
+  if (!X.length) h += '<div class="tbe-vacio">Todavía no hay contenido adicional.</div>';
+  X.forEach(function(sec, si){
+    h += '<div class="tbe-card tbe-sec"><div class="tbe-card-hd"><b class="tbe-num">Sección ' + (si + 1) + '</b>' + tbIn(['TBX', si, 'titulo'], sec.titulo, {cls:'w-l', ph:'Título de la sección'})
+      + '<label class="tbe-chk"><input type="checkbox" data-t="b"' + tbP(['TBX', si, 'pdf']) + (sec.pdf !== false ? ' checked' : '') + '> Incluir en el PDF</label><span class="tbe-sp"></span>' + tbeFilaBtns("['TBX']", si) + '</div>';
+    (sec.bloques || []).forEach(function(b, bi){
+      var bp = ['TBX', si, 'bloques', bi], bpj = "['TBX'," + si + ",'bloques']";
+      h += '<div class="tbe-blq"><div class="tbe-card-hd"><span class="tbe-tag">' + ({tabla:'Tabla', tarjetas:'Tarjetas', nota:'Texto'}[b.tipo] || b.tipo) + '</span>' + tbIn(bp.concat(['titulo']), b.titulo, {cls:'w-l', ph:'Título (opcional)'}) + '<span class="tbe-sp"></span>' + tbeFilaBtns(bpj, bi) + '</div>';
+      if (b.tipo === 'tabla') h += tbeTabla(bp, b, false) + '<label class="tbe-lb">Nota al pie (opcional)</label>' + tbIn(bp.concat(['nota']), b.nota, {area:1, rows:2});
+      else if (b.tipo === 'tarjetas') {
+        h += '<table class="tbe-grid"><tr><th>Etiqueta</th><th>Valor</th><th>Detalle</th><th></th></tr>' + (b.items || []).map(function(it, ii){
+          return '<tr><td>' + tbIn(bp.concat(['items', ii, 'l']), it.l) + '</td><td>' + tbIn(bp.concat(['items', ii, 'v']), it.v, {cls:'w-s'}) + '</td><td>' + tbIn(bp.concat(['items', ii, 's']), it.s) + '</td><td class="tbe-nw">' + tbeFilaBtns(JSON.stringify(bp.concat(['items'])).replace(/"/g, "'"), ii) + '</td></tr>';
+        }).join('') + '</table>' + tbBtn('＋ Agregar tarjeta', "tbeAgregar(" + JSON.stringify(bp.concat(['items'])).replace(/"/g, "'") + ",{l:'',v:'',s:''})")
+          + '<label class="tbe-lb">Nota al pie (opcional)</label>' + tbIn(bp.concat(['nota']), b.nota, {area:1, rows:2});
+      } else h += '<label class="tbe-lb">Texto</label>' + tbIn(bp.concat(['texto']), b.texto, {area:1, rows:5});
+      h += '</div>';
+    });
+    var sp = "['TBX'," + si + ",'bloques']";
+    h += '<div class="tbe-add">Agregar a esta sección: ' + tbBtn('▦ Tabla', "tbeAgregar(" + sp + ",{tipo:'tabla',titulo:'',head:['Indicador','Valor'],rows:[['','']]})")
+      + tbBtn('▣ Tarjetas', "tbeAgregar(" + sp + ",{tipo:'tarjetas',titulo:'',items:[{l:'',v:'',s:''}]})") + tbBtn('¶ Texto', "tbeAgregar(" + sp + ",{tipo:'nota',titulo:'',texto:''})") + '</div></div>';
+  });
+  return h + tbBtn('＋ Agregar sección', "tbeAgregar(['TBX'],{titulo:'Nueva sección',pdf:true,bloques:[]})", 'gold');
+}
+
+// ── Validación y guardado ──────────────────────────────────────────────────
+function tbValidar(d){
+  if (!d || !d.TBD || !d.TBK || !d.TBE || !d.TBI) return 'Faltan datos básicos del tablero.';
+  var malSerie = function(a){ return !Array.isArray(a) || a.some(function(x){ return typeof x.y !== 'number' || typeof x.v !== 'number' || isNaN(x.y) || isNaN(x.v); }); };
+  if (malSerie(d.TBI)) return 'La serie de ingresantes tiene años o valores que no son números.';
+  var k; for (k in d.TBE) if (malSerie(d.TBE[k])) return 'La serie de egresados (' + k + ') tiene años o valores que no son números.';
+  for (k in d.TBK) if (!Array.isArray(d.TBK[k]) || d.TBK[k].some(function(c){ return !c || !String(c.l || '').trim(); })) return 'Hay tarjetas sin etiqueta en «' + k + '».';
+  if (document.querySelector('#tbe-editor .tbe-bad')) return 'Hay campos numéricos con valores inválidos (marcados en rojo).';
+  return null;
+}
+function tbLimpiar(d){
+  var c = tbClonar(d);
+  Object.keys(c.TBK).forEach(function(k){ c.TBK[k].forEach(function(x){ delete x._nueva; }); });
+  Object.keys(c.TBE).forEach(function(k){ c.TBE[k].sort(function(a, b){ return a.y - b.y; }); });
+  c.TBI.sort(function(a, b){ return a.y - b.y; });
+  if (c.TBD.titulos) Object.keys(TB_TIT_DEF).forEach(function(t){ if (c.TBD.titulos[t] === TB_TIT_DEF[t] || c.TBD.titulos[t] === '') delete c.TBD.titulos[t]; });
+  return c;
+}
+function tbGuardarDialogo(){
+  if (!_tb.draft) return;
+  var err = tbValidar(_tb.draft); if (err) { alert(err); return; }
+  var pend = _tb.requiereAprob && !tbEsAdmin();
+  var ov = tbOverlay('tbe-guardar', '💾 Guardar cambios',
+    '<label class="tbe-lb">Describí brevemente qué cambiaste (queda en el historial)</label><textarea id="tbe-nota" class="tbe-in" rows="3" placeholder="Ej.: actualización de egresados 2025 por carrera">' + tbEsc(_tb.notaSugerida || '') + '</textarea>'
+    + '<p class="tbe-sub">' + (pend ? 'Los cambios quedan <b>pendientes de aprobación</b>: el tablero sigue mostrando la versión publicada hasta que un administrador los revise.' : 'Los cambios se <b>publican</b> en el tablero y en el PDF.') + '</p>',
+    '<span class="tbe-sp"></span><button class="tbe-btn" onclick="tbCerrarOverlay(\'tbe-guardar\')">Cancelar</button><button class="tbe-btn gold" id="tbe-guardar-ok">' + (pend ? 'Enviar para aprobación' : 'Guardar y publicar') + '</button>', true);
+  ov.querySelector('#tbe-guardar-ok').onclick = async function(){
+    var btn = this, nota = document.getElementById('tbe-nota').value.trim();
+    if (!nota) { alert('Agregá una breve descripción del cambio.'); return; }
+    btn.disabled = true; btn.textContent = 'Guardando…';
+    try {
+      var res = await tbGuardarDatos(tbLimpiar(_tb.draft), nota);
+      if (typeof logAct === 'function') logAct('editar', 'tablero', (res.estado === 'pendiente' ? 'Envió para aprobación' : 'Publicó') + ' cambios del tablero: ' + nota);
+      _tb.draft = null; _tb.dirty = false;
+      tbCerrarOverlay('tbe-guardar'); tbCerrarOverlay('tbe-editor');
+      await tbRecargar();
+      alert(res.estado === 'pendiente' ? 'Cambios enviados. Quedan pendientes hasta que un administrador los publique.' : 'Cambios publicados.');
+    } catch (e) { btn.disabled = false; btn.textContent = pend ? 'Enviar para aprobación' : 'Guardar y publicar'; alert(tbMsgError(e)); }
+  };
+}
+
+// PDF: asegura que los datos de la base estén cargados antes de generar el informe
+async function tbDescargarPDF(){ await tbAsegurarDatos(); tbDescargarPDF_(); }
+
 </script>
 </body>
 </html>
