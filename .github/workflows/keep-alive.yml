@@ -18,8 +18,10 @@ jobs:
           SUPA_KEY: ${{ secrets.SUPA_ANON_KEY }}
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${SUPA_URL}/rest/v1/perfiles?select=id&limit=1" \
-            -H "apikey: ${SUPA_KEY}")
+            -X POST "${SUPA_URL}/rest/v1/rpc/keep_alive" \
+            -H "apikey: ${SUPA_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{}')
           echo "HTTP status: $STATUS"
           if [ "$STATUS" != "200" ]; then
             echo "Error: se esperaba 200 y llegó $STATUS"
