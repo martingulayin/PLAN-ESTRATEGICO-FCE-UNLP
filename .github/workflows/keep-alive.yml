@@ -1,3 +1,17 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    - cron: '0 8 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
       - name: Ping al endpoint REST de Supabase
         env:
           SUPA_URL: ${{ secrets.SUPA_URL }}
